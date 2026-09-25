@@ -1,0 +1,46 @@
+import { lazy, Suspense, useEffect } from 'react';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { DayPage } from './pages/DayPage';
+import { ExercisePickerPage } from './pages/ExercisePickerPage';
+import { HomePage } from './pages/HomePage';
+import { RecordsPage } from './pages/RecordsPage';
+import { SetInputPage } from './pages/SetInputPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { Loading } from './components/Layout';
+
+// グラフライブラリが大きいので詳細画面は開いたときに読み込む
+const ExerciseDetailPage = lazy(() => import('./pages/ExerciseDetailPage').then((m) => ({ default: m.ExerciseDetailPage })));
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+export default function App() {
+  return (
+    // ホーム画面追加・静的ホスティングでも404にならないようハッシュルーティング
+    <HashRouter>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/day/:date" element={<DayPage />} />
+        <Route path="/day/:date/pick" element={<ExercisePickerPage />} />
+        <Route path="/day/:date/ex/:exerciseId" element={<SetInputPage />} />
+        <Route path="/records" element={<RecordsPage />} />
+        <Route
+          path="/exercise/:id"
+          element={
+            <Suspense fallback={<Loading />}>
+              <ExerciseDetailPage />
+            </Suspense>
+          }
+        />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </HashRouter>
+  );
+}

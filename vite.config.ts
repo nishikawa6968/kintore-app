@@ -1,0 +1,32 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
+
+export default defineConfig({
+  // GitHub Pages では https://<user>.github.io/kintore-app/ に置かれる
+  base: process.env.GITHUB_PAGES ? '/kintore-app/' : '/',
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['apple-touch-icon.png'],
+      manifest: {
+        name: '筋トレ記録',
+        short_name: '筋トレ',
+        description: '筋トレの記録と自己ベスト管理',
+        lang: 'ja',
+        theme_color: '#1e6fd9',
+        background_color: '#f3f5f9',
+        display: 'standalone',
+        start_url: '.',
+        icons: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+    }),
+  ],
+});
