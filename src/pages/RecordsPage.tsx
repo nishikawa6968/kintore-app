@@ -39,7 +39,8 @@ export function RecordsPage() {
       {!data ? (
         <Loading />
       ) : (
-        // 画面の高さぴったりに「最終トレーニング → 表（5行ほどの高さ。中だけ縦にスクロール）→ 人の図（残りいっぱい）→ ロール」
+        // 画面の高さぴったりに「最終トレーニング → 表（いつも5行分の高さ。中だけ縦にスクロール）→ 人の図（残りいっぱい）→ ロール」
+        // 表の高さを固定するので、部位を変えても人の図の大きさは変わらない
         <div className={`flex ${TAB_PAGE_HEIGHT} min-h-[560px] flex-col`}>
           <p className="shrink-0 px-5 pt-3 pb-2 text-sm text-gray-500">
             <span className="font-bold text-gray-700">{bodyPartLabel(part)}</span>の最終トレーニング：
@@ -52,7 +53,7 @@ export function RecordsPage() {
           <div ref={tableRef} className="shrink-0 overflow-x-clip px-4 py-1">
             <div
               key={part}
-              className={`max-h-[20rem] overflow-y-auto overscroll-contain rounded-2xl bg-white shadow-sm ${
+              className={`h-[20rem] overflow-y-auto overscroll-contain rounded-2xl bg-white shadow-sm ${
                 slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''
               }`}
             >
