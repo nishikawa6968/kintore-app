@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ProgressChart } from '../components/ProgressChart';
 import { Trophy } from '../illustrations/Illustrations';
-import { Header, Loading, SubPage } from '../components/Layout';
+import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { slashDate } from '../lib/date';
 import {
   chronological,
@@ -55,9 +55,9 @@ export function ExerciseDetailPage() {
   const bodyweight = !cardio && days.length > 0 && days.every((d) => d.maxWeight === 0);
 
   return (
-    <SubPage header={<Header title={exercise?.name ?? '種目'} back="/records" />} fill>
+    <SubPage header={<Header title={exercise?.name ?? '種目'} back="/records" />}>
       {/* 上：自己ベスト（固定）／真ん中：日付ごとの記録（ここだけ縦にスクロール）／下：推移のグラフ */}
-      <div className="flex h-[calc(var(--app-h)-3rem-env(safe-area-inset-top))] min-h-[600px] flex-col">
+      <>
         <div className="shrink-0 px-4 pt-4">
           <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 p-4 text-white shadow">
             <div className="mb-2 flex items-center gap-2 text-sm opacity-90">
@@ -80,8 +80,7 @@ export function ExerciseDetailPage() {
           </div>
         </div>
 
-        {/* 上下の端は記録がふわっと消えるようにして、自己ベストやグラフと重なって見えないようにする */}
-        <div className="scroll-fade-y min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
+        <ScrollArea className="space-y-3">
           {[...days].reverse().map((d) => (
             <div key={d.date} className="overflow-hidden rounded-2xl bg-white shadow-sm">
               <Link to={`/day/${d.date}/ex/${exerciseId}`} className="flex items-center bg-brand-500 px-4 py-2 text-white active:bg-brand-600">
@@ -139,11 +138,11 @@ export function ExerciseDetailPage() {
               </table>
             </div>
           ))}
-        </div>
+        </ScrollArea>
         <div className="mx-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] flex h-[42%] shrink-0 flex-col rounded-3xl bg-white px-4 pt-4 pb-3 shadow-[0_2px_16px_rgba(0,0,0,0.08)]">
           <ProgressChart sets={all} kind={cardio ? 'pace' : bodyweight ? 'reps' : '1rm'} />
         </div>
-      </div>
+      </>
     </SubPage>
   );
 }

@@ -5,7 +5,7 @@ import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
-import { Header, Loading, TabPage } from '../components/Layout';
+import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
 import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
 import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
@@ -53,11 +53,13 @@ export function SettingsPage() {
   };
 
   return (
-    <TabPage header={<Header title="設定" />} bottom={<BodyPartTabs value={part} onChange={setPart} />}>
+    <TabPage header={<Header title="設定" />}>
       {!data ? (
         <Loading />
       ) : (
-        <div className="space-y-6 py-4">
+        <>
+        {/* 真ん中：設定の中身（ここだけスクロール）／下：部位のロール（固定） */}
+        <ScrollArea flush className="space-y-6">
           <section>
             <div className="flex items-center px-4">
               <h2 className="text-sm font-bold text-gray-500">
@@ -138,7 +140,11 @@ export function SettingsPage() {
               <ChevronRight className="shrink-0 text-gray-300" width={20} height={20} />
             </Link>
           </section>
+        </ScrollArea>
+        <div className="shrink-0 pb-1">
+          <BodyPartTabs value={part} onChange={setPart} />
         </div>
+        </>
       )}
       {editing && (
         <ExerciseSheet initial={editing === 'new' ? undefined : editing} defaultPart={part} onClose={() => setEditing(null)} />

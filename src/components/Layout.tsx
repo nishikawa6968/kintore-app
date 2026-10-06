@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronLeft, Gear, Trophy } from './Icons';
 
@@ -33,11 +33,10 @@ const tabs = [
   { to: '/settings', label: '設定', Icon: Gear },
 ];
 
-/** 下部タブ。above を渡すとタブのすぐ上（親指の届く位置）に操作部品を置く */
-export function BottomNav({ above }: { above?: ReactNode }) {
+/** 下部タブ */
+export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-white/95 pb-safe backdrop-blur">
-      {above && <div className="border-b border-gray-200 bg-[#f3f5f9]">{above}</div>}
       <div className="mx-auto flex max-w-md">
         {tabs.map(({ to, label, Icon }) => (
           <NavLink
@@ -65,76 +64,71 @@ export function StatusBarFill() {
 }
 
 /**
- * ヘッダーは画面幅いっぱい、中身は読みやすい幅（max-w-md）に収める。
+ * どの画面も「ヘッダー → 上の固定部分 → 真ん中のスクロール部分（ScrollArea）→ 下の固定部分」で組み立て、
+ * 画面の高さぴったりに収める。ページ全体はスクロールしないので、iPhone で引っ張っても
+ * ヘッダーや固定部分は動かない。高さは実際に見えている高さ（--app-h、main.tsx で測る）から計算する。
  */
-function PageBody({ header, className, children }: { header: ReactNode; className: string; children: ReactNode }) {
+function PageBody({ header, height, children }: { header: ReactNode; height: string; children: ReactNode }) {
   return (
     <>
       {header}
-      <main className={`mx-auto max-w-md ${className}`}>{children}</main>
+      <main className={`mx-auto flex max-w-md flex-col ${height}`}>{children}</main>
     </>
   );
 }
 
-/** 下部タブ付きの画面で、ヘッダーと下部タブ（約3.65rem）を除いた高さ（fill の画面で使う） */
-export const TAB_PAGE_HEIGHT = 'h-[calc(var(--app-h)-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3.65rem)]';
+/** 下部タブ付きの画面の中身の高さ（ヘッダーと下部タブ約3.65rem を除く） */
+const TAB_PAGE_HEIGHT = 'h-[calc(var(--app-h)-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3.65rem)]';
+/** 下部タブなしの画面の中身の高さ（ヘッダーを除く） */
+const SUB_PAGE_HEIGHT = 'h-[calc(var(--app-h)-3rem-env(safe-area-inset-top))]';
 
-/** 下部タブ付きの画面 */
-export function TabPage({
-  header,
-  bottom,
-  fill = false,
-  children,
-}: {
-  header: ReactNode;
-  bottom?: ReactNode;
-  /** 中身を画面の高さぴったりに自分で並べる画面（下の余白を付けない）。高さは TAB_PAGE_HEIGHT を使う */
-  fill?: boolean;
-  children: ReactNode;
-}) {
+/** 下部タブ付きの画面（ホーム・自己ベスト・設定） */
+export function TabPage({ header, children }: { header: ReactNode; children: ReactNode }) {
   return (
     <>
-      <PageBody header={header} className={fill ? '' : bottom ? 'pb-56' : 'pb-40'}>
+      <PageBody header={header} height={TAB_PAGE_HEIGHT}>
         {children}
       </PageBody>
-      <BottomNav above={bottom && <div className="mx-auto max-w-md">{bottom}</div>} />
+      <BottomNav />
     </>
   );
 }
 
-/** 下部タブなしの画面（下に大きな操作ボタンを置く） */
-export function SubPage({
-  header,
+/** 下部タブなしの画面（その日の記録・種目選択・記録の入力・種目の詳細・使い方） */
+export function SubPage({ header, children }: { header: ReactNode; children: ReactNode }) {
+  return (
+    <PageBody header={header} height={SUB_PAGE_HEIGHT}>
+      {children}
+    </PageBody>
+  );
+}
+
+/**
+ * 真ん中のスクロール部分。上下の固定部分とのあいだにすき間を取り、
+ * スクロールした中身は上下の端でふわっと消える（固定部分に重なって見えないように）。
+ */
+export function ScrollArea({
   children,
-  action,
-  bar,
-  fill = false,
+  className = '',
+  flush = false,
+  ref,
 }: {
-  header: ReactNode;
   children: ReactNode;
-  action?: ReactNode;
-  /** 中身を画面の高さぴったりに自分で並べる画面（下の余白を付けない） */
-  fill?: boolean;
-  /** 画面下に固定する操作部品（部位ロールなど）。親指が届く位置に置く */
-  bar?: ReactNode;
+  className?: string;
+  /** 中身が自分で左右の余白を持っているとき true（左右の余白を付けない） */
+  flush?: boolean;
+  ref?: Ref<HTMLDivElement>;
 }) {
   return (
-    <>
-      <PageBody header={header} className={fill ? '' : 'pb-32'}>
-        {children}
-      </PageBody>
-      {bar && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-[#f3f5f9]/95 pb-safe backdrop-blur">
-          <div className="mx-auto max-w-md pb-2">{bar}</div>
-        </div>
-      )}
-      {action && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[#f3f5f9] via-[#f3f5f9] to-transparent px-4 pt-6 pb-safe">
-          <div className="mx-auto max-w-md pb-4">{action}</div>
-        </div>
-      )}
-    </>
+    <div ref={ref} className={`scroll-fade-y min-h-0 flex-1 overflow-y-auto overscroll-contain py-4 ${flush ? '' : 'px-4'} ${className}`}>
+      {children}
+    </div>
   );
+}
+
+/** 画面の一番下に固定する大きなボタンの置き場（下部タブなしの画面用。iPhone の下の余白も取る） */
+export function BottomAction({ children }: { children: ReactNode }) {
+  return <div className="shrink-0 px-4 pt-1 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</div>;
 }
 
 export function PrimaryButton({ children, onClick, className = '' }: { children: ReactNode; onClick: () => void; className?: string }) {

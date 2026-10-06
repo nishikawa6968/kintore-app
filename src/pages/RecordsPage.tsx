@@ -4,7 +4,7 @@ import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ChevronRight } from '../components/Icons';
 import { BodyMap } from '../illustrations/BodyMap';
 import { Trophy } from '../illustrations/Illustrations';
-import { Header, Loading, TAB_PAGE_HEIGHT, TabPage } from '../components/Layout';
+import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
@@ -35,13 +35,13 @@ export function RecordsPage() {
   const last = data ? lastTrainedByPart(data.sets, data.exercises).get(part) : undefined;
 
   return (
-    <TabPage header={<Header title="自己ベスト" />} fill>
+    <TabPage header={<Header title="自己ベスト" />}>
       {!data ? (
         <Loading />
       ) : (
         // 画面の高さぴったりに「最終トレーニング → 表（いつも5行分の高さ。中だけ縦にスクロール）→ 人の図（残りいっぱい）→ ロール」
         // 表の高さを固定するので、部位を変えても人の図の大きさは変わらない
-        <div className={`flex ${TAB_PAGE_HEIGHT} min-h-[560px] flex-col`}>
+        <>
           <p className="shrink-0 px-5 pt-3 pb-2 text-sm text-gray-500">
             <span className="font-bold text-gray-700">{bodyPartLabel(part)}</span>の最終トレーニング：
             <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : 'まだありません'}</span>
@@ -103,7 +103,7 @@ export function RecordsPage() {
           <div className="shrink-0 pb-1">
             <BodyPartTabs value={part} onChange={setPart} />
           </div>
-        </div>
+        </>
       )}
     </TabPage>
   );

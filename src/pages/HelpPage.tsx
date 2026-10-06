@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Header, SubPage } from '../components/Layout';
+import { Header, ScrollArea, SubPage } from '../components/Layout';
 import { ChevronDown } from '../components/Icons';
 import { BodyTapDemo, CalendarDemo, FireDemo, FlowDemo, RecencyDemo, RollerDemo, StepperDemo, SwipeTableDemo } from './help/HelpDemos';
 
@@ -31,7 +31,7 @@ function Steps({ children }: { children: ReactNode }) {
 export function HelpPage() {
   return (
     <SubPage header={<Header title="使い方" back="/settings" />}>
-      <div className="space-y-3 p-4">
+      <ScrollArea className="space-y-3">
         <Section title="このアプリでできること" open>
           <List>
             <li>筋トレの種目・重さ・回数を、日ごとに記録できます。</li>
@@ -116,7 +116,7 @@ export function HelpPage() {
             <li>アプリを完全に閉じてから開き直してください（変わらなければもう一度）。</li>
           </List>
         </Section>
-      </div>
+      </ScrollArea>
     </SubPage>
   );
 }

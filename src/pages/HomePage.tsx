@@ -35,11 +35,7 @@ export function HomePage() {
         <Loading />
       ) : (
         <>
-          {/*
-            下の「今日の記録をつける」ボタンと下部タブ（約8.75rem）を除いた画面の高さにぴったり収め、
-            残った高さはすべて人の図に使う（画面が大きいほど図も大きくなる）
-          */}
-          <div className="flex h-[calc(var(--app-h)-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-8.75rem)] min-h-[560px] flex-col">
+          {/* 画面の高さぴったりに並べ、残った高さはすべて人の図に使う（画面が大きいほど図も大きくなる） */}
             <section className="shrink-0 px-4 pt-3">
               <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
             </section>
@@ -67,15 +63,11 @@ export function HomePage() {
             <div className="shrink-0">
               <BodyPartTabs value={filter} onChange={setFilter} includeAll />
             </div>
-          </div>
-
-          <div className="fixed inset-x-0 bottom-[72px] z-10 px-4 pb-safe">
-            <div className="mx-auto max-w-md">
+            <div className="shrink-0 px-4 pt-1 pb-3">
               <PrimaryButton onClick={() => navigate(`/day/${today}`)}>
                 <Plus /> 今日の記録をつける
               </PrimaryButton>
             </div>
-          </div>
         </>
       )}
     </TabPage>

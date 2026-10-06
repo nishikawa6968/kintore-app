@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { addRun, addSet, db } from '../db/db';
 import { BestCard, type BestStat } from '../components/BestCard';
 import { Copy, History, Plus } from '../components/Icons';
-import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
+import { BottomAction, Header, Loading, PrimaryButton, ScrollArea, SubPage } from '../components/Layout';
 import { RestTimer } from '../components/RestTimer';
 import { RunRow } from '../components/RunRow';
 import { SetRow } from '../components/SetRow';
@@ -69,11 +69,13 @@ export function SetInputPage() {
     return { exercise, cardio, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, recordToday) };
   }, [data, exerciseId, date]);
 
-  // セットを追加したら一番下までスクロール
+  // セットを追加したら、入力欄の一覧を一番下までスクロール
+  const scrollRef = useRef<HTMLDivElement>(null);
   const count = view?.todays.length ?? 0;
   const prevCount = useRef(count);
   useEffect(() => {
-    if (count > prevCount.current) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    const el = scrollRef.current;
+    if (count > prevCount.current && el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     prevCount.current = count;
   }, [count]);
 
@@ -109,15 +111,14 @@ export function SetInputPage() {
           }
         />
       }
-      action={
-        <PrimaryButton onClick={addNext}>
-          <Plus /> {cardio ? 'ランを追加' : 'セットを追加'}
-        </PrimaryButton>
-      }
     >
-      <div className="space-y-3 p-4">
+      {/* 上：自己ベストとタイマー（固定）／真ん中：前回の記録と入力欄（ここだけスクロール）／下：追加ボタン（固定） */}
+      <div className="shrink-0 space-y-3 px-4 pt-4">
         {card && <BestCard {...card} />}
+        {!cardio && <RestTimer />}
+      </div>
 
+      <ScrollArea ref={scrollRef} className="space-y-3">
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">
             <div className="mb-1 flex items-center">
@@ -145,8 +146,6 @@ export function SetInputPage() {
             </div>
           </div>
         )}
-
-        {!cardio && <RestTimer />}
 
         <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
           {!cardio && (
@@ -187,7 +186,13 @@ export function SetInputPage() {
             この日の記録をすべて削除
           </button>
         )}
-      </div>
+      </ScrollArea>
+
+      <BottomAction>
+        <PrimaryButton onClick={addNext}>
+          <Plus /> {cardio ? 'ランを追加' : 'セットを追加'}
+        </PrimaryButton>
+      </BottomAction>
     </SubPage>
   );
 }

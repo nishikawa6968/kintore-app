@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight, Plus } from '../components/Icons';
-import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
+import { BottomAction, Header, Loading, PrimaryButton, ScrollArea, SubPage } from '../components/Layout';
 import { RecordBadge } from '../components/RecordBadge';
 import { FrontFigure } from '../illustrations/Illustrations';
 import { dayLabel } from '../lib/date';
@@ -36,59 +36,62 @@ export function DayPage() {
   const totalVolume = groups.reduce((sum, g) => sum + volume(g.sets), 0);
 
   return (
-    <SubPage
-      header={<Header title={dayLabel(date)} back="/" />}
-      action={
-        <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
-          <Plus /> 種目を追加
-        </PrimaryButton>
-      }
-    >
+    <SubPage header={<Header title={dayLabel(date)} back="/" />}>
       {!data ? (
         <Loading />
       ) : groups.length === 0 ? (
-        <div className="px-6 pt-20 text-center text-gray-400">
-          <FrontFigure className="mx-auto mb-3 h-40 w-auto text-brand-200" />
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center text-gray-400">
+          <FrontFigure className="mb-3 h-40 w-auto text-brand-200" />
           <p>この日の記録はまだありません。</p>
           <p className="text-sm">下の「種目を追加」から始めましょう。</p>
         </div>
       ) : (
-        <div className="space-y-3 p-4">
-          <div className="flex justify-between px-1 text-sm text-gray-500">
+        <>
+          {/* 上：その日のまとめ（固定）／真ん中：種目のカード（ここだけスクロール） */}
+          <div className="flex shrink-0 justify-between px-5 pt-4 text-sm text-gray-500">
             <span>{groups.length}種目</span>
             <span>
               総ボリューム <span className="font-bold text-gray-700">{totalVolume.toLocaleString()}kg</span>
             </span>
           </div>
-          {groups.map(({ exercise, sets, records }) => (
-            <Link
-              key={exercise?.id}
-              to={`/day/${date}/ex/${exercise?.id}`}
-              className="block rounded-2xl bg-white p-4 shadow-sm active:bg-gray-50"
-            >
-              <div className="mb-2 flex items-center gap-2">
-                <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
-                  {exercise && bodyPartLabel(exercise.bodyPart)}
-                </span>
-                <span className="flex-1 truncate font-bold">{exercise?.name ?? '（削除された種目）'}</span>
-                {sets.some((s) => records.has(s.id)) && <RecordBadge small />}
-                <ChevronRight className="text-gray-300" />
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {sets.map((s) => (
-                  <span
-                    key={s.id}
-                    className={`rounded-lg px-2 py-1 text-sm tabular-nums ${
-                      records.has(s.id) ? 'bg-amber-100 font-bold text-amber-700' : 'bg-gray-50 text-gray-600'
-                    }`}
-                  >
-                    {setLabel(s, isCardio(exercise))}
+          <ScrollArea className="space-y-3">
+            {groups.map(({ exercise, sets, records }) => (
+              <Link
+                key={exercise?.id}
+                to={`/day/${date}/ex/${exercise?.id}`}
+                className="block rounded-2xl bg-white p-4 shadow-sm active:bg-gray-50"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
+                    {exercise && bodyPartLabel(exercise.bodyPart)}
                   </span>
-                ))}
-              </div>
-            </Link>
-          ))}
-        </div>
+                  <span className="flex-1 truncate font-bold">{exercise?.name ?? '（削除された種目）'}</span>
+                  {sets.some((s) => records.has(s.id)) && <RecordBadge small />}
+                  <ChevronRight className="text-gray-300" />
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {sets.map((s) => (
+                    <span
+                      key={s.id}
+                      className={`rounded-lg px-2 py-1 text-sm tabular-nums ${
+                        records.has(s.id) ? 'bg-amber-100 font-bold text-amber-700' : 'bg-gray-50 text-gray-600'
+                      }`}
+                    >
+                      {setLabel(s, isCardio(exercise))}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </ScrollArea>
+        </>
+      )}
+      {data && (
+        <BottomAction>
+          <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
+            <Plus /> 種目を追加
+          </PrimaryButton>
+        </BottomAction>
       )}
     </SubPage>
   );
