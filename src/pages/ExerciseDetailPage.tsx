@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Plus } from '../components/Icons';
+import { Link, useParams } from 'react-router-dom';
 import { ProgressChart } from '../components/ProgressChart';
 import { Trophy } from '../illustrations/Illustrations';
-import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
-import { slashDate, todayKey } from '../lib/date';
+import { Header, Loading, SubPage } from '../components/Layout';
+import { slashDate } from '../lib/date';
 import {
   chronological,
   computeBest,
@@ -26,7 +25,6 @@ export function ExerciseDetailPage() {
   const { id = '' } = useParams();
   const exerciseId = Number(id);
   const data = useData();
-  const navigate = useNavigate();
 
   const view = useMemo(() => {
     if (!data) return null;
@@ -58,9 +56,9 @@ export function ExerciseDetailPage() {
 
   return (
     <SubPage header={<Header title={exercise?.name ?? '種目'} back="/records" />} fill>
-      {/* 画面の上半分：自己ベストと日付ごとの記録（ここだけ縦にスクロール）／下半分：推移のグラフ */}
+      {/* 上：自己ベスト（固定）／真ん中：日付ごとの記録（ここだけ縦にスクロール）／下：推移のグラフ */}
       <div className="flex h-[calc(100dvh-3rem-env(safe-area-inset-top))] min-h-[600px] flex-col">
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+        <div className="shrink-0 px-4 pt-4">
           <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 p-4 text-white shadow">
             <div className="mb-2 flex items-center gap-2 text-sm opacity-90">
               <span className="rounded bg-white/20 px-1.5 py-0.5 text-xs font-bold">{exercise && bodyPartLabel(exercise.bodyPart)}</span>
@@ -80,7 +78,10 @@ export function ExerciseDetailPage() {
               <div className="py-2 text-lg font-bold">まだ記録がありません</div>
             )}
           </div>
+        </div>
 
+        {/* 上下の端は記録がふわっと消えるようにして、自己ベストやグラフと重なって見えないようにする */}
+        <div className="scroll-fade-y min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
           {[...days].reverse().map((d) => (
             <div key={d.date} className="overflow-hidden rounded-2xl bg-white shadow-sm">
               <Link to={`/day/${d.date}/ex/${exerciseId}`} className="flex items-center bg-brand-500 px-4 py-2 text-white active:bg-brand-600">
@@ -139,15 +140,8 @@ export function ExerciseDetailPage() {
             </div>
           ))}
         </div>
-        <div className="flex h-1/2 shrink-0 flex-col rounded-t-3xl bg-white px-4 pt-4 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
-          <div className="min-h-0 flex-1">
-            <ProgressChart sets={all} kind={cardio ? 'pace' : bodyweight ? 'reps' : '1rm'} />
-          </div>
-          <div className="py-3">
-            <PrimaryButton onClick={() => navigate(`/day/${todayKey()}/ex/${exerciseId}`)}>
-              <Plus /> 今日この種目を記録
-            </PrimaryButton>
-          </div>
+        <div className="flex h-[44%] shrink-0 flex-col rounded-t-3xl bg-white px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+          <ProgressChart sets={all} kind={cardio ? 'pace' : bodyweight ? 'reps' : '1rm'} />
         </div>
       </div>
     </SubPage>

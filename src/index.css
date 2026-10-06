@@ -168,6 +168,12 @@ textarea {
   }
 }
 
+/* スクロールする一覧の上下の端を、ふわっと消えるようにする（ほかの部品と重なって見えないように） */
+.scroll-fade-y {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
