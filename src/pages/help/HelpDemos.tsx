@@ -202,7 +202,7 @@ export function RecencyDemo() {
             未
           </span>
           <br />
-          例：脚＝今日、胸＝3日前、肩＝6日前、背中＝9日前、腕＝30日前、腹＝記録なし
+          例：脚＝今日、胸＝3日前、背中＝9日前、腕＝30日前
         </>
       }
     >
@@ -253,11 +253,11 @@ export function BodyTapDemo() {
           '筋肉を押すと、その部位を選べる'
         ) : shown ? (
           <>
-            <span className="font-bold text-gray-700">{bodyPartLabel(shown)}</span>の筋肉を押すと{bodyPartLabel(shown)}を選べる（少し外れても一番近い筋肉になる）
+            筋肉を押すと<span className="font-bold text-gray-700">{bodyPartLabel(shown)}</span>を選べる
           </>
         ) : (
           <>
-            筋肉から離れた空いた所を押すと<span className="font-bold text-gray-700">ALL</span>（ホームの画面だけ）
+            空いた所を押すと<span className="font-bold text-gray-700">ALL</span>（ホームのみ）
           </>
         )
       }
@@ -276,7 +276,7 @@ export function RollerDemo() {
   const step = useTicker(BODY_PARTS.length, 2000);
   const part = BODY_PARTS[step].id;
   return (
-    <DemoBox caption="指でなぞるとロールが回り、真ん中で止まった部位が選ばれる">
+    <DemoBox caption="なぞって回し、真ん中の部位を選ぶ">
       <div className="pointer-events-none relative">
         <BodyPartTabs value={part} onChange={() => {}} haptics={false} />
         <Finger key={step} x={58} y={50} mode="swipe" />
@@ -324,7 +324,7 @@ export function StepperDemo() {
   const step = useTicker(4, 1100);
   const weight = 60 + step * 2.5;
   return (
-    <DemoBox caption="「＋」を押すたびに 2.5kg 増える（回数は 1回ずつ）。数字を押して直接入力もできる">
+    <DemoBox caption="「＋」で重さが増える">
       <div className="relative mx-auto w-48">
         <div className="pointer-events-none">
           <NumberStepper value={weight} step={2.5} unit="kg" decimal onChange={() => {}} />
@@ -338,7 +338,7 @@ export function StepperDemo() {
 export function FireDemo() {
   const fire = useTicker(2, 2600) === 1;
   return (
-    <DemoBox caption={fire ? '自己ベストを更新すると、赤く燃える欄になる' : 'ふだんは青い欄に自己ベストを表示'}>
+    <DemoBox caption={fire ? '自己ベストを更新すると、赤く燃える' : 'ふだんの自己ベストの欄'}>
       <BestCard
         left={{ label: '自己ベスト', value: fire ? '80kg × 5回' : '75kg × 6回', up: fire }}
         right={{ label: '推定1RM', value: fire ? '93.3kg' : '90kg', up: fire }}
