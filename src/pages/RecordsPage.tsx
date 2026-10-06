@@ -53,43 +53,46 @@ export function RecordsPage() {
           <div ref={tableRef} className="shrink-0 overflow-x-clip px-4 py-1">
             <div
               key={part}
-              className={`h-[20rem] overflow-y-auto overscroll-contain rounded-2xl bg-white shadow-sm ${
+              className={`flex h-[20rem] flex-col overflow-hidden rounded-2xl bg-white shadow-sm ${
                 slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''
               }`}
             >
-              <div className="sticky top-0 z-10 grid grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
+              {/* 見出しの帯はスクロールの外に置き、引っ張っても動かないようにする */}
+              <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
                 <span>種目 / 達成日</span>
                 <span className="text-right">最高記録 / 推定1RM・平均ペース</span>
               </div>
-              {rows.map(({ exercise, best }) => {
-                const recent = best && daysSince(best.latest) < RECENT_DAYS;
-                return (
-                  <Link
-                    key={exercise.id}
-                    to={`/exercise/${exercise.id}`}
-                    className={`flex items-center gap-2 border-b border-gray-100 px-4 py-2 last:border-0 active:bg-gray-50 ${
-                      recent ? 'bg-amber-50/70' : ''
-                    }`}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-bold">
-                        {recent && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
-                        {exercise.name}
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                {rows.map(({ exercise, best }) => {
+                  const recent = best && daysSince(best.latest) < RECENT_DAYS;
+                  return (
+                    <Link
+                      key={exercise.id}
+                      to={`/exercise/${exercise.id}`}
+                      className={`flex items-center gap-2 border-b border-gray-100 px-4 py-2 last:border-0 active:bg-gray-50 ${
+                        recent ? 'bg-amber-50/70' : ''
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-bold">
+                          {recent && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
+                          {exercise.name}
+                        </div>
+                        <div className="text-xs text-gray-400">{best ? slashDate(best.date) : '未記録'}</div>
                       </div>
-                      <div className="text-xs text-gray-400">{best ? slashDate(best.date) : '未記録'}</div>
-                    </div>
-                    {best ? (
-                      <div className="text-right tabular-nums">
-                        <div className="text-lg font-bold leading-tight text-gray-800">{best.main}</div>
-                        <div className="text-xs text-brand-600">{best.sub}</div>
-                      </div>
-                    ) : (
-                      <span className="text-gray-300">—</span>
-                    )}
-                    <ChevronRight className="shrink-0 text-gray-300" width={18} height={18} />
-                  </Link>
-                );
-              })}
+                      {best ? (
+                        <div className="text-right tabular-nums">
+                          <div className="text-lg font-bold leading-tight text-gray-800">{best.main}</div>
+                          <div className="text-xs text-brand-600">{best.sub}</div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                      <ChevronRight className="shrink-0 text-gray-300" width={18} height={18} />
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <p className="mt-1 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
