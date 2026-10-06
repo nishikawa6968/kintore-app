@@ -25,22 +25,33 @@ describe('横ロールの位置計算', () => {
 });
 
 describe('弾いたときの滑り', () => {
-  it('ゆっくり離せばその場の近い項目に止まる', () => {
+  it('遅く離したときは滑らずに一番近い項目へ', () => {
     expect(flingTarget(3.2, 0)).toBe(3);
+    expect(flingTarget(3.4, 0.005)).toBe(3);
+    expect(flingTarget(3.6, -0.005)).toBe(4);
   });
 
-  it('強く弾くほど遠くまで滑る', () => {
-    const weak = flingTarget(0, 0.01);
+  it('遅い操作はすぐ止まる（0.2秒以内）', () => {
+    expect(flingDuration(0.5, 0.004)).toBeLessThanOrEqual(200);
+    expect(flingDuration(0.3, 0)).toBeLessThanOrEqual(200);
+  });
+
+  it('速く弾くほど遠くまで滑る（向きも保つ）', () => {
+    const medium = flingTarget(0, 0.012);
     const strong = flingTarget(0, 0.03);
-    expect(weak).toBeGreaterThan(1);
-    expect(strong).toBeGreaterThan(weak * 2);
+    expect(medium).toBeGreaterThanOrEqual(2);
+    expect(strong).toBeGreaterThan(medium * 3);
     expect(flingTarget(0, -0.03)).toBe(-strong);
   });
 
-  it('止まるまでの時間は速さに合わせ、極端な値は丸める', () => {
-    expect(flingDuration(6, 0.02)).toBe(900);
-    expect(flingDuration(0.3, 0)).toBe(278);
-    expect(flingDuration(50, 0.001)).toBe(2200);
-    expect(flingDuration(1, 1)).toBe(260);
+  it('速く弾いても止まるまでは長くて1.4秒', () => {
+    expect(flingDuration(11, 0.03)).toBe(1100);
+    expect(flingDuration(40, 0.007)).toBe(1400);
+    expect(flingDuration(1, 0.05)).toBe(200);
+  });
+
+  it('タップや矢印で1つ動くときは短く', () => {
+    expect(flingDuration(1, 0)).toBe(220);
+    expect(flingDuration(10, 0)).toBe(500);
   });
 });
