@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
@@ -8,7 +8,8 @@ import { BodyMap } from '../illustrations/BodyMap';
 import { daysAgoLabel } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
-import { BODY_PARTS, bodyPartLabel, type BodyPart } from '../types';
+import { neighborPart, useHorizontalSwipe } from '../lib/useSwipe';
+import { bodyPartLabel, type BodyPart } from '../types';
 
 export function ExercisePickerPage() {
   const { date = '' } = useParams();
@@ -35,44 +36,7 @@ export function ExercisePickerPage() {
   const pick = (id: number) => navigate(`/day/${date}/ex/${id}`, { replace: true });
 
   // ロール・種目のスライド・ボタン以外の白い部分を左右にスワイプしたら、隣の部位へ移る
-  const partRef = useRef(part);
-  partRef.current = part;
-  const setPartRef = useRef(setPart);
-  setPartRef.current = setPart;
-  useEffect(() => {
-    let start: { x: number; y: number; t: number } | null = null;
-    const ignored = (el: EventTarget | null) =>
-      el instanceof Element && !!el.closest('[role="listbox"], [data-swipe-ignore], header, button, input');
-    const begin = (x: number, y: number, target: EventTarget | null) => {
-      start = ignored(target) ? null : { x, y, t: Date.now() };
-    };
-    const end = (x: number, y: number) => {
-      if (!start) return;
-      const dx = x - start.x;
-      const dy = y - start.y;
-      const quick = Date.now() - start.t < 800;
-      start = null;
-      if (!quick || Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-      // 指を左へ動かしたら次（ロールを左へ回したときと同じ向き）
-      const i = BODY_PARTS.findIndex((p) => p.id === partRef.current);
-      const n = BODY_PARTS.length;
-      setPartRef.current(BODY_PARTS[(i + (dx < 0 ? 1 : -1) + n) % n].id);
-    };
-    const onTouchStart = (e: TouchEvent) => begin(e.touches[0].clientX, e.touches[0].clientY, e.target);
-    const onTouchEnd = (e: TouchEvent) => end(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-    const onDown = (e: PointerEvent) => e.pointerType === 'mouse' && begin(e.clientX, e.clientY, e.target);
-    const onUp = (e: PointerEvent) => e.pointerType === 'mouse' && end(e.clientX, e.clientY);
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointerup', onUp);
-    return () => {
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('pointerup', onUp);
-    };
-  }, []);
+  useHorizontalSwipe('window', (dir) => setPart(neighborPart(part, dir)));
 
   const list = data?.exercises.filter((e) => e.bodyPart === part && !e.archived) ?? [];
   const last = info?.lastByPart.get(part);

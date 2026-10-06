@@ -76,11 +76,25 @@ function PageBody({ header, className, children }: { header: ReactNode; classNam
   );
 }
 
+/** 下部タブ付きの画面で、ヘッダーと下部タブ（約3.65rem）を除いた高さ（fill の画面で使う） */
+export const TAB_PAGE_HEIGHT = 'h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3.65rem)]';
+
 /** 下部タブ付きの画面 */
-export function TabPage({ header, bottom, children }: { header: ReactNode; bottom?: ReactNode; children: ReactNode }) {
+export function TabPage({
+  header,
+  bottom,
+  fill = false,
+  children,
+}: {
+  header: ReactNode;
+  bottom?: ReactNode;
+  /** 中身を画面の高さぴったりに自分で並べる画面（下の余白を付けない）。高さは TAB_PAGE_HEIGHT を使う */
+  fill?: boolean;
+  children: ReactNode;
+}) {
   return (
     <>
-      <PageBody header={header} className={bottom ? 'pb-56' : 'pb-40'}>
+      <PageBody header={header} className={fill ? '' : bottom ? 'pb-56' : 'pb-40'}>
         {children}
       </PageBody>
       <BottomNav above={bottom && <div className="mx-auto max-w-md">{bottom}</div>} />
