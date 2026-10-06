@@ -2,6 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+// アイコン画像の中身から作る印。アイコンを作り直すと変わり、iPhone が古い画像を使い回さなくなる
+const iconVersion = createHash('md5').update(readFileSync('public/apple-touch-icon.png')).digest('hex').slice(0, 8);
 
 export default defineConfig({
   // GitHub Pages では https://<user>.github.io/kintore-app/ に置かれる
@@ -9,6 +14,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    { name: 'icon-version', transformIndexHtml: (html) => html.replaceAll('__ICON_VERSION__', iconVersion) },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
@@ -22,9 +28,9 @@ export default defineConfig({
         display: 'standalone',
         start_url: '.',
         icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: `icon-192.png?v=${iconVersion}`, sizes: '192x192', type: 'image/png' },
+          { src: `icon-512.png?v=${iconVersion}`, sizes: '512x512', type: 'image/png' },
+          { src: `icon-maskable-512.png?v=${iconVersion}`, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),

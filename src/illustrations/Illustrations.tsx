@@ -1,18 +1,17 @@
 import type { SVGProps } from 'react';
-import { FLAME, GROUND_ARC, MUSCLE_MAN, TROPHY } from './shapes.ts';
+import { FLAME, TROPHY } from './shapes.ts';
+import { TPOSE_BASE, TPOSE_HAIR, TPOSE_MUSCLES, TPOSE_VIEWBOX } from './tposeShapes.ts';
 
 type P = SVGProps<SVGSVGElement>;
 
-/** ムキムキの人（アプリのキャラクター）。体は currentColor、筋肉のすじは lineColor */
-export function MuscleMan({ lineColor = '#ffffff', ...p }: P & { lineColor?: string }) {
+/** T ポーズの人（アプリのキャラクター。アイコンと同じ絵柄）。体は白、筋肉は currentColor */
+export function TPoseMan(p: P) {
   return (
-    <svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true" {...p}>
-      <path d={GROUND_ARC} opacity={0.45} />
-      {MUSCLE_MAN.body.map((d) => (
-        <path key={d} d={d} />
-      ))}
-      {MUSCLE_MAN.lines.map((d) => (
-        <path key={d} d={d} fill="none" stroke={lineColor} strokeWidth={1.3} strokeLinecap="round" opacity={0.7} />
+    <svg viewBox={`0 0 ${TPOSE_VIEWBOX.width} ${TPOSE_VIEWBOX.height}`} fill="currentColor" aria-hidden="true" {...p}>
+      <path d={TPOSE_BASE} fill="#ffffff" stroke="#d4d8e4" strokeWidth={2} />
+      <path d={TPOSE_HAIR} fill="#b9bdc9" />
+      {TPOSE_MUSCLES.map((d) => (
+        <path key={d} d={d} stroke="#ffffff" strokeWidth={2.4} strokeLinejoin="round" />
       ))}
     </svg>
   );
