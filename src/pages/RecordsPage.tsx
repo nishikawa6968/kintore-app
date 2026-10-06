@@ -45,12 +45,18 @@ export function RecordsPage() {
             <span className="font-bold text-gray-700">{bodyPartLabel(part)}</span>の最終トレーニング：
             <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : 'まだありません'}</span>
           </p>
-          <div ref={tableRef} className="max-h-[20rem] shrink-0 overflow-x-hidden overflow-y-auto px-4">
+          {/*
+            表のカードそのものをスクロールの枠にする（角はいつも丸く、影も切れない）。
+            外側は横だけ切り取り、スライドのときにはみ出さないようにする
+          */}
+          <div ref={tableRef} className="shrink-0 overflow-x-clip px-4 py-1">
             <div
               key={part}
-              className={`overflow-hidden rounded-2xl bg-white shadow-sm ${slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''}`}
+              className={`max-h-[20rem] overflow-y-auto overscroll-contain rounded-2xl bg-white shadow-sm ${
+                slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''
+              }`}
             >
-              <div className="grid grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
+              <div className="sticky top-0 z-10 grid grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
                 <span>種目 / 達成日</span>
                 <span className="text-right">最高記録 / 推定1RM・平均ペース</span>
               </div>
@@ -85,7 +91,7 @@ export function RecordsPage() {
               })}
             </div>
           </div>
-          <p className="mt-1.5 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
+          <p className="mt-1 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
           {/* 人の図（ホームと同じくらいの大きさ。筋肉をタップするとその部位へ）とロール */}
           <div className="min-h-[160px] flex-1 px-4 py-1">
             <BodyMap selected={part} onSelect={setPart} className="h-full w-full" />

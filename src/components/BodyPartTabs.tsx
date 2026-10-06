@@ -188,7 +188,7 @@ export function BodyPartTabs<T extends Value>({
         onPointerUp={(e) => release(e, false)}
         onPointerCancel={(e) => release(e, true)}
         onWheel={onWheel}
-        className="relative h-14 touch-pan-y overflow-hidden outline-none select-none"
+        className="relative h-14 touch-pan-y overflow-x-clip outline-none select-none"
       >
         {slots.map((k) => {
           const offset = k - pos;

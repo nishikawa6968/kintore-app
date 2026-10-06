@@ -69,7 +69,7 @@ export function ExercisePickerPage() {
           <div
             key={part}
             data-swipe-ignore
-            className="no-scrollbar grid shrink-0 snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-3 gap-2 overflow-x-auto scroll-px-4 px-4 pb-1"
+            className="no-scrollbar grid shrink-0 snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-3 gap-2 overflow-x-auto scroll-px-4 px-4 pt-1 pb-2"
           >
             {list.map((ex) => {
               const exLast = info.lastByExercise.get(ex.id);
