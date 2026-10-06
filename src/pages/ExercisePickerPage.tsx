@@ -90,29 +90,22 @@ export function ExercisePickerPage() {
           }
         />
       }
-      bar={
-        data && (
-          <>
-            <BodyMap selected={part} onSelect={setPart} className="mx-auto mt-2 h-60 w-auto" />
-            <BodyPartTabs value={part} onChange={setPart} />
-          </>
-        )
-      }
+      fill
     >
       {!data || !info ? (
         <Loading />
       ) : (
-        // 下の人の図とロールに隠れないよう、残りの高さの真ん中あたりに置く
-        <div className="flex min-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-21rem)] flex-col justify-center py-4">
-          <div className="mb-3 flex items-baseline gap-2 px-5">
+        // 画面の高さぴったりに「部位名 → 種目（3段の横スライド）→ 人の図（残りいっぱい）→ ロール」と並べる
+        <div className="flex h-[calc(100dvh-3rem-env(safe-area-inset-top))] min-h-[620px] flex-col pb-safe">
+          <div className="flex shrink-0 items-baseline gap-2 px-5 pt-3 pb-2">
             <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
             <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>
           </div>
-          {/* 種目は横にスライドして選ぶ（2段で並べ、はみ出した分は右へ） */}
+          {/* 種目は3段に並べ、はみ出した分は横にスライド */}
           <div
             key={part}
             data-swipe-ignore
-            className="no-scrollbar grid snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-2 gap-2 overflow-x-auto scroll-px-4 px-4 pb-1"
+            className="no-scrollbar grid shrink-0 snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-3 gap-2 overflow-x-auto scroll-px-4 px-4 pb-1"
           >
             {list.map((ex) => {
               const exLast = info.lastByExercise.get(ex.id);
@@ -121,7 +114,7 @@ export function ExercisePickerPage() {
                 <button
                   key={ex.id}
                   onClick={() => pick(ex.id)}
-                  className="flex h-20 snap-start flex-col justify-center rounded-2xl bg-white px-3 text-left shadow-sm transition-transform active:scale-[0.97] active:bg-brand-50"
+                  className="flex h-[72px] snap-start flex-col justify-center rounded-2xl bg-white px-3 text-left shadow-sm transition-transform active:scale-[0.97] active:bg-brand-50"
                 >
                   <span className="line-clamp-2 text-[15px] leading-tight font-bold text-gray-800">{ex.name}</span>
                   <span className="mt-1 truncate text-[11px] text-gray-400">
@@ -133,13 +126,20 @@ export function ExercisePickerPage() {
             })}
             <button
               onClick={() => setAdding(true)}
-              className="flex h-20 snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-dashed border-brand-200 text-xs font-bold text-brand-500 active:bg-brand-50"
+              className="flex h-[72px] snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-dashed border-brand-200 text-xs font-bold text-brand-500 active:bg-brand-50"
             >
               <Plus width={20} height={20} />
               種目を追加
             </button>
           </div>
-          {list.length + 1 > 4 && <p className="mt-2 text-center text-[11px] text-gray-400">← 横にスライドで他の種目 →</p>}
+          <p className={`mt-1 shrink-0 text-center text-[11px] text-gray-400 ${list.length + 1 > 6 ? '' : 'invisible'}`}>← 横にスライドで他の種目 →</p>
+          {/* 人の図は残りの高さいっぱいに。筋肉をタップするとその部位へ */}
+          <div className="min-h-0 flex-1 px-4 pt-2">
+            <BodyMap selected={part} onSelect={setPart} className="h-full w-full" />
+          </div>
+          <div className="shrink-0 pb-2">
+            <BodyPartTabs value={part} onChange={setPart} />
+          </div>
         </div>
       )}
       {adding && <ExerciseSheet defaultPart={part} onClose={() => setAdding(false)} onSaved={pick} />}

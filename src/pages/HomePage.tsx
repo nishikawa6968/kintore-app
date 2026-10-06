@@ -32,18 +32,28 @@ export function HomePage() {
         <Loading />
       ) : (
         <>
-          <section className="px-4 pt-3">
-            <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
-          </section>
+          {/*
+            下の「今日の記録をつける」ボタンと下部タブ（約8.75rem）を除いた画面の高さにぴったり収め、
+            残った高さはすべて人の図に使う（画面が大きいほど図も大きくなる）
+          */}
+          <div className="flex h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-8.75rem)] min-h-[560px] flex-col">
+            <section className="shrink-0 px-4 pt-3">
+              <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
+            </section>
 
-          {/* 選んでいる部位の最終トレーニング → 人の図 → ロール（親指の届く下の方に） */}
-          <p className="mt-3 text-center text-sm text-gray-500">
-            {filter !== 'all' && <span className="font-bold text-gray-700">{bodyPartLabel(filter)}の</span>}
-            最終トレーニング：
-            <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
-          </p>
-          <BodyMap selected={filter} onSelect={setFilter} className="mx-auto mt-1 h-[200px] w-auto" />
-          <BodyPartTabs value={filter} onChange={setFilter} includeAll />
+            {/* 選んでいる部位の最終トレーニング → 人の図 → ロール（親指の届く下の方に） */}
+            <p className="mt-3 shrink-0 text-center text-sm text-gray-500">
+              {filter !== 'all' && <span className="font-bold text-gray-700">{bodyPartLabel(filter)}の</span>}
+              最終トレーニング：
+              <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
+            </p>
+            <div className="min-h-0 flex-1 px-4 py-1">
+              <BodyMap selected={filter} onSelect={setFilter} className="h-full w-full" />
+            </div>
+            <div className="shrink-0">
+              <BodyPartTabs value={filter} onChange={setFilter} includeAll />
+            </div>
+          </div>
 
           <div className="fixed inset-x-0 bottom-[72px] z-10 px-4 pb-safe">
             <div className="mx-auto max-w-md">

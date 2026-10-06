@@ -94,16 +94,19 @@ export function SubPage({
   children,
   action,
   bar,
+  fill = false,
 }: {
   header: ReactNode;
   children: ReactNode;
   action?: ReactNode;
+  /** 中身を画面の高さぴったりに自分で並べる画面（下の余白を付けない） */
+  fill?: boolean;
   /** 画面下に固定する操作部品（部位ロールなど）。親指が届く位置に置く */
   bar?: ReactNode;
 }) {
   return (
     <>
-      <PageBody header={header} className="pb-32">
+      <PageBody header={header} className={fill ? '' : 'pb-32'}>
         {children}
       </PageBody>
       {bar && (
