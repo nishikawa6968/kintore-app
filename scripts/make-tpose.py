@@ -65,8 +65,31 @@ leg_deg = k
 canvas.alpha_composite(shear(left_leg, k))
 canvas.alpha_composite(shear(right_leg, -k))
 canvas.alpha_composite(layer(torso))
-canvas.alpha_composite(rot(left_arm, arm_deg, 146, 150))
-canvas.alpha_composite(rot(right_arm, -arm_deg, 250, 150))
+# 腕を太くする：真横に回した腕を、太さ方向（縦）にだけ引き伸ばす。
+# 付け根（肩）ほど太く、手に向かってだんだん弱める
+from scipy import ndimage
+
+def thicken(arm_img, shoulder_x, outward):
+    """outward：腕が伸びる向き（左腕は -1、右腕は +1）"""
+    a = np.array(arm_img).astype(float)
+    alpha = a[..., 3] > 8
+    h, w = alpha.shape
+    ys = np.arange(h)[:, None].repeat(w, 1).astype(float)
+    xs = np.arange(w)[None, :].repeat(h, 0).astype(float)
+    src_y = ys.copy()
+    cols = np.where(alpha.any(axis=0))[0]
+    length = max(1, abs(cols.max() - cols.min()))
+    for x in cols:
+        rows = np.where(alpha[:, x])[0]
+        center = (rows.min() + rows.max()) / 2
+        d = max(0.0, (x - shoulder_x) * outward) / length  # 0 = 肩、1 = 手
+        k = 1.45 - 0.30 * min(d, 1.0)
+        src_y[:, x] = center + (ys[:, x] - center) / k
+    out = np.stack([ndimage.map_coordinates(a[..., c], [src_y, xs], order=1) for c in range(4)], axis=-1)
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), 'RGBA')
+
+canvas.alpha_composite(thicken(rot(left_arm, arm_deg, 146, 150), 146 + PAD, -1))
+canvas.alpha_composite(thicken(rot(right_arm, -arm_deg, 250, 150), 250 + PAD, +1))
 if out:
     canvas.convert('RGB').save(out)
 
