@@ -53,7 +53,7 @@ export function ExercisePickerPage() {
       bar={
         data && (
           <>
-            <BodyMap selected={part} onSelect={setPart} className="mx-auto mt-2 h-28 w-auto" />
+            <BodyMap selected={part} onSelect={setPart} className="mx-auto mt-2 h-60 w-auto" />
             <BodyPartTabs value={part} onChange={setPart} />
           </>
         )
@@ -63,7 +63,7 @@ export function ExercisePickerPage() {
         <Loading />
       ) : (
         // 下の人の図とロールに隠れないよう、残りの高さの真ん中あたりに置く
-        <div className="flex min-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-13rem)] flex-col justify-center py-4">
+        <div className="flex min-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-21rem)] flex-col justify-center py-4">
           <div className="mb-3 flex items-baseline gap-2 px-5">
             <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
             <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>

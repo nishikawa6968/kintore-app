@@ -42,7 +42,7 @@ export function HomePage() {
             最終トレーニング：
             <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
           </p>
-          <BodyMap selected={filter} onSelect={setFilter} className="mx-auto mt-1 h-32 w-auto" />
+          <BodyMap selected={filter} onSelect={setFilter} className="mx-auto mt-1 h-[200px] w-auto" />
           <BodyPartTabs value={filter} onChange={setFilter} includeAll />
 
           <div className="fixed inset-x-0 bottom-[72px] z-10 px-4 pb-safe">
