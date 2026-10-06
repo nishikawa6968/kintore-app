@@ -50,7 +50,8 @@ export function HomePage() {
               最終トレーニング：
               <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
             </p>
-            <div className="relative min-h-0 flex-1 px-4 py-1">
+            {/* 筋肉のまわりはその部位、それ以外の空いた所をタップすると ALL */}
+            <div className="relative min-h-0 flex-1 px-4 py-1" onClick={() => setFilter('all')}>
               <BodyMap selected={filter} onSelect={setFilter} allColors={recency} className="h-full w-full" />
               {filter === 'all' && (
                 // 色の見本：赤ほど最近、暗い紺色ほど前（2週間〜）
