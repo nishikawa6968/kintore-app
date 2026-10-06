@@ -17,13 +17,47 @@ export function SettingsPage() {
   const [editing, setEditing] = useState<Exercise | 'new' | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const list = data?.exercises.filter((e) => e.bodyPart === part) ?? [];
+  const listOf = (p: BodyPart) => data?.exercises.filter((e) => e.bodyPart === p) ?? [];
 
-  // 種目の表を左右にスワイプしたら隣の部位へ（指についてきて、離すと滑らかに入れ替わる）
+  // 種目の表を切り替えた向き（入ってくる向き）
   const slide = useSlideDirection(part);
 
+  /** 部位の種目の表（名前で編集・目のアイコンで隠す・矢印で並べ替え） */
+  const renderList = (p: BodyPart) => {
+    const list = listOf(p);
+    return (
+      <ul className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        {list.map((ex, i) => (
+          <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
+            <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+              {ex.name}
+            </button>
+            <button
+              onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
+              className="p-2.5 text-gray-400 active:text-brand-500"
+              aria-label={ex.archived ? '表示する' : '非表示にする'}
+            >
+              {ex.archived ? <EyeOff width={20} height={20} /> : <Eye width={20} height={20} />}
+            </button>
+            <button onClick={() => move(list, i, -1)} disabled={i === 0} className="p-2.5 text-gray-400 disabled:opacity-20" aria-label="上へ">
+              <ChevronUp width={20} height={20} />
+            </button>
+            <button
+              onClick={() => move(list, i, 1)}
+              disabled={i === list.length - 1}
+              className="p-2.5 pr-3 text-gray-400 disabled:opacity-20"
+              aria-label="下へ"
+            >
+              <ChevronDown width={20} height={20} />
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   /** 隣の種目と並び順を入れ替える */
-  const move = async (index: number, dir: -1 | 1) => {
+  const move = async (list: Exercise[], index: number, dir: -1 | 1) => {
     const ordered = list.map((e, i) => ({ ...e, order: i }));
     const j = index + dir;
     if (j < 0 || j >= ordered.length) return;
@@ -72,30 +106,14 @@ export function SettingsPage() {
                 <Plus width={16} height={16} /> 追加
               </button>
             </div>
-            <SwipePager pageKey={part} direction={slide} onSwipe={(dir) => setPart(neighborPart(part, dir))} className="px-4 pt-2 pb-1">
-              <ul className="overflow-hidden rounded-2xl bg-white shadow-sm">
-                {list.map((ex, i) => (
-                  <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
-                    <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
-                      {ex.name}
-                    </button>
-                    <button
-                      onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
-                      className="p-2.5 text-gray-400 active:text-brand-500"
-                      aria-label={ex.archived ? '表示する' : '非表示にする'}
-                    >
-                      {ex.archived ? <EyeOff width={20} height={20} /> : <Eye width={20} height={20} />}
-                    </button>
-                    <button onClick={() => move(i, -1)} disabled={i === 0} className="p-2.5 text-gray-400 disabled:opacity-20" aria-label="上へ">
-                      <ChevronUp width={20} height={20} />
-                    </button>
-                    <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="p-2.5 pr-3 text-gray-400 disabled:opacity-20" aria-label="下へ">
-                      <ChevronDown width={20} height={20} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </SwipePager>
+            {/* 表は指で左右に動かして隣の部位へ。ロールのように隣の部位の表がつながって出てくる */}
+            <SwipePager
+              pageKey={part}
+              direction={slide}
+              onSwipe={(dir) => setPart(neighborPart(part, dir))}
+              renderPage={(o) => <div className="px-4">{renderList(o === 0 ? part : neighborPart(part, o))}</div>}
+              className="pt-2 pb-1"
+            />
             <p className="mt-1 px-5 text-xs text-gray-400">名前をタップで編集。目のアイコンで種目選択画面から隠せます（記録は残ります）。表を左右にスワイプで隣の部位へ。</p>
           </section>
 

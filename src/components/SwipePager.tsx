@@ -1,77 +1,87 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 
 /** ページが入れ替わるときの動き */
-const EASE = 'transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1)';
-/** これより左右に動かしたら（幅に対する割合）、離したときに次のページへ */
+const EASE = 'transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+/** これより左右に動かしたら（幅に対する割合）、離したときに隣のページへ */
 const COMMIT_RATIO = 0.22;
-/** これより速く弾いたら（px/ms）、短くても次のページへ */
+/** これより速く弾いたら（px/ms）、短くても隣のページへ */
 const FLICK_SPEED = 0.35;
 
+type Offset = -1 | 0 | 1;
+
 /**
- * 横にスワイプしてページ（部位や月）を切り替える枠。
- * - 指を動かしているあいだは中身が指についてくる
- * - 離したとき、十分動かしたか速く弾いたら、今のページが出ていき、反対側から次のページが入ってくる
- *   （少しだけなら元の位置に戻る）
+ * 横にスワイプしてページ（部位や月）を切り替える枠。ロールと同じように、
+ * 「前・今・次」の3ページを横につなげて並べ、指で動かすと隣のページがつながったまま見えてくる。
+ * - 離したとき、十分動かしたか速く弾いたら、隣のページがそのまま真ん中まで滑ってきて止まる
+ *   （少しだけなら元に戻る）。いったん空になる時間はない
  * - 縦の動きのときは横に動かさない（中のスクロールを邪魔しない）
- * - ロールなど外から pageKey が変わったときも、direction の向きから滑らかに入ってくる
+ * - ロールや矢印など外から pageKey が変わったときも、前のページとつながったまま流れてくる
  */
 export function SwipePager({
   pageKey,
   direction,
+  renderPage,
   onSwipe,
   draggable = true,
   className = '',
-  children,
 }: {
-  /** ページを表す値（部位や月）。変わるとページが入れ替わる */
+  /** 今のページを表す値（部位や月）。変わるとページが入れ替わる */
   pageKey: string;
   /** 外から切り替わったときの向き（next：右から入る／prev：左から入る） */
   direction: 'next' | 'prev' | null;
+  /** -1：前のページ、0：今のページ、1：次のページ の中身 */
+  renderPage: (offset: Offset) => ReactNode;
   /** スワイプで次（1）・前（-1）へ進むとき */
   onSwipe?: (dir: 1 | -1) => void;
   /** false なら指で動かせない（切り替わるときの動きだけ） */
   draggable?: boolean;
   className?: string;
-  children: ReactNode;
 }) {
   const box = useRef<HTMLDivElement>(null);
+  /** 今のページの位置からのずれ（px） */
   const [x, setX] = useState(0);
   const [animate, setAnimate] = useState(false);
-  const drag = useRef<{ id: number; x0: number; y0: number; t0: number; lastX: number; lastT: number; v: number; horizontal: boolean | null } | null>(null);
-  /** 自分のスワイプで切り替えた直後なら、その向き */
-  const swiped = useRef<1 | -1 | null>(null);
+  const drag = useRef<{ id: number; x0: number; y0: number; lastX: number; lastT: number; v: number; horizontal: boolean | null } | null>(null);
+  /** 自分のスワイプで切り替えた直後なら true（つなぎ目なしで位置だけ戻す） */
+  const swiped = useRef(false);
+  const busy = useRef(false);
   const suppressClick = useRef(false);
   const prevKey = useRef(pageKey);
   const timer = useRef<number | undefined>(undefined);
   const width = () => box.current?.clientWidth ?? 320;
 
-  /** 画面の外（from）から真ん中へ、滑らかに入ってくる */
-  const enterFrom = (from: number) => {
+  // ページが入れ替わったとき
+  useLayoutEffect(() => {
+    if (prevKey.current === pageKey) return;
+    prevKey.current = pageKey;
     setAnimate(false);
-    setX(from);
+    if (swiped.current) {
+      // 隣のページが真ん中まで来たところで中身を入れ替えたので、位置を戻すだけ（見た目は変わらない）
+      swiped.current = false;
+      setX(0);
+      return;
+    }
+    // 外から切り替わった：前のページが見えている位置から、新しいページへ流す
+    const dir = direction === 'next' ? 1 : direction === 'prev' ? -1 : 0;
+    if (!dir) {
+      setX(0);
+      return;
+    }
+    setX(dir * width());
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         setAnimate(true);
         setX(0);
       }),
     );
-  };
-
-  // ページが入れ替わったら、入ってくる動きをする
-  useLayoutEffect(() => {
-    if (prevKey.current === pageKey) return;
-    prevKey.current = pageKey;
-    const dir = swiped.current ?? (direction === 'next' ? 1 : direction === 'prev' ? -1 : 0);
-    swiped.current = null;
-    if (dir) enterFrom(dir * width());
   }, [pageKey]);
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    if (!draggable || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (!draggable || busy.current || (e.pointerType === 'mouse' && e.button !== 0)) return;
     if (e.target instanceof Element && e.target.closest('[data-swipe-ignore]')) return;
-    drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: e.timeStamp, lastX: e.clientX, lastT: e.timeStamp, v: 0, horizontal: null };
+    drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lastX: e.clientX, lastT: e.timeStamp, v: 0, horizontal: null };
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -97,7 +107,7 @@ export function SwipePager({
     if (dt > 0) d.v = 0.7 * ((e.clientX - d.lastX) / dt) + 0.3 * d.v;
     d.lastX = e.clientX;
     d.lastT = e.timeStamp;
-    setX(dx);
+    setX(Math.max(-width(), Math.min(width(), dx)));
   };
 
   const onPointerEnd = (e: React.PointerEvent) => {
@@ -117,33 +127,41 @@ export function SwipePager({
       return;
     }
     const dir: 1 | -1 = dx < 0 ? 1 : -1;
-    setX(-dir * w); // 今のページが出ていく
+    busy.current = true;
+    setX(-dir * w); // 隣のページが真ん中まで滑ってくる
     clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
-      swiped.current = dir;
-      onSwipe(dir); // 次のページに入れ替わる（入ってくる動きは useLayoutEffect）
-    }, 200);
+      busy.current = false;
+      swiped.current = true;
+      onSwipe(dir); // 中身を入れ替える（位置は useLayoutEffect で戻す）
+    }, 300);
   };
 
+  const offsets: Offset[] = [-1, 0, 1];
   return (
     <div className={`overflow-x-clip ${className}`}>
-      <div
-        ref={box}
-        className="touch-pan-y"
-        style={{ transform: `translateX(${x}px)`, transition: animate ? EASE : 'none' }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerEnd}
-        onPointerCancel={onPointerEnd}
-        onClickCapture={(e) => {
-          if (suppressClick.current) {
-            e.preventDefault();
-            e.stopPropagation();
-            suppressClick.current = false;
-          }
-        }}
-      >
-        {children}
+      <div ref={box} className="relative">
+        <div
+          className="flex touch-pan-y"
+          style={{ transform: `translateX(calc(-100% + ${x}px))`, transition: animate ? EASE : 'none' }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerEnd}
+          onPointerCancel={onPointerEnd}
+          onClickCapture={(e) => {
+            if (suppressClick.current) {
+              e.preventDefault();
+              e.stopPropagation();
+              suppressClick.current = false;
+            }
+          }}
+        >
+          {offsets.map((o) => (
+            <div key={o} className="w-full shrink-0" aria-hidden={o !== 0} inert={o !== 0}>
+              {renderPage(o)}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

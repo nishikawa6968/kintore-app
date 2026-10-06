@@ -23,9 +23,43 @@ export function MonthCalendar({
   today: string;
   onSelect: (key: string) => void;
 }) {
-  // いつも6週（42日）並べて、月を切り替えても高さが変わらないようにする
-  const first = startOfWeek(startOfMonth(month));
-  const days = Array.from({ length: 42 }, (_, i) => addDays(first, i));
+  /** その月の日付のマス目。いつも6週（42日）並べて、月を切り替えても高さが変わらないようにする */
+  const renderDays = (m: Date) => {
+    const first = startOfWeek(startOfMonth(m));
+    const days = Array.from({ length: 42 }, (_, i) => addDays(first, i));
+    return (
+      <div className="grid grid-cols-7 gap-y-0.5">
+        {days.map((d) => {
+          const key = toKey(d);
+          const inMonth = isSameMonth(d, m);
+          const isMarked = marked.has(key);
+          const isTrained = !isMarked && trained.has(key);
+          const isToday = key === today;
+          return (
+            <button key={key} onClick={() => onSelect(key)} className="flex h-10 items-center justify-center">
+              <span
+                className={[
+                  'flex h-9 w-9 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
+                  isMarked
+                    ? 'bg-brand-500 font-bold text-white'
+                    : isTrained
+                      ? 'bg-sky-200 font-bold text-brand-700'
+                      : inMonth
+                        ? 'text-gray-700'
+                        : 'text-gray-300',
+                  (isMarked || isTrained) && !inMonth ? 'opacity-40' : '',
+                  isToday ? 'ring-[3px] ring-today ring-offset-1' : '',
+                  isToday && !isMarked && !isTrained ? 'font-bold text-today' : '',
+                ].join(' ')}
+              >
+                {d.getDate()}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   // 月が変わった向き（次の月なら右から、前の月なら左から入ってくる）
   const key = format(month, 'yyyy-MM');
@@ -54,39 +88,13 @@ export function MonthCalendar({
           </div>
         ))}
       </div>
-      {/* 日付は指で左右に動かして前後の月へ（指についてきて、離すと滑らかに入れ替わる） */}
-      <SwipePager pageKey={key} direction={dir} onSwipe={(d) => onMonthChange(addMonths(month, d))}>
-        <div className="grid grid-cols-7 gap-y-0.5">
-          {days.map((d) => {
-            const key = toKey(d);
-            const inMonth = isSameMonth(d, month);
-            const isMarked = marked.has(key);
-            const isTrained = !isMarked && trained.has(key);
-            const isToday = key === today;
-            return (
-              <button key={key} onClick={() => onSelect(key)} className="flex h-10 items-center justify-center">
-                <span
-                  className={[
-                    'flex h-9 w-9 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
-                    isMarked
-                      ? 'bg-brand-500 font-bold text-white'
-                      : isTrained
-                        ? 'bg-sky-200 font-bold text-brand-700'
-                        : inMonth
-                          ? 'text-gray-700'
-                          : 'text-gray-300',
-                    (isMarked || isTrained) && !inMonth ? 'opacity-40' : '',
-                    isToday ? 'ring-[3px] ring-today ring-offset-1' : '',
-                    isToday && !isMarked && !isTrained ? 'font-bold text-today' : '',
-                  ].join(' ')}
-                >
-                  {d.getDate()}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </SwipePager>
+      {/* 日付は指で左右に動かして前後の月へ。ロールのように隣の月がつながって出てくる */}
+      <SwipePager
+        pageKey={key}
+        direction={dir}
+        onSwipe={(d) => onMonthChange(addMonths(month, d))}
+        renderPage={(o) => renderDays(addMonths(month, o))}
+      />
     </div>
   );
 }
