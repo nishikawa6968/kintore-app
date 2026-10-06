@@ -44,13 +44,17 @@ export function HomePage() {
             />
           </section>
 
-          <div className="mt-3">
+          <section className="mt-3 px-4">
+            <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
+          </section>
+
+          {/* 部位の切り替えは親指が届きやすいカレンダーの下に */}
+          <div className="mt-2">
             <BodyPartTabs value={filter} onChange={setFilter} includeAll />
           </div>
 
           <section className="px-4">
-            <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
-            <p className="mt-2 text-center text-sm text-gray-500">
+            <p className="mt-1 text-center text-sm text-gray-500">
               {format(month, 'M月')}の{filter === 'all' ? '' : `${bodyPartLabel(filter)}の`}トレーニング：
               <span className="font-bold text-brand-600">{monthCount}日</span>
             </p>

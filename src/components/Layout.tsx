@@ -33,9 +33,11 @@ const tabs = [
   { to: '/settings', label: '設定', Icon: Gear },
 ];
 
-export function BottomNav() {
+/** 下部タブ。above を渡すとタブのすぐ上（親指の届く位置）に操作部品を置く */
+export function BottomNav({ above }: { above?: ReactNode }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-white/95 pb-safe backdrop-blur">
+      {above && <div className="border-b border-gray-200 bg-[#f3f5f9]">{above}</div>}
       <div className="mx-auto flex max-w-md">
         {tabs.map(({ to, label, Icon }) => (
           <NavLink
@@ -76,13 +78,13 @@ function PageBody({ header, wide, className, children }: { header: ReactNode; wi
 }
 
 /** 下部タブ付きの画面 */
-export function TabPage({ header, children }: { header: ReactNode; children: ReactNode }) {
+export function TabPage({ header, bottom, children }: { header: ReactNode; bottom?: ReactNode; children: ReactNode }) {
   return (
     <>
-      <PageBody header={header} className="pb-40">
+      <PageBody header={header} className={bottom ? 'pb-56' : 'pb-40'}>
         {children}
       </PageBody>
-      <BottomNav />
+      <BottomNav above={bottom && <div className="mx-auto max-w-md">{bottom}</div>} />
     </>
   );
 }

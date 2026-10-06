@@ -6,7 +6,7 @@ import { ExerciseSheet } from '../components/ExerciseSheet';
 import { ChevronDown, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
-import type { BodyPart, Exercise } from '../types';
+import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
 
 export function SettingsPage() {
   const data = useData();
@@ -47,14 +47,16 @@ export function SettingsPage() {
   };
 
   return (
-    <TabPage header={<Header title="設定" />}>
+    <TabPage header={<Header title="設定" />} bottom={<BodyPartTabs value={part} onChange={setPart} />}>
       {!data ? (
         <Loading />
       ) : (
         <div className="space-y-6 py-4">
           <section>
             <div className="flex items-center px-4">
-              <h2 className="text-sm font-bold text-gray-500">種目の管理</h2>
+              <h2 className="text-sm font-bold text-gray-500">
+                種目の管理（<span className="text-brand-600">{bodyPartLabel(part)}</span>）
+              </h2>
               <button
                 onClick={() => setEditing('new')}
                 className="ml-auto flex items-center gap-1 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-bold text-white"
@@ -62,8 +64,7 @@ export function SettingsPage() {
                 <Plus width={16} height={16} /> 追加
               </button>
             </div>
-            <BodyPartTabs value={part} onChange={setPart} />
-            <ul className="mx-4 overflow-hidden rounded-2xl bg-white shadow-sm">
+            <ul className="mx-4 mt-2 overflow-hidden rounded-2xl bg-white shadow-sm">
               {list.map((ex, i) => (
                 <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
                   <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>

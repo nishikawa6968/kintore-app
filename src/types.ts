@@ -1,4 +1,4 @@
-export type BodyPart = 'chest' | 'back' | 'shoulder' | 'arm' | 'leg' | 'glute' | 'abs';
+export type BodyPart = 'chest' | 'back' | 'shoulder' | 'arm' | 'leg' | 'abs';
 
 export const BODY_PARTS: { id: BodyPart; label: string }[] = [
   { id: 'chest', label: '胸' },
@@ -6,7 +6,6 @@ export const BODY_PARTS: { id: BodyPart; label: string }[] = [
   { id: 'shoulder', label: '肩' },
   { id: 'arm', label: '腕' },
   { id: 'leg', label: '脚' },
-  { id: 'glute', label: 'お尻' },
   { id: 'abs', label: '腹' },
 ];
 

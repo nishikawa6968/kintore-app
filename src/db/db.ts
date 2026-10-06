@@ -8,10 +8,26 @@ class KintoreDB extends Dexie {
 
   constructor() {
     super('kintore');
-    this.version(1).stores({
+    const stores = {
       exercises: '++id, bodyPart, order',
       sets: '++id, date, exerciseId, [exerciseId+date]',
-    });
+    };
+    this.version(1).stores(stores);
+    // v2: 「お尻」をなくし、お尻の種目は記録ごと「脚」の末尾へ移す
+    this.version(2)
+      .stores(stores)
+      .upgrade(async (tx) => {
+        const table = tx.table('exercises');
+        const legs = await table.where('bodyPart').equals('leg').toArray();
+        let order = legs.reduce((max, e) => Math.max(max, e.order), -1) + 1;
+        await table
+          .where('bodyPart')
+          .equals('glute')
+          .modify((e) => {
+            e.bodyPart = 'leg';
+            e.order = order++;
+          });
+      });
     this.on('populate', (tx) => {
       tx.table('exercises').bulkAdd(presetExercises());
     });
@@ -53,7 +69,10 @@ export async function importData(data: BackupData) {
   await db.transaction('rw', db.exercises, db.sets, async () => {
     await db.exercises.clear();
     await db.sets.clear();
-    await db.exercises.bulkAdd(data.exercises);
+    // 「お尻」があった頃のバックアップは「脚」として読み込む
+    await db.exercises.bulkAdd(
+      data.exercises.map((e) => ((e.bodyPart as string) === 'glute' ? { ...e, bodyPart: 'leg' } : e)),
+    );
     await db.sets.bulkAdd(data.sets);
   });
 }
