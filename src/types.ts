@@ -1,12 +1,13 @@
 export type BodyPart = 'chest' | 'back' | 'shoulder' | 'arm' | 'leg' | 'abs';
 
+/** 体の上から下へ流れる順番（ロールや一覧はこの順に並ぶ） */
 export const BODY_PARTS: { id: BodyPart; label: string }[] = [
-  { id: 'chest', label: '胸' },
-  { id: 'back', label: '背中' },
   { id: 'shoulder', label: '肩' },
+  { id: 'chest', label: '胸' },
   { id: 'arm', label: '腕' },
-  { id: 'leg', label: '脚' },
+  { id: 'back', label: '背中' },
   { id: 'abs', label: '腹' },
+  { id: 'leg', label: '脚' },
 ];
 
 export const bodyPartLabel = (id: BodyPart) =>

@@ -40,7 +40,7 @@ export function MonthCalendar({
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={onTouchEnd}
     >
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-1 flex items-center justify-between">
         <button onClick={() => onMonthChange(addMonths(month, -1))} className="p-2 text-brand-500 active:opacity-50" aria-label="前の月">
           <ChevronLeft />
         </button>
@@ -56,7 +56,7 @@ export function MonthCalendar({
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-y-1">
+      <div className="grid grid-cols-7 gap-y-0.5">
         {days.map((d) => {
           const key = toKey(d);
           const inMonth = isSameMonth(d, month);
@@ -64,10 +64,10 @@ export function MonthCalendar({
           const isTrained = !isMarked && trained.has(key);
           const isToday = key === today;
           return (
-            <button key={key} onClick={() => onSelect(key)} className="flex h-11 items-center justify-center">
+            <button key={key} onClick={() => onSelect(key)} className="flex h-10 items-center justify-center">
               <span
                 className={[
-                  'flex h-10 w-10 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
+                  'flex h-9 w-9 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
                   isMarked
                     ? 'bg-brand-500 font-bold text-white'
                     : isTrained

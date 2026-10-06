@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, TabPage } from '../components/Layout';
-import { LastTrainedChips } from '../components/LastTrainedChips';
 import { MonthCalendar } from '../components/MonthCalendar';
-import { fromKey, todayKey } from '../lib/date';
+import { BodyMap } from '../illustrations/BodyMap';
+import { daysAgoLabel, fromKey, slashDate, todayKey } from '../lib/date';
 import { lastTrainedByPart, partsByDate } from '../lib/records';
 import { useData } from '../lib/useData';
 import { bodyPartLabel, type BodyPart } from '../types';
@@ -18,15 +17,14 @@ export function HomePage() {
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
 
-  const { lastByPart, marked, trained } = useMemo(() => {
-    if (!data) return { lastByPart: new Map<BodyPart, string>(), marked: new Set<string>(), trained: new Set<string>() };
+  const { last, marked, trained } = useMemo(() => {
+    if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>() };
     const byDate = partsByDate(data.sets, data.exercises);
     const marked = new Set([...byDate].filter(([, parts]) => filter === 'all' || parts.has(filter)).map(([d]) => d));
-    return { lastByPart: lastTrainedByPart(data.sets, data.exercises), marked, trained: new Set(byDate.keys()) };
+    const lastByPart = lastTrainedByPart(data.sets, data.exercises);
+    const last = filter === 'all' ? [...lastByPart.values()].sort().at(-1) : lastByPart.get(filter);
+    return { last, marked, trained: new Set(byDate.keys()) };
   }, [data, filter]);
-
-  const monthPrefix = format(month, 'yyyy-MM');
-  const monthCount = [...marked].filter((d) => d.startsWith(monthPrefix)).length;
 
   return (
     <TabPage header={<Header title="筋トレ記録" />}>
@@ -34,31 +32,18 @@ export function HomePage() {
         <Loading />
       ) : (
         <>
-          <section className="px-4 pt-4">
-            <h2 className="mb-2 text-sm font-bold text-gray-500">部位ごとの最終トレーニング</h2>
-            <LastTrainedChips
-              lastByPart={lastByPart}
-              today={today}
-              selected={filter}
-              onSelect={(p) => setFilter((f) => (f === p ? 'all' : p))}
-            />
-          </section>
-
-          <section className="mt-3 px-4">
+          <section className="px-4 pt-3">
             <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
           </section>
 
-          {/* 部位の切り替えは親指が届きやすいカレンダーの下に */}
-          <div className="mt-2">
-            <BodyPartTabs value={filter} onChange={setFilter} includeAll />
-          </div>
-
-          <section className="px-4">
-            <p className="mt-1 text-center text-sm text-gray-500">
-              {format(month, 'M月')}の{filter === 'all' ? '' : `${bodyPartLabel(filter)}の`}トレーニング：
-              <span className="font-bold text-brand-600">{monthCount}日</span>
-            </p>
-          </section>
+          {/* 選んでいる部位の最終トレーニング → 人の図 → ロール（親指の届く下の方に） */}
+          <p className="mt-3 text-center text-sm text-gray-500">
+            {filter !== 'all' && <span className="font-bold text-gray-700">{bodyPartLabel(filter)}の</span>}
+            最終トレーニング：
+            <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
+          </p>
+          <BodyMap selected={filter} onSelect={setFilter} className="mx-auto mt-1 h-32 w-auto" />
+          <BodyPartTabs value={filter} onChange={setFilter} includeAll />
 
           <div className="fixed inset-x-0 bottom-[72px] z-10 px-4 pb-safe">
             <div className="mx-auto max-w-md">

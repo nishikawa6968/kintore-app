@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
-import { ChevronRight, Plus } from '../components/Icons';
+import { Plus } from '../components/Icons';
 import { Header, Loading, SubPage } from '../components/Layout';
+import { BodyMap } from '../illustrations/BodyMap';
 import { daysAgoLabel } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
@@ -49,50 +50,55 @@ export function ExercisePickerPage() {
           }
         />
       }
-      bar={data && <BodyPartTabs value={part} onChange={setPart} />}
+      bar={
+        data && (
+          <>
+            <BodyMap selected={part} onSelect={setPart} className="mx-auto mt-2 h-28 w-auto" />
+            <BodyPartTabs value={part} onChange={setPart} />
+          </>
+        )
+      }
     >
       {!data || !info ? (
         <Loading />
       ) : (
-        // 種目が少ない部位でも、画面の真ん中あたりに並ぶようにする
-        <div className="flex min-h-[calc(100dvh-3rem-env(safe-area-inset-top)-8rem)] flex-col justify-center px-4 py-4">
-          <div className="mb-3 flex items-baseline gap-2 px-1">
+        // 下の人の図とロールに隠れないよう、残りの高さの真ん中あたりに置く
+        <div className="flex min-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-13rem)] flex-col justify-center py-4">
+          <div className="mb-3 flex items-baseline gap-2 px-5">
             <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
             <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>
           </div>
-          <ul className="space-y-2">
+          {/* 種目は横にスライドして選ぶ（2段で並べ、はみ出した分は右へ） */}
+          <div
+            key={part}
+            className="no-scrollbar grid snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-2 gap-2 overflow-x-auto scroll-px-4 px-4 pb-1"
+          >
             {list.map((ex) => {
               const exLast = info.lastByExercise.get(ex.id);
               const best = exLast ? bestSummary(ex, data.sets.filter((s) => s.exerciseId === ex.id)) : null;
               return (
-                <li key={ex.id}>
-                  <button
-                    onClick={() => pick(ex.id)}
-                    className="flex min-h-16 w-full items-center rounded-2xl bg-white px-4 py-3 text-left shadow-sm transition-transform active:scale-[0.98] active:bg-brand-50"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[17px] font-bold text-gray-800">{ex.name}</div>
-                      <div className="mt-0.5 text-xs text-gray-400">
-                        {exLast ? daysAgoLabel(exLast) : 'まだ記録なし'}
-                        {best && (
-                          <span className="ml-2 text-brand-600">
-                            ベスト {best.main}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight className="shrink-0 text-gray-300" width={22} height={22} />
-                  </button>
-                </li>
+                <button
+                  key={ex.id}
+                  onClick={() => pick(ex.id)}
+                  className="flex h-20 snap-start flex-col justify-center rounded-2xl bg-white px-3 text-left shadow-sm transition-transform active:scale-[0.97] active:bg-brand-50"
+                >
+                  <span className="line-clamp-2 text-[15px] leading-tight font-bold text-gray-800">{ex.name}</span>
+                  <span className="mt-1 truncate text-[11px] text-gray-400">
+                    {exLast ? daysAgoLabel(exLast) : 'まだ記録なし'}
+                    {best && <span className="ml-1 text-brand-600">{best.main}</span>}
+                  </span>
+                </button>
               );
             })}
-          </ul>
-          <button
-            onClick={() => setAdding(true)}
-            className="mt-3 flex h-12 items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-brand-200 text-sm font-bold text-brand-500 active:bg-brand-50"
-          >
-            <Plus width={18} height={18} /> {bodyPartLabel(part)}の種目を追加
-          </button>
+            <button
+              onClick={() => setAdding(true)}
+              className="flex h-20 snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-dashed border-brand-200 text-xs font-bold text-brand-500 active:bg-brand-50"
+            >
+              <Plus width={20} height={20} />
+              種目を追加
+            </button>
+          </div>
+          {list.length + 1 > 4 && <p className="mt-2 text-center text-[11px] text-gray-400">← 横にスライドで他の種目 →</p>}
         </div>
       )}
       {adding && <ExerciseSheet defaultPart={part} onClose={() => setAdding(false)} onSaved={pick} />}
