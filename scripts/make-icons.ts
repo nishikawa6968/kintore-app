@@ -10,6 +10,6 @@ writeFileSync('public/apple-touch-icon.png', png(appIconSvg(), 180));
 writeFileSync('public/icon-192.png', png(appIconSvg(), 192));
 writeFileSync('public/icon-512.png', png(appIconSvg(), 512));
 // Android は丸などに切り抜くので、人を小さめにして切れないようにする
-writeFileSync('public/icon-maskable-512.png', png(appIconSvg(0.72), 512));
+writeFileSync('public/icon-maskable-512.png', png(appIconSvg(0.76), 512));
 writeFileSync('public/favicon.svg', appIconSvg());
 console.log('icons written');

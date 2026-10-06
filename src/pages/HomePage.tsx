@@ -24,7 +24,7 @@ export function HomePage() {
     const marked = new Set([...byDate].filter(([, parts]) => filter === 'all' || parts.has(filter)).map(([d]) => d));
     const lastByPart = lastTrainedByPart(data.sets, data.exercises);
     const last = filter === 'all' ? [...lastByPart.values()].sort().at(-1) : lastByPart.get(filter);
-    // ALL のときの図の色：最後に鍛えた日が近い部位ほど赤、前ほど紺むらさき（記録なしはグレー）
+    // ALL のときの図の色：最後に鍛えた日が近い部位ほど赤、前ほど青みがかり、2週間〜は暗い紺色（記録なしはグレー）
     const recency = Object.fromEntries(BODY_PARTS.map((p) => [p.id, recencyColor(lastByPart.has(p.id) ? daysSince(lastByPart.get(p.id)!, today) : null)]));
     return { last, marked, trained: new Set(byDate.keys()), recency };
   }, [data, filter, today]);
@@ -53,7 +53,7 @@ export function HomePage() {
             <div className="relative min-h-0 flex-1 px-4 py-1">
               <BodyMap selected={filter} onSelect={setFilter} allColors={recency} className="h-full w-full" />
               {filter === 'all' && (
-                // 色の見本：赤ほど最近、紺むらさきほど前（2週間〜）
+                // 色の見本：赤ほど最近、暗い紺色ほど前（2週間〜）
                 <div className="pointer-events-none absolute right-4 bottom-1 flex items-center gap-1.5 text-[10px] text-gray-500">
                   最近
                   <span className="h-2 w-16 rounded-full" style={{ background: RECENCY_GRADIENT }} />
