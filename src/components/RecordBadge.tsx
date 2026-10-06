@@ -1,3 +1,5 @@
+import { Trophy } from '../illustrations/Illustrations';
+
 export function RecordBadge({ small = false }: { small?: boolean }) {
   return (
     <span
@@ -5,7 +7,8 @@ export function RecordBadge({ small = false }: { small?: boolean }) {
         small ? 'px-1.5 py-px text-[10px]' : 'px-2 py-0.5 text-xs'
       }`}
     >
-      🎉 新記録
+      <Trophy className={small ? 'h-2.5 w-2.5' : 'h-3 w-3'} />
+      新記録
     </span>
   );
 }

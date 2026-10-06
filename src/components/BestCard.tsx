@@ -1,3 +1,5 @@
+import { Flame } from '../illustrations/Illustrations';
+
 export interface BestStat {
   label: string;
   value: string;
@@ -30,9 +32,9 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
   return (
     <div className="bg-fire animate-ember relative overflow-hidden rounded-2xl px-4 pt-2.5 pb-3 text-white">
       <div className="mb-1 flex items-center gap-1.5">
-        <span className="animate-flame text-xl">🔥</span>
+        <Flame className="animate-flame h-6 w-6" />
         <span className="text-[15px] font-black tracking-wide drop-shadow">本日更新！</span>
-        <span className="animate-flame text-xl [animation-delay:-0.45s]">🔥</span>
+        <Flame className="animate-flame h-6 w-6 [animation-delay:-0.45s]" />
         {before && <span className="ml-auto text-[11px] font-bold opacity-90">前回 {before} から更新</span>}
       </div>
       <div className="flex items-end justify-between">

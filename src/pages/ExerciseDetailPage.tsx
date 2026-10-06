@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format } from 'date-fns';
 import { Plus } from '../components/Icons';
+import { Trophy } from '../illustrations/Illustrations';
 import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
 import { fromKey, slashDate, todayKey } from '../lib/date';
 import {
@@ -179,7 +180,7 @@ export function ExerciseDetailPage() {
                         <td className="text-sm text-gray-600">{s.weight > 0 ? `${fmtKg(estimate1RM(s.weight, s.reps))}kg` : '—'}</td>
                       </>
                     )}
-                    <td className="pr-2 text-lg">{records.has(s.id) && <span aria-label="新記録">🎉</span>}</td>
+                    <td className="pr-2">{records.has(s.id) && <Trophy className="mx-auto h-5 w-5 text-amber-500" aria-label="新記録" />}</td>
                   </tr>
                 ))}
               </tbody>

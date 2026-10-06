@@ -2,13 +2,14 @@ import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ChevronRight } from '../components/Icons';
+import { Trophy } from '../illustrations/Illustrations';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
 import { BODY_PARTS, type BodyPart } from '../types';
 
-/** この日数以内に更新した記録には🎉を付ける */
+/** この日数以内に更新した記録にはトロフィーを付ける */
 const RECENT_DAYS = 7;
 
 export function RecordsPage() {
@@ -57,7 +58,7 @@ export function RecordsPage() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-bold">
-                      {recent && '🎉 '}
+                      {recent && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
                       {exercise.name}
                     </div>
                     <div className="text-xs text-gray-400">{best ? slashDate(best.date) : '未記録'}</div>
