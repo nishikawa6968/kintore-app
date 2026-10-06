@@ -3,7 +3,8 @@ import { format } from 'date-fns';
 import { db, exportData, importData, type BackupData } from '../db/db';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
-import { ChevronDown, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
+import { Link } from 'react-router-dom';
+import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
 import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
@@ -125,6 +126,17 @@ export function SettingsPage() {
             <p className="mt-2 px-1 text-xs leading-relaxed text-gray-400">
               記録はこの端末のブラウザ内だけに保存されています。機種変更やブラウザのデータ削除に備えて、ときどき書き出しておくと安心です。
             </p>
+          </section>
+
+          <section className="px-4">
+            <h2 className="mb-2 text-sm font-bold text-gray-500">このアプリについて</h2>
+            <Link to="/help" className="flex items-center rounded-2xl bg-white px-4 py-3.5 shadow-sm active:bg-gray-50">
+              <div className="flex-1">
+                <div className="font-bold text-brand-600">使い方・アプリの説明</div>
+                <div className="text-xs text-gray-400">記録のつけ方、画面ごとの操作、タップやスワイプでできることなど</div>
+              </div>
+              <ChevronRight className="shrink-0 text-gray-300" width={20} height={20} />
+            </Link>
           </section>
         </div>
       )}
