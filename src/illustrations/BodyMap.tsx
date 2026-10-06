@@ -44,29 +44,42 @@ function partAt(svg: SVGSVGElement, clientX: number, clientY: number): BodyPart 
 }
 
 /**
- * 体の前と後ろの図。選んでいる部位の筋肉を青くハイライトする（'all' なら全部を薄い青に）。
+ * 体の前と後ろの図。選んでいる部位の筋肉を青くハイライトする。
+ * 'all' のときは全部を薄い青に（allColors を渡すと部位ごとにその色で塗る）。
  * 図をタップすると onSelect で一番近い筋肉の部位を選べる。形は bodyShapes.ts（参考画像をなぞったもの）。
  */
-export function BodyMap({ selected, onSelect, className }: { selected: BodyPart | 'all'; onSelect?: (p: BodyPart) => void; className?: string }) {
+export function BodyMap({
+  selected,
+  onSelect,
+  allColors,
+  className,
+}: {
+  selected: BodyPart | 'all';
+  onSelect?: (p: BodyPart) => void;
+  /** 'all' のときの部位ごとの色（例：最後に鍛えた日の近さ） */
+  allColors?: Partial<Record<BodyPart, string>>;
+  className?: string;
+}) {
+  const fillOf = (part: BodyPart) => {
+    if (selected === 'all') return allColors ? (allColors[part] ?? MUSCLE) : ALL;
+    return part === selected ? SELECTED : MUSCLE;
+  };
   const view = (base: string, hair: string, regions: Region[], label: string) => (
     <g aria-label={label}>
       <path d={base} fill="#ffffff" stroke="#d4d8e4" strokeWidth={2} />
       <path d={hair} fill="#b9bdc9" />
-      {regions.map((r, i) => {
-        const on = selected === 'all' || r.part === selected;
-        return (
-          <path
-            key={i}
-            d={r.d}
-            data-part={r.part}
-            fill={on ? (selected === 'all' ? ALL : SELECTED) : MUSCLE}
-            stroke="#ffffff"
-            strokeWidth={2.4}
-            strokeLinejoin="round"
-            style={{ transition: 'fill 200ms' }}
-          />
-        );
-      })}
+      {regions.map((r, i) => (
+        <path
+          key={i}
+          d={r.d}
+          data-part={r.part}
+          fill={fillOf(r.part)}
+          stroke="#ffffff"
+          strokeWidth={2.4}
+          strokeLinejoin="round"
+          style={{ transition: 'fill 200ms' }}
+        />
+      ))}
     </g>
   );
 

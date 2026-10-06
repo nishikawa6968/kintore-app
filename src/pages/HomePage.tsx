@@ -5,10 +5,11 @@ import { Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, TabPage } from '../components/Layout';
 import { MonthCalendar } from '../components/MonthCalendar';
 import { BodyMap } from '../illustrations/BodyMap';
-import { daysAgoLabel, fromKey, slashDate, todayKey } from '../lib/date';
+import { daysAgoLabel, daysSince, fromKey, slashDate, todayKey } from '../lib/date';
+import { NEVER_COLOR, RECENCY_GRADIENT, recencyColor } from '../lib/recency';
 import { lastTrainedByPart, partsByDate } from '../lib/records';
 import { useData } from '../lib/useData';
-import { bodyPartLabel, type BodyPart } from '../types';
+import { BODY_PARTS, bodyPartLabel, type BodyPart } from '../types';
 
 export function HomePage() {
   const data = useData();
@@ -17,14 +18,16 @@ export function HomePage() {
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
 
-  const { last, marked, trained } = useMemo(() => {
-    if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>() };
+  const { last, marked, trained, recency } = useMemo(() => {
+    if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>(), recency: {} };
     const byDate = partsByDate(data.sets, data.exercises);
     const marked = new Set([...byDate].filter(([, parts]) => filter === 'all' || parts.has(filter)).map(([d]) => d));
     const lastByPart = lastTrainedByPart(data.sets, data.exercises);
     const last = filter === 'all' ? [...lastByPart.values()].sort().at(-1) : lastByPart.get(filter);
-    return { last, marked, trained: new Set(byDate.keys()) };
-  }, [data, filter]);
+    // ALL のときの図の色：最後に鍛えた日が近い部位ほど濃く、前ほど薄く（記録なしはグレー）
+    const recency = Object.fromEntries(BODY_PARTS.map((p) => [p.id, recencyColor(lastByPart.has(p.id) ? daysSince(lastByPart.get(p.id)!, today) : null)]));
+    return { last, marked, trained: new Set(byDate.keys()), recency };
+  }, [data, filter, today]);
 
   return (
     <TabPage header={<Header title="筋トレ記録" />}>
@@ -47,8 +50,18 @@ export function HomePage() {
               最終トレーニング：
               <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
             </p>
-            <div className="min-h-0 flex-1 px-4 py-1">
-              <BodyMap selected={filter} onSelect={setFilter} className="h-full w-full" />
+            <div className="relative min-h-0 flex-1 px-4 py-1">
+              <BodyMap selected={filter} onSelect={setFilter} allColors={recency} className="h-full w-full" />
+              {filter === 'all' && (
+                // 色の見本：濃いほど最近、薄いほど前
+                <div className="pointer-events-none absolute right-4 bottom-1 flex items-center gap-1.5 text-[10px] text-gray-500">
+                  最近
+                  <span className="h-2 w-16 rounded-full" style={{ background: RECENCY_GRADIENT }} />
+                  2週間〜
+                  <span className="ml-1 h-2 w-2 rounded-full" style={{ background: NEVER_COLOR }} />
+                  未
+                </div>
+              )}
             </div>
             <div className="shrink-0">
               <BodyPartTabs value={filter} onChange={setFilter} includeAll />
