@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { tick } from '../lib/haptics';
 import { COPIES, midIndex, nearestIndex, realIndex } from '../lib/roll';
 import { BODY_PARTS, type BodyPart } from '../types';
 import { ChevronLeft, ChevronRight } from './Icons';
@@ -66,7 +67,11 @@ export function BodyPartTabs<T extends Value>({
     if (!el) return;
     scrolling.current = true;
     const v = Math.min(n * COPIES - 1, Math.max(0, Math.round(el.scrollLeft / ITEM_W)));
-    if (v !== centerRef.current) updateCenter(v);
+    // 真ん中の部位が切り替わるたびに軽く振動させる
+    if (v !== centerRef.current) {
+      updateCenter(v);
+      tick();
+    }
     // 止まったところで確定（iOS は scrollend が使えないことがあるのでタイマーで判定）
     clearTimeout(settleTimer.current);
     settleTimer.current = window.setTimeout(() => {
