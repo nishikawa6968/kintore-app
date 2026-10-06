@@ -4,9 +4,9 @@ import { ChevronRight, Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
 import { RecordBadge } from '../components/RecordBadge';
 import { dayLabel } from '../lib/date';
-import { chronological, fmtWeight, recordSetIds, volume } from '../lib/records';
+import { chronological, recordIdsFor, setLabel, volume } from '../lib/records';
 import { useData } from '../lib/useData';
-import { bodyPartLabel, type SetRecord } from '../types';
+import { bodyPartLabel, isCardio, type SetRecord } from '../types';
 
 export function DayPage() {
   const { date = '' } = useParams();
@@ -22,9 +22,10 @@ export function DayPage() {
       byEx.get(s.exerciseId)!.push(s);
     }
     return [...byEx].map(([exerciseId, sets]) => {
-      const records = recordSetIds(data.sets.filter((s) => s.exerciseId === exerciseId));
+      const exercise = data.exercises.find((e) => e.id === exerciseId);
+      const records = recordIdsFor(exercise, data.sets.filter((s) => s.exerciseId === exerciseId));
       return {
-        exercise: data.exercises.find((e) => e.id === exerciseId),
+        exercise,
         sets: sets.sort(chronological),
         records,
       };
@@ -80,7 +81,7 @@ export function DayPage() {
                       records.has(s.id) ? 'bg-amber-100 font-bold text-amber-700' : 'bg-gray-50 text-gray-600'
                     }`}
                   >
-                    {fmtWeight(s.weight)}×{s.reps}
+                    {setLabel(s, isCardio(exercise))}
                   </span>
                 ))}
               </div>

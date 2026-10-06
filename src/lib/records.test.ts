@@ -1,6 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { Exercise, SetRecord } from '../types';
-import { computeBest, estimate1RM, lastTrainedByPart, partsByDate, recordSetIds } from './records';
+import {
+  computeBest,
+  computeRunBest,
+  estimate1RM,
+  fmtDuration,
+  fmtKm,
+  fmtPace,
+  lastTrainedByPart,
+  paceOf,
+  partsByDate,
+  recordSetIds,
+  runRecordIds,
+  speedKmh,
+} from './records';
 import { daysAgoLabel } from './date';
 
 let nextId = 1;
@@ -96,5 +109,44 @@ describe('部位の集計', () => {
     expect(daysAgoLabel('2026-09-25', '2026-09-25')).toBe('今日');
     expect(daysAgoLabel('2026-09-24', '2026-09-25')).toBe('昨日');
     expect(daysAgoLabel('2026-09-21', '2026-09-25')).toBe('4日前');
+  });
+});
+
+describe('ランニング', () => {
+  const run = (date: string, distance: number, minutes: number, order = 0): SetRecord => ({
+    ...set(date, 0, 0, order, 9),
+    distance,
+    duration: minutes * 60,
+  });
+
+  it('ペースと時速を出す', () => {
+    const r = run('2026-10-01', 5, 25.5);
+    expect(fmtPace(paceOf(r))).toBe(`5'06"`);
+    expect(speedKmh(r)).toBe(11.8);
+    expect(fmtDuration(25.5 * 60)).toBe('25:30');
+    expect(fmtDuration(3723)).toBe('1:02:03');
+    expect(fmtKm(5.25)).toBe('5.25km');
+  });
+
+  it('最長距離と最速ペースを別々に覚える', () => {
+    const best = computeRunBest([run('2026-10-01', 5, 30), run('2026-10-03', 10, 55), run('2026-10-05', 3, 14)])!;
+    expect(best).toMatchObject({ longest: 10, longestDate: '2026-10-03', bestPaceDate: '2026-10-05' });
+    expect(fmtPace(best.bestPace)).toBe(`4'40"`);
+  });
+
+  it('距離か時間が0のものは数えない', () => {
+    expect(computeRunBest([{ ...run('2026-10-01', 5, 25), duration: 0 }])).toBeNull();
+  });
+
+  it('距離を伸ばすかペースを上げたら新記録', () => {
+    const first = run('2026-10-01', 5, 30);
+    const slowerShorter = run('2026-10-02', 4, 26);
+    const longer = run('2026-10-03', 6, 40);
+    const faster = run('2026-10-04', 3, 15);
+    expect(runRecordIds([faster, longer, slowerShorter, first])).toEqual(new Set([longer.id, faster.id]));
+  });
+
+  it('重量の種目のベストにはランニングを混ぜない', () => {
+    expect(computeBest([run('2026-10-01', 5, 25)])).toBeNull();
   });
 });

@@ -5,7 +5,7 @@ import { ExerciseSheet } from '../components/ExerciseSheet';
 import { ChevronRight, Plus } from '../components/Icons';
 import { Header, Loading, SubPage } from '../components/Layout';
 import { daysAgoLabel } from '../lib/date';
-import { computeBest, fmtWeight, lastTrainedByPart } from '../lib/records';
+import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
 import { bodyPartLabel, type BodyPart } from '../types';
 
@@ -63,7 +63,7 @@ export function ExercisePickerPage() {
           <ul className="space-y-2">
             {list.map((ex) => {
               const exLast = info.lastByExercise.get(ex.id);
-              const best = exLast ? computeBest(data.sets.filter((s) => s.exerciseId === ex.id)) : null;
+              const best = exLast ? bestSummary(ex, data.sets.filter((s) => s.exerciseId === ex.id)) : null;
               return (
                 <li key={ex.id}>
                   <button
@@ -76,7 +76,7 @@ export function ExercisePickerPage() {
                         {exLast ? daysAgoLabel(exLast) : 'まだ記録なし'}
                         {best && (
                           <span className="ml-2 text-brand-600">
-                            ベスト {fmtWeight(best.maxWeight)}×{best.repsAtMax}回
+                            ベスト {best.main}
                           </span>
                         )}
                       </div>

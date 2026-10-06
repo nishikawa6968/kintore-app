@@ -1,4 +1,4 @@
-import type { BodyPart, Exercise, SetRecord } from '../types';
+import { isCardio, type BodyPart, type Exercise, type SetRecord } from '../types';
 
 /** 推定1RM（Epley式）。小数第1位で丸める */
 export function estimate1RM(weight: number, reps: number) {
@@ -105,3 +105,120 @@ export const fmtKg = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed
 
 /** 0kg は自重として表示 */
 export const fmtWeight = (w: number) => (w === 0 ? '自重' : `${fmtKg(w)}kg`);
+
+/* ---------- ランニング（距離×時間） ---------- */
+
+const validRun = (s: SetRecord) => (s.distance ?? 0) > 0 && (s.duration ?? 0) > 0;
+
+/** 1kmあたりの秒数。記録が足りなければ 0 */
+export const paceOf = (s: SetRecord) => (validRun(s) ? s.duration! / s.distance! : 0);
+
+export interface RunBest {
+  longest: number;
+  longestDate: string;
+  /** 1kmあたりの秒数（小さいほど速い） */
+  bestPace: number;
+  bestPaceDate: string;
+}
+
+/** ランニングの自己ベスト：最長距離と最速ペース */
+export function computeRunBest(sets: SetRecord[]): RunBest | null {
+  const valid = sets.filter(validRun).sort(chronological);
+  if (!valid.length) return null;
+  const best: RunBest = { longest: 0, longestDate: '', bestPace: Infinity, bestPaceDate: '' };
+  for (const s of valid) {
+    if (s.distance! > best.longest) {
+      best.longest = s.distance!;
+      best.longestDate = s.date;
+    }
+    const p = paceOf(s);
+    if (p < best.bestPace) {
+      best.bestPace = p;
+      best.bestPaceDate = s.date;
+    }
+  }
+  return best;
+}
+
+/** それまでの最長距離か最速ペースを更新したランの id（最初の1本は除く） */
+export function runRecordIds(sets: SetRecord[]): Set<number> {
+  const ids = new Set<number>();
+  let longest = 0;
+  let bestPace = Infinity;
+  let seen = false;
+  for (const s of sets.filter(validRun).sort(chronological)) {
+    const p = paceOf(s);
+    const longer = s.distance! > longest;
+    const faster = p < bestPace;
+    if (seen && (longer || faster)) ids.add(s.id);
+    if (longer) longest = s.distance!;
+    if (faster) bestPace = p;
+    seen = true;
+  }
+  return ids;
+}
+
+/** 種目に合わせて「新記録のセット」を求める */
+export const recordIdsFor = (exercise: Exercise | undefined, sets: SetRecord[]) =>
+  isCardio(exercise) ? runRecordIds(sets) : recordSetIds(sets);
+
+/** 5 → "5km"、5.25 → "5.25km" */
+export const fmtKm = (km: number) => `${Number(km.toFixed(2))}km`;
+
+/** 秒 → "25:30"、1時間以上は "1:02:03" */
+export function fmtDuration(sec: number) {
+  const s = Math.round(sec);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+
+/** 1kmあたりの秒数 → 5'06" */
+export function fmtPace(secPerKm: number) {
+  if (!Number.isFinite(secPerKm) || secPerKm <= 0) return '—';
+  const s = Math.round(secPerKm);
+  return `${Math.floor(s / 60)}'${String(s % 60).padStart(2, '0')}"`;
+}
+
+/** 時速(km/h) */
+export const speedKmh = (s: SetRecord) => (validRun(s) ? Math.round((s.distance! / (s.duration! / 3600)) * 10) / 10 : 0);
+
+/* ---------- 画面表示用のまとめ ---------- */
+
+export interface BestSummary {
+  /** 大きく出す記録（例：75kg×6回 / 最長 10km） */
+  main: string;
+  /** 小さく添える記録（例：1RM 90kg / 最速 4'50"/km） */
+  sub: string;
+  /** main を達成した日 */
+  date: string;
+  /** どれかの記録を更新した一番新しい日 */
+  latest: string;
+}
+
+/** 種目の自己ベストを、重量の種目・ランニングに合わせて表示用にまとめる */
+export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): BestSummary | null {
+  if (isCardio(exercise)) {
+    const b = computeRunBest(sets);
+    if (!b) return null;
+    return {
+      main: `最長 ${fmtKm(b.longest)}`,
+      sub: `最速 ${fmtPace(b.bestPace)}/km`,
+      date: b.longestDate,
+      latest: b.longestDate > b.bestPaceDate ? b.longestDate : b.bestPaceDate,
+    };
+  }
+  const b = computeBest(sets);
+  if (!b) return null;
+  return {
+    main: `${fmtWeight(b.maxWeight)}×${b.repsAtMax}回`,
+    sub: `1RM ${b.best1RM > 0 ? `${fmtKg(b.best1RM)}kg` : '—'}`,
+    date: b.maxDate,
+    latest: b.maxDate > b.best1RMDate ? b.maxDate : b.best1RMDate,
+  };
+}
+
+/** セット1つの短い表示（例：75kg×6 / 5km 25:30） */
+export const setLabel = (s: SetRecord, cardio: boolean) =>
+  cardio ? `${fmtKm(s.distance ?? 0)} ${fmtDuration(s.duration ?? 0)}` : `${fmtWeight(s.weight)}×${s.reps}`;

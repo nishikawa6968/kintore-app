@@ -28,6 +28,20 @@ class KintoreDB extends Dexie {
             e.order = order++;
           });
       });
+    // v3: 脚に「ランニング」（距離×時間で記録）を追加
+    this.version(3)
+      .stores(stores)
+      .upgrade(async (tx) => {
+        const table = tx.table('exercises');
+        const existing = await table.where('bodyPart').equals('leg').toArray();
+        const running = existing.find((e) => e.name === 'ランニング');
+        if (running) {
+          await table.update(running.id, { kind: 'cardio' });
+          return;
+        }
+        const order = existing.reduce((max, e) => Math.max(max, e.order), -1) + 1;
+        await table.add({ name: 'ランニング', bodyPart: 'leg', kind: 'cardio', archived: false, order });
+      });
     this.on('populate', (tx) => {
       tx.table('exercises').bulkAdd(presetExercises());
     });
@@ -46,6 +60,13 @@ export async function addSet(exerciseId: number, date: string, weight: number, r
   const existing = await setsOf(exerciseId, date);
   const order = existing.length ? existing[existing.length - 1].order + 1 : 0;
   return db.sets.add({ exerciseId, date, weight, reps, order, createdAt: Date.now() } as SetRecord);
+}
+
+/** ランニングの1本を追加（距離 km・時間 秒） */
+export async function addRun(exerciseId: number, date: string, distance: number, duration: number) {
+  const existing = await setsOf(exerciseId, date);
+  const order = existing.length ? existing[existing.length - 1].order + 1 : 0;
+  return db.sets.add({ exerciseId, date, weight: 0, reps: 0, distance, duration, order, createdAt: Date.now() } as SetRecord);
 }
 
 export interface BackupData {

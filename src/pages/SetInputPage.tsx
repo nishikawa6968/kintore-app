@@ -1,14 +1,54 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { addSet, db } from '../db/db';
-import { BestCard } from '../components/BestCard';
+import { addRun, addSet, db } from '../db/db';
+import { BestCard, type BestStat } from '../components/BestCard';
 import { Copy, History, Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
 import { RestTimer } from '../components/RestTimer';
+import { RunRow } from '../components/RunRow';
 import { SetRow } from '../components/SetRow';
 import { daysAgoLabel, slashDate } from '../lib/date';
-import { chronological, computeBest, fmtWeight, recordSetIds } from '../lib/records';
+import {
+  chronological,
+  computeBest,
+  computeRunBest,
+  fmtDuration,
+  fmtKg,
+  fmtKm,
+  fmtPace,
+  fmtWeight,
+  paceOf,
+  recordIdsFor,
+} from '../lib/records';
 import { useData } from '../lib/useData';
+import { isCardio, type SetRecord } from '../types';
+
+/** 最高記録の欄の中身。その日に更新した項目には up を付ける */
+function bestCardFor(cardio: boolean, all: SetRecord[], date: string, recordToday: boolean) {
+  const before = all.filter((s) => s.date < date);
+  if (cardio) {
+    const best = computeRunBest(all);
+    if (!best) return null;
+    const prev = computeRunBest(before);
+    const longUp = recordToday && best.longestDate === date;
+    const paceUp = recordToday && best.bestPaceDate === date;
+    const left: BestStat = { label: '最長距離', value: fmtKm(best.longest), up: longUp };
+    const right: BestStat = { label: '最速ペース', value: `${fmtPace(best.bestPace)}/km`, up: paceUp };
+    return { left, right, before: prev && (longUp ? fmtKm(prev.longest) : `${fmtPace(prev.bestPace)}/km`) };
+  }
+  const best = computeBest(all);
+  if (!best) return null;
+  const prev = computeBest(before);
+  const weightUp = recordToday && best.maxDate === date;
+  const rmUp = recordToday && best.best1RMDate === date;
+  const left: BestStat = { label: '自己ベスト', value: `${fmtWeight(best.maxWeight)} × ${best.repsAtMax}回`, up: weightUp };
+  const right: BestStat = { label: '推定1RM', value: best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—', up: rmUp };
+  return { left, right, before: prev && (weightUp ? `${fmtWeight(prev.maxWeight)}×${prev.repsAtMax}回` : `1RM ${fmtKg(prev.best1RM)}kg`) };
+}
+
+/** 前回の記録の1行 */
+const setText = (s: SetRecord, cardio: boolean) =>
+  cardio ? `${fmtKm(s.distance ?? 0)}　${fmtDuration(s.duration ?? 0)}（${fmtPace(paceOf(s))}/km）` : `${fmtWeight(s.weight)} × ${s.reps}回`;
 
 export function SetInputPage() {
   const { date = '', exerciseId: idParam = '' } = useParams();
@@ -21,21 +61,12 @@ export function SetInputPage() {
     const todays = all.filter((s) => s.date === date).sort(chronological);
     const prevDate = all.reduce<string | null>((max, s) => (s.date < date && (!max || s.date > max) ? s.date : max), null);
     const prevSets = prevDate ? all.filter((s) => s.date === prevDate).sort(chronological) : [];
-    const records = recordSetIds(all);
-    const best = computeBest(all);
+    const exercise = data.exercises.find((e) => e.id === exerciseId);
+    const cardio = isCardio(exercise);
+    const records = recordIdsFor(exercise, all);
     // この日のセットで自己ベストを更新し、それが今も自己ベストなら「本日更新」
     const recordToday = todays.some((s) => records.has(s.id));
-    return {
-      exercise: data.exercises.find((e) => e.id === exerciseId),
-      todays,
-      prevDate,
-      prevSets,
-      records,
-      best,
-      prevBest: computeBest(all.filter((s) => s.date < date)),
-      weightUp: recordToday && best?.maxDate === date,
-      rmUp: recordToday && best?.best1RMDate === date,
-    };
+    return { exercise, cardio, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, recordToday) };
   }, [data, exerciseId, date]);
 
   // セットを追加したら一番下までスクロール
@@ -47,17 +78,22 @@ export function SetInputPage() {
   }, [count]);
 
   if (!view) return <Loading />;
-  const { exercise, todays, prevDate, prevSets, records, best, prevBest, weightUp, rmUp } = view;
+  const { exercise, cardio, todays, prevDate, prevSets, records, card } = view;
+  const unit = cardio ? '本' : 'セット';
 
   /** 直前のセット → 前回の同じセット番号 → 前回の最終セット の順で値を引き継ぐ */
   const addNext = () => {
     const base = todays[todays.length - 1] ?? prevSets[todays.length] ?? prevSets[prevSets.length - 1];
-    addSet(exerciseId, date, base?.weight ?? 0, base?.reps ?? 10);
+    if (cardio) addRun(exerciseId, date, base?.distance ?? 5, base?.duration ?? 30 * 60);
+    else addSet(exerciseId, date, base?.weight ?? 0, base?.reps ?? 10);
   };
 
   const copyPrev = async () => {
-    if (todays.length && !confirm('前回のセットを今日の記録に追加しますか？')) return;
-    for (const s of prevSets) await addSet(exerciseId, date, s.weight, s.reps);
+    if (todays.length && !confirm(`前回の${unit}を今日の記録に追加しますか？`)) return;
+    for (const s of prevSets) {
+      if (cardio) await addRun(exerciseId, date, s.distance ?? 0, s.duration ?? 0);
+      else await addSet(exerciseId, date, s.weight, s.reps);
+    }
   };
 
   return (
@@ -75,12 +111,12 @@ export function SetInputPage() {
       }
       action={
         <PrimaryButton onClick={addNext}>
-          <Plus /> セットを追加
+          <Plus /> {cardio ? 'ランを追加' : 'セットを追加'}
         </PrimaryButton>
       }
     >
       <div className="space-y-3 p-4">
-        {best && <BestCard best={best} prevBest={prevBest} weightUp={weightUp} rmUp={rmUp} />}
+        {card && <BestCard {...card} />}
 
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">
@@ -101,7 +137,8 @@ export function SetInputPage() {
                 <div key={s.id} className="contents">
                   <span className="text-gray-400">{i + 1}</span>
                   <span>
-                    {fmtWeight(s.weight)} × {s.reps}回{s.memo && <span className="ml-2 text-xs text-gray-400">{s.memo}</span>}
+                    {setText(s, cardio)}
+                    {s.memo && <span className="ml-2 text-xs text-gray-400">{s.memo}</span>}
                   </span>
                 </div>
               ))}
@@ -109,18 +146,20 @@ export function SetInputPage() {
           </div>
         )}
 
-        <RestTimer />
+        {!cardio && <RestTimer />}
 
         <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-          <div className="flex border-b border-gray-100 px-3 py-1.5 text-[11px] font-bold text-gray-400">
-            <span className="w-8 whitespace-nowrap">セット</span>
-            <span className="flex-[1.15] text-center">重さ</span>
-            <span className="w-3" />
-            <span className="flex-1 text-center">回数</span>
-          </div>
+          {!cardio && (
+            <div className="flex border-b border-gray-100 px-3 py-1.5 text-[11px] font-bold text-gray-400">
+              <span className="w-8 whitespace-nowrap">セット</span>
+              <span className="flex-[1.15] text-center">重さ</span>
+              <span className="w-3" />
+              <span className="flex-1 text-center">回数</span>
+            </div>
+          )}
           {todays.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-gray-400">
-              「セットを追加」で記録を始めましょう
+              「{cardio ? 'ランを追加' : 'セットを追加'}」で記録を始めましょう
               {prevDate && (
                 <>
                   <br />
@@ -130,9 +169,13 @@ export function SetInputPage() {
             </p>
           ) : (
             <div className="divide-y divide-gray-100">
-              {todays.map((s, i) => (
-                <SetRow key={s.id} set={s} index={i + 1} isRecord={records.has(s.id)} />
-              ))}
+              {todays.map((s, i) =>
+                cardio ? (
+                  <RunRow key={s.id} set={s} index={i + 1} isRecord={records.has(s.id)} />
+                ) : (
+                  <SetRow key={s.id} set={s} index={i + 1} isRecord={records.has(s.id)} />
+                ),
+              )}
             </div>
           )}
         </div>

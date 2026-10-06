@@ -4,7 +4,7 @@ import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ChevronRight } from '../components/Icons';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
-import { computeBest, fmtKg, fmtWeight, lastTrainedByPart } from '../lib/records';
+import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
 import { BODY_PARTS, type BodyPart } from '../types';
 
@@ -21,7 +21,7 @@ export function RecordsPage() {
     if (!data) return [];
     return data.exercises
       .filter((e) => e.bodyPart === part && !e.archived)
-      .map((e) => ({ exercise: e, best: computeBest(data.sets.filter((s) => s.exerciseId === e.id)) }))
+      .map((e) => ({ exercise: e, best: bestSummary(e, data.sets.filter((s) => s.exerciseId === e.id)) }))
       .sort((a, b) => Number(!!b.best) - Number(!!a.best));
   }, [data, part]);
 
@@ -43,11 +43,10 @@ export function RecordsPage() {
           <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
             <div className="grid grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
               <span>種目 / 達成日</span>
-              <span className="text-right">最高重量×回数 / 推定1RM</span>
+              <span className="text-right">最高記録 / 推定1RM・ペース</span>
             </div>
             {rows.map(({ exercise, best }) => {
-              const recent =
-                best && Math.min(daysSince(best.maxDate), daysSince(best.best1RMDate)) < RECENT_DAYS;
+              const recent = best && daysSince(best.latest) < RECENT_DAYS;
               return (
                 <Link
                   key={exercise.id}
@@ -61,17 +60,12 @@ export function RecordsPage() {
                       {recent && '🎉 '}
                       {exercise.name}
                     </div>
-                    <div className="text-xs text-gray-400">{best ? slashDate(best.maxDate) : '未記録'}</div>
+                    <div className="text-xs text-gray-400">{best ? slashDate(best.date) : '未記録'}</div>
                   </div>
                   {best ? (
                     <div className="text-right tabular-nums">
-                      <div className="text-lg font-bold leading-tight text-gray-800">
-                        {fmtWeight(best.maxWeight)}
-                        <span className="text-sm font-normal text-gray-400"> × </span>
-                        {best.repsAtMax}
-                        <span className="text-sm font-normal text-gray-500">回</span>
-                      </div>
-                      <div className="text-xs text-brand-600">1RM {best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—'}</div>
+                      <div className="text-lg font-bold leading-tight text-gray-800">{best.main}</div>
+                      <div className="text-xs text-brand-600">{best.sub}</div>
                     </div>
                   ) : (
                     <span className="text-gray-300">—</span>

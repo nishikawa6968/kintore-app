@@ -1,31 +1,31 @@
-import { fmtKg, fmtWeight, type Best } from '../lib/records';
+export interface BestStat {
+  label: string;
+  value: string;
+  /** その日に更新した項目 */
+  up: boolean;
+}
 
 /**
- * 種目の自己ベスト欄。その日に記録を更新していたら、赤く燃える欄にして強調する。
- * weightUp：最高重量×回数をその日に更新 / rmUp：推定1RMをその日に更新
+ * 種目の自己ベスト欄（左右に2つの記録）。その日に記録を更新していたら、
+ * 赤く燃える欄にして「本日更新！」と、前回のベストからの更新を表示する。
  */
-export function BestCard({ best, prevBest, weightUp, rmUp }: { best: Best; prevBest: Best | null; weightUp: boolean; rmUp: boolean }) {
-  const fire = weightUp || rmUp;
-  const rm = best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—';
+export function BestCard({ left, right, before }: { left: BestStat; right: BestStat; before?: string | null }) {
+  const fire = left.up || right.up;
 
   if (!fire) {
     return (
       <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 px-4 py-3 text-white shadow-sm">
         <div>
-          <div className="text-xs opacity-80">自己ベスト</div>
-          <div className="text-xl font-bold tabular-nums">
-            {fmtWeight(best.maxWeight)} × {best.repsAtMax}回
-          </div>
+          <div className="text-xs opacity-80">{left.label}</div>
+          <div className="text-xl font-bold tabular-nums">{left.value}</div>
         </div>
         <div className="text-right">
-          <div className="text-xs opacity-80">推定1RM</div>
-          <div className="text-xl font-bold tabular-nums">{rm}</div>
+          <div className="text-xs opacity-80">{right.label}</div>
+          <div className="text-xl font-bold tabular-nums">{right.value}</div>
         </div>
       </div>
     );
   }
-
-  const before = prevBest && (weightUp ? `${fmtWeight(prevBest.maxWeight)}×${prevBest.repsAtMax}回` : `1RM ${fmtKg(prevBest.best1RM)}kg`);
 
   return (
     <div className="bg-fire animate-ember relative overflow-hidden rounded-2xl px-4 pt-2.5 pb-3 text-white">
@@ -38,17 +38,17 @@ export function BestCard({ best, prevBest, weightUp, rmUp }: { best: Best; prevB
       <div className="flex items-end justify-between">
         <div>
           <div className="flex items-center gap-1 text-xs opacity-90">
-            自己ベスト{weightUp && <UpBadge />}
+            {left.label}
+            {left.up && <UpBadge />}
           </div>
-          <div className="text-2xl font-black tabular-nums drop-shadow">
-            {fmtWeight(best.maxWeight)} × {best.repsAtMax}回
-          </div>
+          <div className="text-2xl font-black tabular-nums drop-shadow">{left.value}</div>
         </div>
         <div className="text-right">
           <div className="flex items-center justify-end gap-1 text-xs opacity-90">
-            推定1RM{rmUp && <UpBadge />}
+            {right.label}
+            {right.up && <UpBadge />}
           </div>
-          <div className="text-2xl font-black tabular-nums drop-shadow">{rm}</div>
+          <div className="text-2xl font-black tabular-nums drop-shadow">{right.value}</div>
         </div>
       </div>
     </div>
