@@ -66,13 +66,12 @@ export function StatusBarFill() {
 
 /**
  * ヘッダーは画面幅いっぱい、中身は読みやすい幅（max-w-md）に収める。
- * wide を付けると中身も画面幅いっぱいにする（青い見出し帯が並ぶ画面用）。
  */
-function PageBody({ header, wide, className, children }: { header: ReactNode; wide?: boolean; className: string; children: ReactNode }) {
+function PageBody({ header, className, children }: { header: ReactNode; className: string; children: ReactNode }) {
   return (
     <>
       {header}
-      <main className={`${wide ? '' : 'mx-auto max-w-md'} ${className}`}>{children}</main>
+      <main className={`mx-auto max-w-md ${className}`}>{children}</main>
     </>
   );
 }
@@ -90,12 +89,28 @@ export function TabPage({ header, bottom, children }: { header: ReactNode; botto
 }
 
 /** 下部タブなしの画面（下に大きな操作ボタンを置く） */
-export function SubPage({ header, wide, children, action }: { header: ReactNode; wide?: boolean; children: ReactNode; action?: ReactNode }) {
+export function SubPage({
+  header,
+  children,
+  action,
+  bar,
+}: {
+  header: ReactNode;
+  children: ReactNode;
+  action?: ReactNode;
+  /** 画面下に固定する操作部品（部位ロールなど）。親指が届く位置に置く */
+  bar?: ReactNode;
+}) {
   return (
     <>
-      <PageBody header={header} wide={wide} className="pb-32">
+      <PageBody header={header} className="pb-32">
         {children}
       </PageBody>
+      {bar && (
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-[#f3f5f9]/95 pb-safe backdrop-blur">
+          <div className="mx-auto max-w-md pb-2">{bar}</div>
+        </div>
+      )}
       {action && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[#f3f5f9] via-[#f3f5f9] to-transparent px-4 pt-6 pb-safe">
           <div className="mx-auto max-w-md pb-4">{action}</div>
