@@ -112,6 +112,62 @@ textarea {
   }
 }
 
+/* 使い方ページのお手本：指のマーク */
+.demo-finger {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 9999px;
+  background: rgb(245 158 11 / 0.35);
+  border: 2px solid #f59e0b;
+  pointer-events: none;
+  transition:
+    left 500ms ease,
+    top 500ms ease;
+  z-index: 5;
+}
+.demo-finger-tap {
+  animation: demo-tap 900ms ease-in-out infinite;
+}
+@keyframes demo-tap {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.7);
+    background: rgb(245 158 11 / 0.6);
+  }
+}
+.demo-finger-swipe {
+  animation: demo-swipe 2000ms ease-in-out infinite;
+}
+@keyframes demo-swipe {
+  0% {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    transform: translateX(-50px);
+    opacity: 1;
+  }
+  75%,
+  100% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-finger-tap,
+  .demo-finger-swipe {
+    animation: none;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

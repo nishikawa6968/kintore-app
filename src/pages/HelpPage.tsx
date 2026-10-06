@@ -1,16 +1,21 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Header, SubPage } from '../components/Layout';
 import { ChevronDown } from '../components/Icons';
+import { BodyTapDemo, CalendarDemo, FireDemo, FlowDemo, RecencyDemo, RollerDemo, StepperDemo, SwipeTableDemo } from './help/HelpDemos';
 
-/** 見出しをタップして開け閉めできる説明のまとまり */
-function Section({ title, open = false, children }: { title: string; open?: boolean; children: ReactNode }) {
+/**
+ * 見出しをタップして開け閉めできる説明のまとまり。
+ * 中身（動くお手本を含む）は開いているときだけ作るので、閉じている項目は動かない。
+ */
+function Section({ title, open: initial = false, children }: { title: string; open?: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(initial);
   return (
-    <details open={open} className="group overflow-hidden rounded-2xl bg-white shadow-sm">
+    <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)} className="group overflow-hidden rounded-2xl bg-white shadow-sm">
       <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3.5 font-bold text-gray-800 [&::-webkit-details-marker]:hidden">
         <span className="flex-1">{title}</span>
         <ChevronDown className="shrink-0 text-gray-400 transition-transform group-open:rotate-180" width={20} height={20} />
       </summary>
-      <div className="space-y-3 border-t border-gray-100 px-4 py-3 text-[14px] leading-relaxed text-gray-700">{children}</div>
+      {open && <div className="space-y-3 border-t border-gray-100 px-4 py-3 text-[14px] leading-relaxed text-gray-700">{children}</div>}
     </details>
   );
 }
@@ -45,6 +50,7 @@ export function HelpPage() {
         </Section>
 
         <Section title="基本の使い方（記録をつける流れ）" open>
+          <FlowDemo />
           <Steps>
             <li>ホームの「今日の記録をつける」を押します（別の日を記録するときは、カレンダーの日付を押します）。</li>
             <li>その日の画面で「種目を追加」を押します。</li>
@@ -58,6 +64,7 @@ export function HelpPage() {
 
         <Section title="ホーム（筋トレ記録）の画面">
           <Sub title="カレンダー">
+            <CalendarDemo />
             <List>
               <li>濃い青の丸：下で選んでいる部位を鍛えた日（ALL のときは筋トレをした日すべて）。</li>
               <li>水色の丸：選んでいる部位はやっていないが、ほかの筋トレをした日。</li>
@@ -70,6 +77,8 @@ export function HelpPage() {
             <p>選んでいる部位を最後に鍛えた日（「3日前（2026/10/03）」など）を表示します。ALL のときは、どの部位でも最後に筋トレした日です。</p>
           </Sub>
           <Sub title="人の図">
+            <BodyTapDemo />
+            <RecencyDemo />
             <List>
               <li>部位を選んでいるときは、その部位の筋肉が青く光ります。</li>
               <li>ALL のときは、部位ごとに最後に鍛えた日の近さで色が付きます。今日・昨日は赤、日がたつほど赤紫 → 紫 → 青紫と青みがかり、2週間以上前は暗い紺色、一度もやっていない部位はグレーです。図の右下のカラーバーが色の見本です。</li>
@@ -106,6 +115,7 @@ export function HelpPage() {
 
         <Section title="記録の画面（重さ×回数の種目）">
           <Sub title="一番上：自己ベストの欄">
+            <FireDemo />
             <List>
               <li>その種目の自己ベスト（最高重量×回数と推定1RM）を青い欄に表示します。</li>
               <li>その日のセットで自己ベストを更新すると、赤く燃えるような欄に変わり「本日更新！」と出ます。更新した項目には「UP」、右上には「前回 75kg×3回 から更新」のように前のベストが出ます。</li>
@@ -118,6 +128,7 @@ export function HelpPage() {
             <p>1分・1.5分・2分・3分から選んで「開始」。時間になると欄が光ります（Android などでは振動もします）。「停止」で止められます。</p>
           </Sub>
           <Sub title="セットの入力">
+            <StepperDemo />
             <List>
               <li>「−」「＋」で、重さは2.5kgずつ、回数は1回ずつ変わります。数字を押すとキーボードで直接入力もできます。</li>
               <li>各セットの下に推定1RMが出ます。自己ベストを更新したセットは黄色くなり「新記録」の印が付きます。</li>
@@ -140,6 +151,7 @@ export function HelpPage() {
         </Section>
 
         <Section title="自己ベストの画面">
+          <SwipeTableDemo caption="表を左右にスワイプすると隣の部位へ（指を左へ動かすと次の部位、右へ動かすと前の部位）" />
           <List>
             <li>上に選んでいる部位の最終トレーニング、その下に部位の種目ごとの自己ベストの表を表示します。重さの種目は「最高重量×回数」と推定1RM、ランニングは「最長距離」とベスト平均ペースです。左には達成した日が出ます。</li>
             <li>この7日以内に記録を更新した種目は、黄色くトロフィーの印が付きます。</li>
@@ -161,6 +173,7 @@ export function HelpPage() {
 
         <Section title="設定の画面">
           <Sub title="種目の管理">
+            <SwipeTableDemo caption="種目の表も、左右にスワイプすると隣の部位へ移る" />
             <List>
               <li>下のロールで部位を選ぶと、その部位の種目が並びます。表を左右にスワイプしても隣の部位へ移れます。</li>
               <li>種目名を押すと、名前と部位を変えられます。</li>
@@ -178,6 +191,7 @@ export function HelpPage() {
         </Section>
 
         <Section title="部位のロールの操作">
+          <RollerDemo />
           <List>
             <li>ホーム・種目選択・自己ベスト・設定の下にある、部位を選ぶロールです。真ん中の青く大きい部位が選ばれています。</li>
             <li>並び順は体の上から「肩 → 胸 → 腕 → 背中 → 腹 → 脚」です（ホームは最初に ALL）。端がなく、どちらへ回してもずっと回り続けます。</li>

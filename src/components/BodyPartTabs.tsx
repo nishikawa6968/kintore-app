@@ -35,10 +35,13 @@ export function BodyPartTabs<T extends Value>({
   value,
   onChange,
   includeAll = false,
+  haptics = true,
 }: {
   value: T;
   onChange: (v: T) => void;
   includeAll?: boolean;
+  /** 部位が切り替わるたびに振動するか（説明ページのお手本では止める） */
+  haptics?: boolean;
 }) {
   const items = [...(includeAll ? [{ id: 'all' as const, label: 'ALL' }] : []), ...BODY_PARTS];
   const n = items.length;
@@ -56,7 +59,7 @@ export function BodyPartTabs<T extends Value>({
 
   /** 位置を動かす。真ん中の部位が切り替わったら軽く振動 */
   const moveTo = (p: number) => {
-    if (Math.round(p) !== Math.round(posRef.current)) tick();
+    if (haptics && Math.round(p) !== Math.round(posRef.current)) tick();
     posRef.current = p;
     setPos(p);
   };
