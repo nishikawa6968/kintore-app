@@ -6,7 +6,7 @@ import { HomePage } from './pages/HomePage';
 import { RecordsPage } from './pages/RecordsPage';
 import { SetInputPage } from './pages/SetInputPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { Loading } from './components/Layout';
+import { Loading, StatusBarFill } from './components/Layout';
 
 // グラフライブラリが大きいので詳細画面は開いたときに読み込む
 const ExerciseDetailPage = lazy(() => import('./pages/ExerciseDetailPage').then((m) => ({ default: m.ExerciseDetailPage })));
@@ -24,6 +24,7 @@ export default function App() {
     // ホーム画面追加・静的ホスティングでも404にならないようハッシュルーティング
     <HashRouter>
       <ScrollToTop />
+      <StatusBarFill />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/day/:date" element={<DayPage />} />

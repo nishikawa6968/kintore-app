@@ -57,6 +57,11 @@ export function BottomNav() {
   );
 }
 
+/** iPhone のステータスバー（時刻・電池）の裏を画面幅いっぱい青で塗る */
+export function StatusBarFill() {
+  return <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-brand-500" />;
+}
+
 /** 下部タブ付きの画面 */
 export function TabPage({ children }: { children: ReactNode }) {
   return (

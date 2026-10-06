@@ -20,6 +20,9 @@ body {
   color: #1f2937;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  /* 横にはみ出して画面が左右にずれないようにする（sticky を壊さない clip を使う） */
+  overflow-x: clip;
+  width: 100%;
 }
 
 /* iOS で入力時に勝手にズームしないように */
