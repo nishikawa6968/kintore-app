@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SetRecord } from '../types';
-import { chartData } from './chart';
+import { chartData, timeTicks } from './chart';
 import { estimate1RM } from './records';
 import { fromKey } from './date';
 
@@ -43,5 +43,41 @@ describe('グラフの点', () => {
 
   it('記録がなければ点はない', () => {
     expect(chartData([], rm, 'max', 'all', NOW).points).toHaveLength(0);
+  });
+});
+
+describe('横軸の目盛り', () => {
+  const DAY = 24 * 3600 * 1000;
+  const t = (key: string) => fromKey(key).getTime();
+  const fmt = (ticks: number[], f: string) => ticks.map((x) => (f === 'M/d' ? `${new Date(x).getMonth() + 1}/${new Date(x).getDate()}` : `${new Date(x).getFullYear()}/${new Date(x).getMonth() + 1}`));
+
+  it('1か月なら日付の目盛りで、同じ表示が並ばない', () => {
+    const { ticks, format } = timeTicks([t('2026-09-06'), t('2026-10-06')]);
+    expect(format).toBe('M/d');
+    expect(ticks.length).toBeLessThanOrEqual(5);
+    expect(new Set(fmt(ticks, format)).size).toBe(ticks.length);
+  });
+
+  it('1年なら月の初めの目盛り（5本以下）', () => {
+    const { ticks, format } = timeTicks([t('2025-10-06'), t('2026-10-06')]);
+    expect(format).toBe('M月');
+    expect(ticks.length).toBeLessThanOrEqual(5);
+    ticks.forEach((x) => expect(new Date(x).getDate()).toBe(1));
+  });
+
+  it('3年なら年/月の目盛り（5本以下、重ならない）', () => {
+    const { ticks, format } = timeTicks([t('2023-10-06'), t('2026-10-06')]);
+    expect(format).toBe('yy/M');
+    expect(ticks.length).toBeLessThanOrEqual(5);
+    expect(new Set(fmt(ticks, format)).size).toBe(ticks.length);
+  });
+
+  it('期間が短くても目盛りは範囲の中に入る', () => {
+    const start = t('2026-10-05');
+    const { ticks } = timeTicks([start, start + 3 * DAY]);
+    ticks.forEach((x) => {
+      expect(x).toBeGreaterThanOrEqual(start);
+      expect(x).toBeLessThanOrEqual(start + 3 * DAY);
+    });
   });
 });

@@ -51,3 +51,33 @@ export function chartData(sets: SetRecord[], value: (s: SetRecord) => number, be
   const start = now - SPAN[range];
   return { points: all.filter((p) => p.t >= start && p.t <= now + DAY), domain: [start, now] };
 }
+
+/**
+ * 横軸の目盛り。表示する期間の長さに合わせて、同じ表示が並ばないように選ぶ。
+ * - 2か月くらいまで：1・2・7・14日おきの日付（M/d）
+ * - それより長い：1・2・3・6・12か月おきの月の初め（1年以内は「M月」、それより長いと「yy/M」）
+ * どちらも目盛りは5本以下にする。
+ */
+export function timeTicks([start, end]: [number, number]): { ticks: number[]; format: string } {
+  const span = end - start;
+  if (span <= 62 * DAY) {
+    const every = [1, 2, 7, 14].find((d) => span / (d * DAY) <= 5) ?? 14;
+    const first = new Date(start);
+    first.setHours(12, 0, 0, 0);
+    if (first.getTime() < start) first.setDate(first.getDate() + 1);
+    const ticks: number[] = [];
+    for (let d = new Date(first); d.getTime() <= end; d.setDate(d.getDate() + every)) ticks.push(d.getTime());
+    return { ticks, format: 'M/d' };
+  }
+  const months = span / (30.4 * DAY);
+  const every = [1, 2, 3, 6, 12].find((m) => months / m <= 5) ?? Math.ceil(months / 5 / 12) * 12;
+  const d = new Date(start);
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  if (d.getTime() < start) d.setMonth(d.getMonth() + 1);
+  // 刻みの区切りのいい月から始める（3か月おきなら 1・4・7・10月）
+  while (d.getMonth() % every !== 0 && every <= 12) d.setMonth(d.getMonth() + 1);
+  const ticks: number[] = [];
+  for (; d.getTime() <= end; d.setMonth(d.getMonth() + every)) ticks.push(d.getTime());
+  return { ticks, format: span <= 370 * DAY ? 'M月' : 'yy/M' };
+}
