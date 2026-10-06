@@ -60,7 +60,7 @@ export function ExercisePickerPage() {
         <Loading />
       ) : (
         // 画面の高さぴったりに「部位名 → 種目（3段の横スライド）→ 人の図（残りいっぱい）→ ロール」と並べる
-        <div className="flex h-[calc(100dvh-3rem-env(safe-area-inset-top))] min-h-[620px] flex-col pb-safe">
+        <div className="flex h-[calc(var(--app-h)-3rem-env(safe-area-inset-top))] min-h-[620px] flex-col pb-safe">
           <div className="flex shrink-0 items-baseline gap-2 px-5 pt-3 pb-2">
             <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
             <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>

@@ -14,6 +14,14 @@
   --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
 }
 
+/*
+ * 実際に見えている画面の高さ。iPhone のホーム画面アプリでは 100dvh がステータスバーの分
+ * 大きく報告されることがあるため、main.tsx で window.innerHeight を測って入れる。
+ */
+:root {
+  --app-h: 100dvh;
+}
+
 html,
 body {
   background: #f3f5f9;

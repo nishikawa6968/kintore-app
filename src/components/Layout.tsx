@@ -77,7 +77,7 @@ function PageBody({ header, className, children }: { header: ReactNode; classNam
 }
 
 /** 下部タブ付きの画面で、ヘッダーと下部タブ（約3.65rem）を除いた高さ（fill の画面で使う） */
-export const TAB_PAGE_HEIGHT = 'h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3.65rem)]';
+export const TAB_PAGE_HEIGHT = 'h-[calc(var(--app-h)-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3.65rem)]';
 
 /** 下部タブ付きの画面 */
 export function TabPage({

@@ -57,7 +57,7 @@ export function ExerciseDetailPage() {
   return (
     <SubPage header={<Header title={exercise?.name ?? '種目'} back="/records" />} fill>
       {/* 上：自己ベスト（固定）／真ん中：日付ごとの記録（ここだけ縦にスクロール）／下：推移のグラフ */}
-      <div className="flex h-[calc(100dvh-3rem-env(safe-area-inset-top))] min-h-[600px] flex-col">
+      <div className="flex h-[calc(var(--app-h)-3rem-env(safe-area-inset-top))] min-h-[600px] flex-col">
         <div className="shrink-0 px-4 pt-4">
           <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 p-4 text-white shadow">
             <div className="mb-2 flex items-center gap-2 text-sm opacity-90">
@@ -140,7 +140,7 @@ export function ExerciseDetailPage() {
             </div>
           ))}
         </div>
-        <div className="flex h-[44%] shrink-0 flex-col rounded-t-3xl bg-white px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+        <div className="mx-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] flex h-[42%] shrink-0 flex-col rounded-3xl bg-white px-4 pt-4 pb-3 shadow-[0_2px_16px_rgba(0,0,0,0.08)]">
           <ProgressChart sets={all} kind={cardio ? 'pace' : bodyweight ? 'reps' : '1rm'} />
         </div>
       </div>
