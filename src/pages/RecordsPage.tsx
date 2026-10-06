@@ -49,7 +49,6 @@ export function RecordsPage() {
             )}
             className="shrink-0 py-1"
           />
-          <p className="mt-1 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
           {/* 人の図（ホームと同じくらいの大きさ。筋肉をタップするとその部位へ）とロール */}
           <div className="min-h-[160px] flex-1 px-4 py-1">
             <BodyMap selected={part} onSelect={setPart} className="h-full w-full" />

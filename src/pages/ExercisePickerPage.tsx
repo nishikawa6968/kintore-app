@@ -83,7 +83,6 @@ export function ExercisePickerPage() {
             種目を追加
           </button>
         </div>
-        <p className={`mt-1 shrink-0 text-center text-[11px] text-gray-400 ${list.length + 1 > 6 ? '' : 'invisible'}`}>← 横にスライドで他の種目 →</p>
       </>
     );
   };

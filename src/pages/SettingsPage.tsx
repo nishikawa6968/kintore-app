@@ -114,7 +114,6 @@ export function SettingsPage() {
               renderPage={(o) => <div className="px-4">{renderList(o === 0 ? part : neighborPart(part, o))}</div>}
               className="pt-2 pb-1"
             />
-            <p className="mt-1 px-5 text-xs text-gray-400">名前をタップで編集。目のアイコンで種目選択画面から隠せます（記録は残ります）。表を左右にスワイプで隣の部位へ。</p>
           </section>
 
           <section className="px-4">
@@ -140,9 +139,6 @@ export function SettingsPage() {
                 }}
               />
             </div>
-            <p className="mt-2 px-1 text-xs leading-relaxed text-gray-400">
-              記録はこの端末のブラウザ内だけに保存されています。機種変更やブラウザのデータ削除に備えて、ときどき書き出しておくと安心です。
-            </p>
           </section>
 
           <section className="px-4">
@@ -150,7 +146,6 @@ export function SettingsPage() {
             <Link to="/help" className="flex items-center rounded-2xl bg-white px-4 py-3.5 shadow-sm active:bg-gray-50">
               <div className="flex-1">
                 <div className="font-bold text-brand-600">使い方・アプリの説明</div>
-                <div className="text-xs text-gray-400">記録のつけ方、画面ごとの操作、タップやスワイプでできることなど</div>
               </div>
               <ChevronRight className="shrink-0 text-gray-300" width={20} height={20} />
             </Link>
