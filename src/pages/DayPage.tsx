@@ -35,13 +35,13 @@ export function DayPage() {
 
   return (
     <SubPage
+      header={<Header title={dayLabel(date)} back="/" />}
       action={
         <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
           <Plus /> 種目を追加
         </PrimaryButton>
       }
     >
-      <Header title={dayLabel(date)} back="/" />
       {!data ? (
         <Loading />
       ) : groups.length === 0 ? (

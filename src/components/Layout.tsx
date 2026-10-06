@@ -62,21 +62,38 @@ export function StatusBarFill() {
   return <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-brand-500" />;
 }
 
-/** 下部タブ付きの画面 */
-export function TabPage({ children }: { children: ReactNode }) {
+/**
+ * ヘッダーは画面幅いっぱい、中身は読みやすい幅（max-w-md）に収める。
+ * wide を付けると中身も画面幅いっぱいにする（青い見出し帯が並ぶ画面用）。
+ */
+function PageBody({ header, wide, className, children }: { header: ReactNode; wide?: boolean; className: string; children: ReactNode }) {
   return (
     <>
-      <main className="mx-auto max-w-md pb-40">{children}</main>
+      {header}
+      <main className={`${wide ? '' : 'mx-auto max-w-md'} ${className}`}>{children}</main>
+    </>
+  );
+}
+
+/** 下部タブ付きの画面 */
+export function TabPage({ header, children }: { header: ReactNode; children: ReactNode }) {
+  return (
+    <>
+      <PageBody header={header} className="pb-40">
+        {children}
+      </PageBody>
       <BottomNav />
     </>
   );
 }
 
 /** 下部タブなしの画面（下に大きな操作ボタンを置く） */
-export function SubPage({ children, action }: { children: ReactNode; action?: ReactNode }) {
+export function SubPage({ header, wide, children, action }: { header: ReactNode; wide?: boolean; children: ReactNode; action?: ReactNode }) {
   return (
     <>
-      <main className="mx-auto max-w-md pb-32">{children}</main>
+      <PageBody header={header} wide={wide} className="pb-32">
+        {children}
+      </PageBody>
       {action && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[#f3f5f9] via-[#f3f5f9] to-transparent px-4 pt-6 pb-safe">
           <div className="mx-auto max-w-md pb-4">{action}</div>

@@ -28,8 +28,7 @@ export function RecordsPage() {
   const last = data ? lastTrainedByPart(data.sets, data.exercises).get(part) : undefined;
 
   return (
-    <TabPage>
-      <Header title="自己ベスト" />
+    <TabPage header={<Header title="自己ベスト" />}>
       <div className="sticky top-[calc(3rem+env(safe-area-inset-top))] z-10 bg-[#f3f5f9]/95 backdrop-blur">
         <BodyPartTabs value={part} onChange={(p) => setParams({ part: p }, { replace: true })} />
       </div>

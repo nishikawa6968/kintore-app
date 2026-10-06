@@ -48,13 +48,13 @@ export function ExerciseDetailPage() {
 
   return (
     <SubPage
+      header={<Header title={exercise?.name ?? '種目'} back="/records" />}
       action={
         <PrimaryButton onClick={() => navigate(`/day/${todayKey()}/ex/${exerciseId}`)}>
           <Plus /> 今日この種目を記録
         </PrimaryButton>
       }
     >
-      <Header title={exercise?.name ?? '種目'} back="/records" />
       <div className="space-y-3 p-4">
         <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 p-4 text-white shadow">
           <div className="mb-2 flex items-center gap-2 text-sm opacity-90">

@@ -27,16 +27,20 @@ export function ExercisePickerPage() {
   const pick = (id: number) => navigate(`/day/${date}/ex/${id}`, { replace: true });
 
   return (
-    <SubPage>
-      <Header
-        title="種目を選択"
-        back={`/day/${date}`}
-        right={
-          <button onClick={() => setAdding('chest')} className="p-2 active:opacity-60" aria-label="種目を追加">
-            <Plus />
-          </button>
-        }
-      />
+    <SubPage
+      wide
+      header={
+        <Header
+          title="種目を選択"
+          back={`/day/${date}`}
+          right={
+            <button onClick={() => setAdding('chest')} className="p-2 active:opacity-60" aria-label="種目を追加">
+              <Plus />
+            </button>
+          }
+        />
+      }
+    >
       {!data ? (
         <Loading />
       ) : (

@@ -29,8 +29,7 @@ export function HomePage() {
   const monthCount = [...marked].filter((d) => d.startsWith(monthPrefix)).length;
 
   return (
-    <TabPage>
-      <Header title="筋トレ記録" />
+    <TabPage header={<Header title="筋トレ記録" />}>
       {!data ? (
         <Loading />
       ) : (

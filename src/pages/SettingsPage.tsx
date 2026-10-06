@@ -47,8 +47,7 @@ export function SettingsPage() {
   };
 
   return (
-    <TabPage>
-      <Header title="設定" />
+    <TabPage header={<Header title="設定" />}>
       {!data ? (
         <Loading />
       ) : (

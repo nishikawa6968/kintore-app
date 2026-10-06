@@ -54,21 +54,23 @@ export function SetInputPage() {
 
   return (
     <SubPage
+      header={
+        <Header
+          title={exercise?.name ?? '種目'}
+          back={`/day/${date}`}
+          right={
+            <Link to={`/exercise/${exerciseId}`} className="flex items-center gap-1 p-2 text-sm active:opacity-60">
+              <History width={20} height={20} /> 履歴
+            </Link>
+          }
+        />
+      }
       action={
         <PrimaryButton onClick={addNext}>
           <Plus /> セットを追加
         </PrimaryButton>
       }
     >
-      <Header
-        title={exercise?.name ?? '種目'}
-        back={`/day/${date}`}
-        right={
-          <Link to={`/exercise/${exerciseId}`} className="flex items-center gap-1 p-2 text-sm active:opacity-60">
-            <History width={20} height={20} /> 履歴
-          </Link>
-        }
-      />
       <div className="space-y-3 p-4">
         {best && (
           <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 px-4 py-3 text-white shadow-sm">
