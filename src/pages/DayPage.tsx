@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight, Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
 import { RecordBadge } from '../components/RecordBadge';
-import { TPoseMan } from '../illustrations/Illustrations';
+import { FrontFigure } from '../illustrations/Illustrations';
 import { dayLabel } from '../lib/date';
 import { chronological, recordIdsFor, setLabel, volume } from '../lib/records';
 import { useData } from '../lib/useData';
@@ -48,7 +48,7 @@ export function DayPage() {
         <Loading />
       ) : groups.length === 0 ? (
         <div className="px-6 pt-20 text-center text-gray-400">
-          <TPoseMan className="mx-auto mb-3 h-40 w-auto text-brand-200" />
+          <FrontFigure className="mx-auto mb-3 h-40 w-auto text-brand-200" />
           <p>この日の記録はまだありません。</p>
           <p className="text-sm">下の「種目を追加」から始めましょう。</p>
         </div>

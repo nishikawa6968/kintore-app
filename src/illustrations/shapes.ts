@@ -1,6 +1,6 @@
 /**
  * 印の形（SVG のパス）。炎とトロフィーは 24×24 の座標。
- * 人の形は bodyShapes.ts / tposeShapes.ts（参考画像をなぞったもの）。
+ * 人の形は bodyShapes.ts / iconShapes.ts（参考画像をなぞったもの）。
  */
 
 /** 炎（24×24）。外側と内側の2色で描く */

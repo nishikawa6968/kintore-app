@@ -1,4 +1,4 @@
-"""体の筋肉図の画像をなぞって SVG パスにする共通処理（trace-bodymap.py / make-tpose.py で使う）"""
+"""体の筋肉図の画像をなぞって SVG パスにする共通処理（make-tpose.py で使う）"""
 import re
 import numpy as np
 from scipy import ndimage

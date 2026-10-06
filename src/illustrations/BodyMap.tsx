@@ -46,7 +46,7 @@ function partAt(svg: SVGSVGElement, clientX: number, clientY: number): BodyPart 
 /**
  * 体の前と後ろの図。選んでいる部位の筋肉を青くハイライトする。
  * 'all' のときは全部を薄い青に（allColors を渡すと部位ごとにその色で塗る）。
- * 図をタップすると onSelect で一番近い筋肉の部位を選べる。形は bodyShapes.ts（参考画像をなぞったもの）。
+ * 図をタップすると onSelect で一番近い筋肉の部位を選べる。形は bodyShapes.ts（参考画像の人の腕を30度に開いて太くし、なぞったもの）。
  */
 export function BodyMap({
   selected,

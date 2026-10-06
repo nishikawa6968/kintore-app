@@ -1,17 +1,17 @@
 import type { SVGProps } from 'react';
 import { FLAME, TROPHY } from './shapes.ts';
-import { TPOSE_BASE, TPOSE_HAIR, TPOSE_MUSCLES, TPOSE_VIEWBOX } from './tposeShapes.ts';
+import { FRONT_BASE, FRONT_HAIR, FRONT_REGIONS, FRONT_VIEWBOX } from './bodyShapes.ts';
 
 type P = SVGProps<SVGSVGElement>;
 
-/** T ポーズの人（アプリのキャラクター。アイコンと同じ絵柄）。体は白、筋肉は currentColor */
-export function TPoseMan(p: P) {
+/** 正面を向いた人（人の図と同じ絵柄）。体は白、筋肉は currentColor */
+export function FrontFigure(p: P) {
   return (
-    <svg viewBox={`0 0 ${TPOSE_VIEWBOX.width} ${TPOSE_VIEWBOX.height}`} fill="currentColor" aria-hidden="true" {...p}>
-      <path d={TPOSE_BASE} fill="#ffffff" stroke="#d4d8e4" strokeWidth={2} />
-      <path d={TPOSE_HAIR} fill="#b9bdc9" />
-      {TPOSE_MUSCLES.map((d) => (
-        <path key={d} d={d} stroke="#ffffff" strokeWidth={2.4} strokeLinejoin="round" />
+    <svg viewBox={`0 0 ${FRONT_VIEWBOX.width} ${FRONT_VIEWBOX.height}`} fill="currentColor" aria-hidden="true" {...p}>
+      <path d={FRONT_BASE} fill="#ffffff" stroke="#d4d8e4" strokeWidth={2} />
+      <path d={FRONT_HAIR} fill="#b9bdc9" />
+      {FRONT_REGIONS.map((r) => (
+        <path key={r.d} d={r.d} stroke="#ffffff" strokeWidth={2.4} strokeLinejoin="round" />
       ))}
     </svg>
   );
