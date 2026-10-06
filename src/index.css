@@ -94,32 +94,6 @@ textarea {
   }
 }
 
-/* 部位を切り替えたとき、表が移った向きから横にスライドして入ってくる */
-@keyframes slide-from-right {
-  from {
-    transform: translateX(36%);
-    opacity: 0;
-  }
-}
-@keyframes slide-from-left {
-  from {
-    transform: translateX(-36%);
-    opacity: 0;
-  }
-}
-.slide-next {
-  animation: slide-from-right 220ms ease-out;
-}
-.slide-prev {
-  animation: slide-from-left 220ms ease-out;
-}
-@media (prefers-reduced-motion: reduce) {
-  .slide-next,
-  .slide-prev {
-    animation: none;
-  }
-}
-
 /* 使い方ページのお手本：指のマーク */
 .demo-finger {
   position: absolute;

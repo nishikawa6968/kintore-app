@@ -8,7 +8,8 @@ import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
-import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
+import { neighborPart, useSlideDirection } from '../lib/useSwipe';
+import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart } from '../types';
 
 /** この日数以内に更新した記録にはトロフィーを付ける */
@@ -21,8 +22,6 @@ export function RecordsPage() {
   const setPart = (p: BodyPart) => setParams({ part: p }, { replace: true });
   const slide = useSlideDirection(part);
 
-  // 表を左右にスワイプしたら、隣の部位へ
-  const tableRef = useHorizontalSwipe('element', (dir) => setPart(neighborPart(part, dir)), '[data-swipe-ignore]');
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -46,17 +45,9 @@ export function RecordsPage() {
             <span className="font-bold text-gray-700">{bodyPartLabel(part)}</span>の最終トレーニング：
             <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : 'まだありません'}</span>
           </p>
-          {/*
-            表のカードそのものをスクロールの枠にする（角はいつも丸く、影も切れない）。
-            外側は横だけ切り取り、スライドのときにはみ出さないようにする
-          */}
-          <div ref={tableRef} className="shrink-0 overflow-x-clip px-4 py-1">
-            <div
-              key={part}
-              className={`flex h-[20rem] flex-col overflow-hidden rounded-2xl bg-white shadow-sm ${
-                slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''
-              }`}
-            >
+          {/* 表は指で左右に動かして隣の部位へ（指についてきて、離すと滑らかに入れ替わる） */}
+          <SwipePager pageKey={part} direction={slide} onSwipe={(dir) => setPart(neighborPart(part, dir))} className="shrink-0 px-4 py-1">
+            <div className="flex h-[20rem] flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
               {/* 見出しの帯はスクロールの外に置き、引っ張っても動かないようにする */}
               <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
                 <span>種目 / 達成日</span>
@@ -94,7 +85,7 @@ export function RecordsPage() {
                 })}
               </div>
             </div>
-          </div>
+          </SwipePager>
           <p className="mt-1 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
           {/* 人の図（ホームと同じくらいの大きさ。筋肉をタップするとその部位へ）とロール */}
           <div className="min-h-[160px] flex-1 px-4 py-1">

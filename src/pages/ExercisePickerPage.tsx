@@ -8,7 +8,8 @@ import { BodyMap } from '../illustrations/BodyMap';
 import { daysAgoLabel } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
 import { useData } from '../lib/useData';
-import { neighborPart, useHorizontalSwipe } from '../lib/useSwipe';
+import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
+import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart } from '../types';
 
 export function ExercisePickerPage() {
@@ -36,7 +37,8 @@ export function ExercisePickerPage() {
   const pick = (id: number) => navigate(`/day/${date}/ex/${id}`, { replace: true });
 
   // ロール・種目のスライド・ボタン以外の白い部分を左右にスワイプしたら、隣の部位へ移る
-  useHorizontalSwipe('window', (dir) => setPart(neighborPart(part, dir)));
+  useHorizontalSwipe((dir) => setPart(neighborPart(part, dir)));
+  const slide = useSlideDirection(part);
 
   const list = data?.exercises.filter((e) => e.bodyPart === part && !e.archived) ?? [];
   const last = info?.lastByPart.get(part);
@@ -60,42 +62,45 @@ export function ExercisePickerPage() {
       ) : (
         // 画面の高さぴったりに「部位名 → 種目（3段の横スライド）→ 人の図（残りいっぱい）→ ロール」と並べる
         <>
-          <div className="flex shrink-0 items-baseline gap-2 px-5 pt-3 pb-2">
-            <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
-            <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>
-          </div>
-          {/* 種目は3段に並べ、はみ出した分は横にスライド */}
-          <div
-            key={part}
-            data-swipe-ignore
-            className="no-scrollbar grid shrink-0 snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-3 gap-2 overflow-x-auto scroll-px-4 px-4 pt-1 pb-2"
-          >
-            {list.map((ex) => {
-              const exLast = info.lastByExercise.get(ex.id);
-              const best = exLast ? bestSummary(ex, data.sets.filter((s) => s.exerciseId === ex.id)) : null;
-              return (
-                <button
-                  key={ex.id}
-                  onClick={() => pick(ex.id)}
-                  className="flex h-[72px] snap-start flex-col justify-center rounded-2xl bg-white px-3 text-left shadow-sm transition-transform active:scale-[0.97] active:bg-brand-50"
-                >
-                  <span className="line-clamp-2 text-[15px] leading-tight font-bold text-gray-800">{ex.name}</span>
-                  <span className="mt-1 truncate text-[11px] text-gray-400">
-                    {exLast ? daysAgoLabel(exLast) : 'まだ記録なし'}
-                    {best && <span className="ml-1 text-brand-600">{best.main}</span>}
-                  </span>
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setAdding(true)}
-              className="flex h-[72px] snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-dashed border-brand-200 text-xs font-bold text-brand-500 active:bg-brand-50"
+          {/* 部位を切り替えると、部位名と種目が移った向きから滑らかに入れ替わる（スワイプは白い所全体で受ける） */}
+          <SwipePager pageKey={part} direction={slide} draggable={false} className="shrink-0">
+            <div className="flex shrink-0 items-baseline gap-2 px-5 pt-3 pb-2">
+              <h2 className="text-2xl font-bold text-brand-600">{bodyPartLabel(part)}</h2>
+              <span className="text-sm text-gray-500">最終トレーニング：{last ? daysAgoLabel(last) : '記録なし'}</span>
+            </div>
+            {/* 種目は3段に並べ、はみ出した分は横にスライド */}
+            <div
+              key={part}
+              data-swipe-ignore
+              className="no-scrollbar grid shrink-0 snap-x snap-mandatory auto-cols-[46%] grid-flow-col grid-rows-3 gap-2 overflow-x-auto scroll-px-4 px-4 pt-1 pb-2"
             >
-              <Plus width={20} height={20} />
-              種目を追加
-            </button>
-          </div>
-          <p className={`mt-1 shrink-0 text-center text-[11px] text-gray-400 ${list.length + 1 > 6 ? '' : 'invisible'}`}>← 横にスライドで他の種目 →</p>
+              {list.map((ex) => {
+                const exLast = info.lastByExercise.get(ex.id);
+                const best = exLast ? bestSummary(ex, data.sets.filter((s) => s.exerciseId === ex.id)) : null;
+                return (
+                  <button
+                    key={ex.id}
+                    onClick={() => pick(ex.id)}
+                    className="flex h-[72px] snap-start flex-col justify-center rounded-2xl bg-white px-3 text-left shadow-sm transition-transform active:scale-[0.97] active:bg-brand-50"
+                  >
+                    <span className="line-clamp-2 text-[15px] leading-tight font-bold text-gray-800">{ex.name}</span>
+                    <span className="mt-1 truncate text-[11px] text-gray-400">
+                      {exLast ? daysAgoLabel(exLast) : 'まだ記録なし'}
+                      {best && <span className="ml-1 text-brand-600">{best.main}</span>}
+                    </span>
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setAdding(true)}
+                className="flex h-[72px] snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-dashed border-brand-200 text-xs font-bold text-brand-500 active:bg-brand-50"
+              >
+                <Plus width={20} height={20} />
+                種目を追加
+              </button>
+            </div>
+            <p className={`mt-1 shrink-0 text-center text-[11px] text-gray-400 ${list.length + 1 > 6 ? '' : 'invisible'}`}>← 横にスライドで他の種目 →</p>
+          </SwipePager>
           {/* 人の図は残りの高さいっぱいに。筋肉をタップするとその部位へ */}
           <div className="min-h-0 flex-1 px-4 pt-2">
             <BodyMap selected={part} onSelect={setPart} className="h-full w-full" />

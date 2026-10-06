@@ -5,19 +5,16 @@ import { BODY_PARTS, type BodyPart } from '../types';
 const DEFAULT_IGNORE = '[role="listbox"], [data-swipe-ignore], header, button, input';
 
 /**
- * 左右のスワイプを見つけて onSwipe を呼ぶ。dir は 1 = 次（指を左へ）、-1 = 前（指を右へ）。
- * 縦のスクロールや、ゆっくり・短い動きは無視する。
- * target が 'window' なら画面全体。'element' なら、戻り値を要素の ref に渡した範囲だけ
- * （要素があとから現れても、現れた時点で見張り始める）。
+ * 画面全体で左右のスワイプを見つけて onSwipe を呼ぶ（種目選択の白い部分）。
+ * dir は 1 = 次（指を左へ）、-1 = 前（指を右へ）。縦のスクロールや、ゆっくり・短い動きは無視する。
+ * 表やカレンダーのように指についてくる動きにしたい所は SwipePager を使う。
  */
-export function useHorizontalSwipe(target: 'window' | 'element', onSwipe: (dir: 1 | -1) => void, ignore = DEFAULT_IGNORE) {
+export function useHorizontalSwipe(onSwipe: (dir: 1 | -1) => void, ignore = DEFAULT_IGNORE) {
   const handler = useRef(onSwipe);
   handler.current = onSwipe;
-  const [element, setElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    const el: HTMLElement | Window | null = target === 'window' ? window : element;
-    if (!el) return;
+    const el = window;
     let start: { x: number; y: number; t: number } | null = null;
     const begin = (x: number, y: number, t: EventTarget | null) => {
       start = t instanceof Element && t.closest(ignore) ? null : { x, y, t: Date.now() };
@@ -57,9 +54,7 @@ export function useHorizontalSwipe(target: 'window' | 'element', onSwipe: (dir: 
       el.removeEventListener('pointerdown', onDown);
       el.removeEventListener('pointerup', onUp);
     };
-  }, [target, element, ignore]);
-
-  return setElement;
+  }, [ignore]);
 }
 
 /** 部位の並びで、current から dir（1 = 次 / -1 = 前）へ1つ動いた部位（端は反対側へ回り込む） */

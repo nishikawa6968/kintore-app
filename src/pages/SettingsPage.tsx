@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
 import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
-import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
+import { neighborPart, useSlideDirection } from '../lib/useSwipe';
+import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
 
 export function SettingsPage() {
@@ -18,9 +19,8 @@ export function SettingsPage() {
 
   const list = data?.exercises.filter((e) => e.bodyPart === part) ?? [];
 
-  // 種目の表を左右にスワイプしたら隣の部位へ。新しい表は移った向きからスライドして入る
+  // 種目の表を左右にスワイプしたら隣の部位へ（指についてきて、離すと滑らかに入れ替わる）
   const slide = useSlideDirection(part);
-  const listRef = useHorizontalSwipe('element', (dir) => setPart(neighborPart(part, dir)), '[data-swipe-ignore]');
 
   /** 隣の種目と並び順を入れ替える */
   const move = async (index: number, dir: -1 | 1) => {
@@ -72,11 +72,8 @@ export function SettingsPage() {
                 <Plus width={16} height={16} /> 追加
               </button>
             </div>
-            <div ref={listRef} className="overflow-x-clip px-4 pt-2 pb-1">
-              <ul
-                key={part}
-                className={`overflow-hidden rounded-2xl bg-white shadow-sm ${slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''}`}
-              >
+            <SwipePager pageKey={part} direction={slide} onSwipe={(dir) => setPart(neighborPart(part, dir))} className="px-4 pt-2 pb-1">
+              <ul className="overflow-hidden rounded-2xl bg-white shadow-sm">
                 {list.map((ex, i) => (
                   <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
                     <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
@@ -98,7 +95,7 @@ export function SettingsPage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </SwipePager>
             <p className="mt-1 px-5 text-xs text-gray-400">名前をタップで編集。目のアイコンで種目選択画面から隠せます（記録は残ります）。表を左右にスワイプで隣の部位へ。</p>
           </section>
 

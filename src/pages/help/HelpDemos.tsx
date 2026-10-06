@@ -8,6 +8,7 @@ import { BodyPartTabs } from '../../components/BodyPartTabs';
 import { ChevronRight, Plus } from '../../components/Icons';
 import { MonthCalendar } from '../../components/MonthCalendar';
 import { NumberStepper } from '../../components/NumberStepper';
+import { SwipePager } from '../../components/SwipePager';
 import { BodyMap } from '../../illustrations/BodyMap';
 import { Trophy } from '../../illustrations/Illustrations';
 import { fromKey, todayKey, toKey } from '../../lib/date';
@@ -302,16 +303,18 @@ export function SwipeTableDemo({ caption }: { caption: string }) {
   const slide = useSlideDirection(part);
   return (
     <DemoBox caption={caption}>
-      <div className="relative overflow-x-clip py-1">
-        <div key={part} className={`rounded-xl bg-white shadow-sm ${slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''}`}>
-          <div className="rounded-t-xl bg-brand-50 px-3 py-1.5 text-[11px] font-bold text-brand-600">{bodyPartLabel(part)}の種目</div>
-          {SAMPLE[part].map((n) => (
-            <div key={n} className="flex items-center border-t border-gray-100 px-3 py-2 text-sm font-bold text-gray-700">
-              <span className="flex-1">{n}</span>
-              <ChevronRight className="text-gray-300" width={16} height={16} />
-            </div>
-          ))}
-        </div>
+      <div className="relative py-1">
+        <SwipePager pageKey={part} direction={slide} draggable={false}>
+          <div className="rounded-xl bg-white shadow-sm">
+            <div className="rounded-t-xl bg-brand-50 px-3 py-1.5 text-[11px] font-bold text-brand-600">{bodyPartLabel(part)}の種目</div>
+            {SAMPLE[part].map((n) => (
+              <div key={n} className="flex items-center border-t border-gray-100 px-3 py-2 text-sm font-bold text-gray-700">
+                <span className="flex-1">{n}</span>
+                <ChevronRight className="text-gray-300" width={16} height={16} />
+              </div>
+            ))}
+          </div>
+        </SwipePager>
         <Finger key={step} x={60} y={55} mode="swipe" />
       </div>
     </DemoBox>
