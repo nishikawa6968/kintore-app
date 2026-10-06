@@ -39,13 +39,13 @@ export function RecordsPage() {
       {!data ? (
         <Loading />
       ) : (
-        // 画面の高さぴったりに「最終トレーニング → 表（中だけ縦にスクロール）→ 人の図 → ロール」
+        // 画面の高さぴったりに「最終トレーニング → 表（5行ほどの高さ。中だけ縦にスクロール）→ 人の図（残りいっぱい）→ ロール」
         <div className={`flex ${TAB_PAGE_HEIGHT} min-h-[560px] flex-col`}>
           <p className="shrink-0 px-5 pt-3 pb-2 text-sm text-gray-500">
             <span className="font-bold text-gray-700">{bodyPartLabel(part)}</span>の最終トレーニング：
             <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : 'まだありません'}</span>
           </p>
-          <div ref={tableRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-2">
+          <div ref={tableRef} className="max-h-[20rem] shrink-0 overflow-x-hidden overflow-y-auto px-4">
             <div
               key={part}
               className={`overflow-hidden rounded-2xl bg-white shadow-sm ${slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''}`}
@@ -60,7 +60,7 @@ export function RecordsPage() {
                   <Link
                     key={exercise.id}
                     to={`/exercise/${exercise.id}`}
-                    className={`flex items-center gap-2 border-b border-gray-100 px-4 py-3 last:border-0 active:bg-gray-50 ${
+                    className={`flex items-center gap-2 border-b border-gray-100 px-4 py-2 last:border-0 active:bg-gray-50 ${
                       recent ? 'bg-amber-50/70' : ''
                     }`}
                   >
@@ -84,10 +84,12 @@ export function RecordsPage() {
                 );
               })}
             </div>
-            <p className="mt-2 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
           </div>
+          <p className="mt-1.5 shrink-0 text-center text-[11px] text-gray-400">← 表を左右にスワイプで隣の部位 →</p>
           {/* 人の図（ホームと同じくらいの大きさ。筋肉をタップするとその部位へ）とロール */}
-          <BodyMap selected={part} onSelect={setPart} className="mx-auto h-48 w-full shrink-0 px-4" />
+          <div className="min-h-[160px] flex-1 px-4 py-1">
+            <BodyMap selected={part} onSelect={setPart} className="h-full w-full" />
+          </div>
           <div className="shrink-0 pb-1">
             <BodyPartTabs value={part} onChange={setPart} />
           </div>
