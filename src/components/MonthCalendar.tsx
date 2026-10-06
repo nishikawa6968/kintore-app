@@ -9,12 +9,16 @@ export function MonthCalendar({
   month,
   onMonthChange,
   marked,
+  trained,
   today,
   onSelect,
 }: {
   month: Date;
   onMonthChange: (d: Date) => void;
+  /** 選んでいる部位を鍛えた日（濃い青） */
   marked: Set<string>;
+  /** 何かしら筋トレをした日（水色） */
+  trained: Set<string>;
   today: string;
   onSelect: (key: string) => void;
 }) {
@@ -57,16 +61,23 @@ export function MonthCalendar({
           const key = toKey(d);
           const inMonth = isSameMonth(d, month);
           const isMarked = marked.has(key);
+          const isTrained = !isMarked && trained.has(key);
           const isToday = key === today;
           return (
             <button key={key} onClick={() => onSelect(key)} className="flex h-11 items-center justify-center">
               <span
                 className={[
                   'flex h-10 w-10 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
-                  isMarked ? 'bg-brand-500 font-bold text-white' : inMonth ? 'text-gray-700' : 'text-gray-300',
-                  isMarked && !inMonth ? 'opacity-40' : '',
+                  isMarked
+                    ? 'bg-brand-500 font-bold text-white'
+                    : isTrained
+                      ? 'bg-sky-200 font-bold text-brand-700'
+                      : inMonth
+                        ? 'text-gray-700'
+                        : 'text-gray-300',
+                  (isMarked || isTrained) && !inMonth ? 'opacity-40' : '',
                   isToday ? 'ring-[3px] ring-today ring-offset-1' : '',
-                  isToday && !isMarked ? 'font-bold text-today' : '',
+                  isToday && !isMarked && !isTrained ? 'font-bold text-today' : '',
                 ].join(' ')}
               >
                 {d.getDate()}

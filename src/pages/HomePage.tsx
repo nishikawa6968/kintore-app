@@ -18,11 +18,11 @@ export function HomePage() {
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
 
-  const { lastByPart, marked } = useMemo(() => {
-    if (!data) return { lastByPart: new Map<BodyPart, string>(), marked: new Set<string>() };
+  const { lastByPart, marked, trained } = useMemo(() => {
+    if (!data) return { lastByPart: new Map<BodyPart, string>(), marked: new Set<string>(), trained: new Set<string>() };
     const byDate = partsByDate(data.sets, data.exercises);
     const marked = new Set([...byDate].filter(([, parts]) => filter === 'all' || parts.has(filter)).map(([d]) => d));
-    return { lastByPart: lastTrainedByPart(data.sets, data.exercises), marked };
+    return { lastByPart: lastTrainedByPart(data.sets, data.exercises), marked, trained: new Set(byDate.keys()) };
   }, [data, filter]);
 
   const monthPrefix = format(month, 'yyyy-MM');
@@ -45,7 +45,7 @@ export function HomePage() {
           </section>
 
           <section className="mt-3 px-4">
-            <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
+            <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
           </section>
 
           {/* 部位の切り替えは親指が届きやすいカレンダーの下に */}
