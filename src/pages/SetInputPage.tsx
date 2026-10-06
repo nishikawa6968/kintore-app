@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { addSet, db } from '../db/db';
+import { BestCard } from '../components/BestCard';
 import { Copy, History, Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, SubPage } from '../components/Layout';
 import { RestTimer } from '../components/RestTimer';
 import { SetRow } from '../components/SetRow';
 import { daysAgoLabel, slashDate } from '../lib/date';
-import { chronological, computeBest, fmtKg, fmtWeight, recordSetIds } from '../lib/records';
+import { chronological, computeBest, fmtWeight, recordSetIds } from '../lib/records';
 import { useData } from '../lib/useData';
 
 export function SetInputPage() {
@@ -20,13 +21,20 @@ export function SetInputPage() {
     const todays = all.filter((s) => s.date === date).sort(chronological);
     const prevDate = all.reduce<string | null>((max, s) => (s.date < date && (!max || s.date > max) ? s.date : max), null);
     const prevSets = prevDate ? all.filter((s) => s.date === prevDate).sort(chronological) : [];
+    const records = recordSetIds(all);
+    const best = computeBest(all);
+    // この日のセットで自己ベストを更新し、それが今も自己ベストなら「本日更新」
+    const recordToday = todays.some((s) => records.has(s.id));
     return {
       exercise: data.exercises.find((e) => e.id === exerciseId),
       todays,
       prevDate,
       prevSets,
-      records: recordSetIds(all),
-      best: computeBest(all),
+      records,
+      best,
+      prevBest: computeBest(all.filter((s) => s.date < date)),
+      weightUp: recordToday && best?.maxDate === date,
+      rmUp: recordToday && best?.best1RMDate === date,
     };
   }, [data, exerciseId, date]);
 
@@ -39,7 +47,7 @@ export function SetInputPage() {
   }, [count]);
 
   if (!view) return <Loading />;
-  const { exercise, todays, prevDate, prevSets, records, best } = view;
+  const { exercise, todays, prevDate, prevSets, records, best, prevBest, weightUp, rmUp } = view;
 
   /** 直前のセット → 前回の同じセット番号 → 前回の最終セット の順で値を引き継ぐ */
   const addNext = () => {
@@ -72,20 +80,7 @@ export function SetInputPage() {
       }
     >
       <div className="space-y-3 p-4">
-        {best && (
-          <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 px-4 py-3 text-white shadow-sm">
-            <div>
-              <div className="text-xs opacity-80">自己ベスト</div>
-              <div className="text-xl font-bold tabular-nums">
-                {fmtWeight(best.maxWeight)} × {best.repsAtMax}回
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs opacity-80">推定1RM</div>
-              <div className="text-xl font-bold tabular-nums">{best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—'}</div>
-            </div>
-          </div>
-        )}
+        {best && <BestCard best={best} prevBest={prevBest} weightUp={weightUp} rmUp={rmUp} />}
 
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">

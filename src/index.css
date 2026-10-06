@@ -38,6 +38,54 @@ textarea {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+/* 自己ベストを更新した日の「燃える」欄 */
+.bg-fire {
+  background: linear-gradient(110deg, #dc2626, #ea580c, #f59e0b, #ea580c, #dc2626);
+  background-size: 200% 100%;
+  animation: heat-shimmer 3s linear infinite;
+}
+@keyframes heat-shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+.animate-ember {
+  animation: heat-shimmer 3s linear infinite, ember-glow 1.6s ease-in-out infinite;
+}
+@keyframes ember-glow {
+  0%,
+  100% {
+    box-shadow: 0 4px 14px rgb(239 68 68 / 0.45);
+  }
+  50% {
+    box-shadow: 0 6px 28px rgb(249 115 22 / 0.8);
+  }
+}
+.animate-flame {
+  display: inline-block;
+  transform-origin: 50% 90%;
+  animation: flame 0.9s ease-in-out infinite;
+}
+@keyframes flame {
+  0%,
+  100% {
+    transform: scale(1) rotate(-4deg);
+  }
+  50% {
+    transform: scale(1.18) rotate(4deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-fire,
+  .animate-ember,
+  .animate-flame {
+    animation: none;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
