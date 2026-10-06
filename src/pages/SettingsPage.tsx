@@ -6,6 +6,7 @@ import { ExerciseSheet } from '../components/ExerciseSheet';
 import { ChevronDown, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
+import { neighborPart, useHorizontalSwipe, useSlideDirection } from '../lib/useSwipe';
 import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
 
 export function SettingsPage() {
@@ -15,6 +16,10 @@ export function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const list = data?.exercises.filter((e) => e.bodyPart === part) ?? [];
+
+  // 種目の表を左右にスワイプしたら隣の部位へ。新しい表は移った向きからスライドして入る
+  const slide = useSlideDirection(part);
+  const listRef = useHorizontalSwipe('element', (dir) => setPart(neighborPart(part, dir)), '[data-swipe-ignore]');
 
   /** 隣の種目と並び順を入れ替える */
   const move = async (index: number, dir: -1 | 1) => {
@@ -64,29 +69,34 @@ export function SettingsPage() {
                 <Plus width={16} height={16} /> 追加
               </button>
             </div>
-            <ul className="mx-4 mt-2 overflow-hidden rounded-2xl bg-white shadow-sm">
-              {list.map((ex, i) => (
-                <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
-                  <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
-                    {ex.name}
-                  </button>
-                  <button
-                    onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
-                    className="p-2.5 text-gray-400 active:text-brand-500"
-                    aria-label={ex.archived ? '表示する' : '非表示にする'}
-                  >
-                    {ex.archived ? <EyeOff width={20} height={20} /> : <Eye width={20} height={20} />}
-                  </button>
-                  <button onClick={() => move(i, -1)} disabled={i === 0} className="p-2.5 text-gray-400 disabled:opacity-20" aria-label="上へ">
-                    <ChevronUp width={20} height={20} />
-                  </button>
-                  <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="p-2.5 pr-3 text-gray-400 disabled:opacity-20" aria-label="下へ">
-                    <ChevronDown width={20} height={20} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 px-5 text-xs text-gray-400">名前をタップで編集。目のアイコンで種目選択画面から隠せます（記録は残ります）。</p>
+            <div ref={listRef} className="overflow-x-clip px-4 pt-2 pb-1">
+              <ul
+                key={part}
+                className={`overflow-hidden rounded-2xl bg-white shadow-sm ${slide === 'next' ? 'slide-next' : slide === 'prev' ? 'slide-prev' : ''}`}
+              >
+                {list.map((ex, i) => (
+                  <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
+                    <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+                      {ex.name}
+                    </button>
+                    <button
+                      onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
+                      className="p-2.5 text-gray-400 active:text-brand-500"
+                      aria-label={ex.archived ? '表示する' : '非表示にする'}
+                    >
+                      {ex.archived ? <EyeOff width={20} height={20} /> : <Eye width={20} height={20} />}
+                    </button>
+                    <button onClick={() => move(i, -1)} disabled={i === 0} className="p-2.5 text-gray-400 disabled:opacity-20" aria-label="上へ">
+                      <ChevronUp width={20} height={20} />
+                    </button>
+                    <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="p-2.5 pr-3 text-gray-400 disabled:opacity-20" aria-label="下へ">
+                      <ChevronDown width={20} height={20} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-1 px-5 text-xs text-gray-400">名前をタップで編集。目のアイコンで種目選択画面から隠せます（記録は残ります）。表を左右にスワイプで隣の部位へ。</p>
           </section>
 
           <section className="px-4">
