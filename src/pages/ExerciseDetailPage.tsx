@@ -62,7 +62,7 @@ export function ExerciseDetailPage() {
       value: cardio ? d.bestPace : bodyweight ? Math.max(...d.sets.map((s) => s.reps)) : d.max1RM,
     }))
     .filter((p) => p.value > 0);
-  const chartTitle = cardio ? 'ペースの推移（上ほど速い）' : bodyweight ? '最高回数の推移' : '推定1RMの推移';
+  const chartTitle = cardio ? '1kmの平均ペースの推移（上ほど速い）' : bodyweight ? '最高回数の推移' : '推定1RMの推移';
   const fmtValue = (v: number) => (cardio ? `${fmtPace(v)}/km` : `${fmtKg(v)}${bodyweight ? '回' : 'kg'}`);
 
   return (
@@ -83,7 +83,7 @@ export function ExerciseDetailPage() {
           {cardio && runBest ? (
             <div className="grid grid-cols-2 gap-3">
               <Stat label="最長距離" value={fmtKm(runBest.longest)} date={runBest.longestDate} />
-              <Stat label="最速ペース" value={`${fmtPace(runBest.bestPace)}/km`} date={runBest.bestPaceDate} />
+              <Stat label="ベスト平均ペース" value={`${fmtPace(runBest.bestPace)}/km`} date={runBest.bestPaceDate} />
             </div>
           ) : !cardio && best ? (
             <div className="grid grid-cols-2 gap-3">
@@ -122,7 +122,7 @@ export function ExerciseDetailPage() {
                       allowDecimals={false}
                     />
                   )}
-                  <Tooltip formatter={(v) => [fmtValue(Number(v)), cardio ? 'ペース' : bodyweight ? '最高回数' : '推定1RM']} />
+                  <Tooltip formatter={(v) => [fmtValue(Number(v)), cardio ? '平均ペース' : bodyweight ? '最高回数' : '推定1RM']} />
                   <Line type="monotone" dataKey="value" stroke="#1e6fd9" strokeWidth={2.5} dot={{ r: 3, fill: '#1e6fd9' }} activeDot={{ r: 5 }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -139,7 +139,7 @@ export function ExerciseDetailPage() {
                   <>
                     TOTAL {fmtKm(d.distance)}
                     <br />
-                    BEST {fmtPace(d.bestPace)}/km
+                    BEST 平均 {fmtPace(d.bestPace)}/km
                   </>
                 ) : (
                   <>
@@ -156,7 +156,7 @@ export function ExerciseDetailPage() {
                   <th className="w-12 py-1 font-medium">{cardio ? '本' : 'セット'}</th>
                   <th className="font-medium">{cardio ? '距離' : '重さ'}</th>
                   <th className="font-medium">{cardio ? '時間' : '回数'}</th>
-                  <th className="font-medium">{cardio ? 'ペース' : '推定1RM'}</th>
+                  <th className="font-medium">{cardio ? '平均ペース' : '推定1RM'}</th>
                   <th className="w-10" />
                 </tr>
               </thead>

@@ -121,7 +121,7 @@ export interface RunBest {
   bestPaceDate: string;
 }
 
-/** ランニングの自己ベスト：最長距離と最速ペース */
+/** ランニングの自己ベスト：最長距離と、1kmの平均ペースのベスト */
 export function computeRunBest(sets: SetRecord[]): RunBest | null {
   const valid = sets.filter(validRun).sort(chronological);
   if (!valid.length) return null;
@@ -140,7 +140,7 @@ export function computeRunBest(sets: SetRecord[]): RunBest | null {
   return best;
 }
 
-/** それまでの最長距離か最速ペースを更新したランの id（最初の1本は除く） */
+/** それまでの最長距離か、平均ペースのベストを更新したランの id（最初の1本は除く） */
 export function runRecordIds(sets: SetRecord[]): Set<number> {
   const ids = new Set<number>();
   let longest = 0;
@@ -189,7 +189,7 @@ export const speedKmh = (s: SetRecord) => (validRun(s) ? Math.round((s.distance!
 export interface BestSummary {
   /** 大きく出す記録（例：75kg×6回 / 最長 10km） */
   main: string;
-  /** 小さく添える記録（例：1RM 90kg / 最速 4'50"/km） */
+  /** 小さく添える記録（例：1RM 90kg / ベスト平均 4'50"/km） */
   sub: string;
   /** main を達成した日 */
   date: string;
@@ -204,7 +204,7 @@ export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): 
     if (!b) return null;
     return {
       main: `最長 ${fmtKm(b.longest)}`,
-      sub: `最速 ${fmtPace(b.bestPace)}/km`,
+      sub: `ベスト平均 ${fmtPace(b.bestPace)}/km`,
       date: b.longestDate,
       latest: b.longestDate > b.bestPaceDate ? b.longestDate : b.bestPaceDate,
     };

@@ -33,7 +33,7 @@ export function ExerciseSheet({
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex items-end bg-black/40" onClick={onClose} data-swipe-ignore>
       <div className="mx-auto w-full max-w-md rounded-t-3xl bg-white p-5 pb-safe" onClick={(e) => e.stopPropagation()}>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200" />
         <h2 className="mb-4 text-lg font-bold">{initial ? '種目を編集' : '種目を追加'}</h2>

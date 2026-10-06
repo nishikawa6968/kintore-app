@@ -33,7 +33,7 @@ function bestCardFor(cardio: boolean, all: SetRecord[], date: string, recordToda
     const longUp = recordToday && best.longestDate === date;
     const paceUp = recordToday && best.bestPaceDate === date;
     const left: BestStat = { label: '最長距離', value: fmtKm(best.longest), up: longUp };
-    const right: BestStat = { label: '最速ペース', value: `${fmtPace(best.bestPace)}/km`, up: paceUp };
+    const right: BestStat = { label: 'ベスト平均ペース', value: `${fmtPace(best.bestPace)}/km`, up: paceUp };
     return { left, right, before: prev && (longUp ? fmtKm(prev.longest) : `${fmtPace(prev.bestPace)}/km`) };
   }
   const best = computeBest(all);

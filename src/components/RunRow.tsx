@@ -40,7 +40,7 @@ export function RunRow({ set, index, isRecord }: { set: SetRecord; index: number
       </div>
       <div className="mt-2 flex items-center gap-2 pl-8 text-xs text-gray-500">
         <span className="whitespace-nowrap tabular-nums">
-          ペース <span className="font-bold text-gray-700">{fmtPace(paceOf(set))}</span>/km
+          平均ペース <span className="font-bold text-gray-700">{fmtPace(paceOf(set))}</span>/km
         </span>
         {speedKmh(set) > 0 && <span className="whitespace-nowrap tabular-nums">時速 {speedKmh(set)}km</span>}
         {isRecord && <RecordBadge small />}

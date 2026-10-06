@@ -44,7 +44,7 @@ export function RecordsPage() {
           <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
             <div className="grid grid-cols-[1fr_auto] border-b border-gray-100 bg-brand-50 px-4 py-2 text-[11px] font-bold text-brand-600">
               <span>種目 / 達成日</span>
-              <span className="text-right">最高記録 / 推定1RM・ペース</span>
+              <span className="text-right">最高記録 / 推定1RM・平均ペース</span>
             </div>
             {rows.map(({ exercise, best }) => {
               const recent = best && daysSince(best.latest) < RECENT_DAYS;

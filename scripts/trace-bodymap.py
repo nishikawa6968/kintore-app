@@ -7,21 +7,12 @@
 import sys
 import numpy as np
 from PIL import Image
-from scipy import ndimage
-from skimage import measure, morphology
+from skimage import measure
+from trace_lib import contour_paths, muscle_path, segment, shift
 
 src = sys.argv[1]
 a = np.array(Image.open(src).convert('RGB')).astype(float)
-gray = a.mean(axis=2)
-V = a.max(axis=2)
-mn = a.min(axis=2)
-bg = V < 70
-
-# まわりより明るい細い線を区切りとみなし、色のかたまりを筋肉として番号をふる
-lines = morphology.white_tophat(gray, morphology.disk(3)) > 14
-colored = ~bg & ~lines & (mn <= 236)
-colored = morphology.binary_opening(colored, morphology.disk(1))
-lab = measure.label(colored, connectivity=1)
+body, lab = segment(a)
 
 # 番号 → 部位（trace-debug で確認した対応）。頭（髪）は hair、それ以外の小さなかけらは捨てる
 PART = {}
@@ -39,58 +30,26 @@ put('leg', 52, 53, 59, 60, 63, 64, 70, 79, 80, 85, 86, 87, 88,
 
 SPLIT_X = 370  # 前と後ろの図の境目（元画像の x）
 
-def contour_paths(mask, tol=0.7):
-    """マスクの外側の輪郭を、なめらかな SVG パス（2次ベジェ）にする"""
-    m = ndimage.gaussian_filter(mask.astype(float), 0.9)
-    out = []
-    for c in measure.find_contours(np.pad(m, 1), 0.5):
-        if len(c) < 12:
-            continue
-        p = measure.approximate_polygon(c, tolerance=tol)[:-1] - 1  # (row, col)
-        if len(p) < 4:
-            continue
-        pts = [(x, y) for y, x in p]
-        mids = [((pts[i][0] + pts[(i + 1) % len(pts)][0]) / 2, (pts[i][1] + pts[(i + 1) % len(pts)][1]) / 2) for i in range(len(pts))]
-        d = f'M{mids[-1][0]:.1f} {mids[-1][1]:.1f}'
-        for i in range(len(pts)):
-            d += f'Q{pts[i][0]:.1f} {pts[i][1]:.1f} {mids[i][0]:.1f} {mids[i][1]:.1f}'
-        out.append((d + 'Z', abs(np.sum(p[:, 1] * np.roll(p[:, 0], 1) - p[:, 0] * np.roll(p[:, 1], 1))) / 2))
-    return out
-
-# 体のシルエット（前・後ろそれぞれ一番大きい輪郭）
-body = ndimage.binary_fill_holes(~bg)
-body = morphology.binary_opening(body, morphology.disk(2))
 xs = np.where(body.any(axis=0))[0]
 ys = np.where(body.any(axis=1))[0]
 ox, oy = xs.min() - 2, ys.min() - 2
 W, H = xs.max() - ox + 2, ys.max() - oy + 2
 
-def shift(d):
-    # 座標を左上が 0,0 になるようにずらす
-    nums = iter(float(n) for n in __import__('re').findall(r'-?\d+\.\d+', d))
-    def rep(m, state=[0]):
-        v = float(m.group())
-        state[0] ^= 1
-        return f'{v - (ox if state[0] else oy):.1f}'
-    return __import__('re').sub(r'-?\d+\.\d+', rep, d)
-
 views = {}
 for side, sl in (('front', np.s_[:, :SPLIT_X]), ('back', np.s_[:, SPLIT_X:])):
     m = np.zeros_like(body)
     m[sl] = body[sl]
-    paths = sorted(contour_paths(m, 1.0), key=lambda t: -t[1])
-    views[side] = {'base': shift(paths[0][0]), 'regions': [], 'hair': None}
+    views[side] = {'base': shift(contour_paths(m, 1.0)[0][0], ox, oy), 'regions': [], 'hair': None}
 
 for p in measure.regionprops(lab):
     part = PART.get(p.label)
     if not part:
         continue
     side = 'front' if p.centroid[1] < SPLIT_X else 'back'
-    mask = morphology.binary_dilation(lab == p.label, morphology.disk(1))
-    paths = sorted(contour_paths(mask), key=lambda t: -t[1])
-    if not paths:
+    d = muscle_path(lab, p.label)
+    if not d:
         continue
-    d = shift(paths[0][0])
+    d = shift(d, ox, oy)
     if part == 'hair':
         views[side]['hair'] = d
     else:
@@ -104,7 +63,7 @@ with open('src/illustrations/bodyShapes.ts', 'w') as f:
     for side in ('front', 'back'):
         v = views[side]
         name = side.upper()
-        f.write(f'export const {name}_BASE = {v["base"]!r};\n'.replace("'", "'"))
+        f.write(f'export const {name}_BASE = {v["base"]!r};\n')
         f.write(f'export const {name}_HAIR = {v["hair"]!r};\n')
         f.write(f'export const {name}_REGIONS: Region[] = [\n')
         for part, d in v['regions']:
