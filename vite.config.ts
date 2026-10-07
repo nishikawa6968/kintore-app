@@ -26,6 +26,8 @@ export default defineConfig({
         theme_color: '#1e6fd9',
         background_color: '#f3f5f9',
         display: 'standalone',
+        // 縦向きに固定（Android など対応している端末。iPhone は横向きのとき案内を出す）
+        orientation: 'portrait',
         start_url: '.',
         icons: [
           { src: `icon-192.png?v=${iconVersion}`, sizes: '192x192', type: 'image/png' },

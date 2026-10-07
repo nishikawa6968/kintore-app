@@ -1,10 +1,11 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { Exercise, SetRecord } from '../types';
+import type { DayRecord, Exercise, SetRecord } from '../types';
 import { presetExercises } from './seed';
 
 class KintoreDB extends Dexie {
   exercises!: EntityTable<Exercise, 'id'>;
   sets!: EntityTable<SetRecord, 'id'>;
+  days!: EntityTable<DayRecord, 'date'>;
 
   constructor() {
     super('kintore');
@@ -42,6 +43,8 @@ class KintoreDB extends Dexie {
         const order = existing.reduce((max, e) => Math.max(max, e.order), -1) + 1;
         await table.add({ name: 'ランニング', bodyPart: 'leg', kind: 'cardio', archived: false, order });
       });
+    // v4: 体操などの日（筋トレ以外の日）を追加
+    this.version(4).stores({ ...stores, days: 'date' });
     this.on('populate', (tx) => {
       tx.table('exercises').bulkAdd(presetExercises());
     });
@@ -69,17 +72,25 @@ export async function addRun(exerciseId: number, date: string, distance: number,
   return db.sets.add({ exerciseId, date, weight: 0, reps: 0, distance, duration, order, createdAt: Date.now() } as SetRecord);
 }
 
+/** その日を体操の日にする／取り消す */
+export async function setGymnasticsDay(date: string, on: boolean) {
+  if (on) await db.days.put({ date, kind: 'gymnastics' });
+  else await db.days.delete(date);
+}
+
 export interface BackupData {
   app: 'kintore';
   version: 1;
   exportedAt: string;
   exercises: Exercise[];
   sets: SetRecord[];
+  /** 体操などの日（これより前のバックアップには無い） */
+  days?: DayRecord[];
 }
 
 export async function exportData(): Promise<BackupData> {
-  const [exercises, sets] = await Promise.all([db.exercises.toArray(), db.sets.toArray()]);
-  return { app: 'kintore', version: 1, exportedAt: new Date().toISOString(), exercises, sets };
+  const [exercises, sets, days] = await Promise.all([db.exercises.toArray(), db.sets.toArray(), db.days.toArray()]);
+  return { app: 'kintore', version: 1, exportedAt: new Date().toISOString(), exercises, sets, days };
 }
 
 /** バックアップで全データを置き換える */
@@ -87,9 +98,11 @@ export async function importData(data: BackupData) {
   if (data.app !== 'kintore' || !Array.isArray(data.exercises) || !Array.isArray(data.sets)) {
     throw new Error('筋トレ記録のバックアップファイルではありません');
   }
-  await db.transaction('rw', db.exercises, db.sets, async () => {
+  await db.transaction('rw', db.exercises, db.sets, db.days, async () => {
     await db.exercises.clear();
     await db.sets.clear();
+    await db.days.clear();
+    await db.days.bulkAdd(data.days ?? []);
     // 「お尻」があった頃のバックアップは「脚」として読み込む
     await db.exercises.bulkAdd(
       data.exercises.map((e) => ((e.bodyPart as string) === 'glute' ? { ...e, bodyPart: 'leg' } : e)),

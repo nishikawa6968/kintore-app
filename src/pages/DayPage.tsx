@@ -7,6 +7,7 @@ import { FrontFigure } from '../illustrations/Illustrations';
 import { dayLabel } from '../lib/date';
 import { chronological, recordIdsFor, setLabel, volume } from '../lib/records';
 import { useData } from '../lib/useData';
+import { db, setGymnasticsDay } from '../db/db';
 import { bodyPartLabel, isCardio, type SetRecord } from '../types';
 
 export function DayPage() {
@@ -35,16 +36,57 @@ export function DayPage() {
 
   const totalVolume = groups.reduce((sum, g) => sum + volume(g.sets), 0);
 
+  const gymDay = data?.days.find((d) => d.date === date && d.kind === 'gymnastics');
+  const startGym = () => setGymnasticsDay(date, true);
+  const cancelGym = () => confirm('この日を体操の日から外しますか？（メモも消えます）') && setGymnasticsDay(date, false);
+
   return (
     <SubPage header={<Header title={dayLabel(date)} back="/" />}>
       {!data ? (
         <Loading />
+      ) : gymDay ? (
+        // 体操の日：カレンダーではピンクの丸。やったことをメモできる
+        <>
+          <ScrollArea className="flex flex-col items-center">
+            <FrontFigure className="mt-6 mb-3 h-36 w-auto text-pink-200" />
+            <p className="text-lg font-bold text-pink-500">体操の日</p>
+            <textarea
+              defaultValue={gymDay.memo ?? ''}
+              onChange={(e) => db.days.update(date, { memo: e.target.value || undefined })}
+              placeholder="やったこと（技・練習内容など）"
+              rows={5}
+              className="mt-4 w-full rounded-2xl bg-white p-4 text-[15px] shadow-sm outline-none ring-1 ring-pink-100 focus:ring-2 focus:ring-pink-300"
+            />
+          </ScrollArea>
+          <BottomAction>
+            <button
+              onClick={cancelGym}
+              className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-gray-200 bg-white text-[15px] font-bold text-gray-500 active:bg-gray-50"
+            >
+              体操の日を取り消す
+            </button>
+          </BottomAction>
+        </>
       ) : groups.length === 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center text-gray-400">
-          <FrontFigure className="mb-3 h-40 w-auto text-brand-200" />
-          <p>この日の記録はまだありません。</p>
-          <p className="text-sm">下の「種目を追加」から始めましょう。</p>
-        </div>
+        <>
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center text-gray-400">
+            <FrontFigure className="mb-3 h-40 w-auto text-brand-200" />
+            <p>この日の記録はまだありません。</p>
+            <p className="text-sm">下の「種目を追加」から始めましょう。</p>
+          </div>
+          <BottomAction>
+            {/* 筋トレと体操は同じ日にしないので、記録がない日だけ「体操をする」を出す */}
+            <button
+              onClick={startGym}
+              className="mb-2.5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-pink-400 bg-white text-[17px] font-bold text-pink-500 active:bg-pink-50"
+            >
+              体操をする
+            </button>
+            <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
+              <Plus /> 種目を追加
+            </PrimaryButton>
+          </BottomAction>
+        </>
       ) : (
         <>
           {/* 上：その日のまとめ（固定）／真ん中：種目のカード（ここだけスクロール） */}
@@ -84,14 +126,12 @@ export function DayPage() {
               </Link>
             ))}
           </ScrollArea>
+          <BottomAction>
+            <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
+              <Plus /> 種目を追加
+            </PrimaryButton>
+          </BottomAction>
         </>
-      )}
-      {data && (
-        <BottomAction>
-          <PrimaryButton onClick={() => navigate(`/day/${date}/pick`)}>
-            <Plus /> 種目を追加
-          </PrimaryButton>
-        </BottomAction>
       )}
     </SubPage>
   );

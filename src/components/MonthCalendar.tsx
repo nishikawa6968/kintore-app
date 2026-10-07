@@ -11,6 +11,7 @@ export function MonthCalendar({
   onMonthChange,
   marked,
   trained,
+  gym,
   today,
   onSelect,
 }: {
@@ -20,6 +21,8 @@ export function MonthCalendar({
   marked: Set<string>;
   /** 何かしら筋トレをした日（水色） */
   trained: Set<string>;
+  /** 体操をした日（ピンク。どの部位を選んでいても表示） */
+  gym: Set<string>;
   today: string;
   onSelect: (key: string) => void;
 }) {
@@ -32,24 +35,27 @@ export function MonthCalendar({
         {days.map((d) => {
           const key = toKey(d);
           const inMonth = isSameMonth(d, m);
-          const isMarked = marked.has(key);
-          const isTrained = !isMarked && trained.has(key);
+          const isGym = gym.has(key);
+          const isMarked = !isGym && marked.has(key);
+          const isTrained = !isGym && !isMarked && trained.has(key);
           const isToday = key === today;
           return (
             <button key={key} onClick={() => onSelect(key)} className="flex h-10 items-center justify-center">
               <span
                 className={[
                   'flex h-9 w-9 items-center justify-center rounded-full text-[15px] tabular-nums transition-transform active:scale-90',
-                  isMarked
+                  isGym
+                    ? 'bg-pink-400 font-bold text-white'
+                    : isMarked
                     ? 'bg-brand-500 font-bold text-white'
                     : isTrained
                       ? 'bg-sky-200 font-bold text-brand-700'
                       : inMonth
                         ? 'text-gray-700'
                         : 'text-gray-300',
-                  (isMarked || isTrained) && !inMonth ? 'opacity-40' : '',
+                  (isGym || isMarked || isTrained) && !inMonth ? 'opacity-40' : '',
                   isToday ? 'ring-[3px] ring-today ring-offset-1' : '',
-                  isToday && !isMarked && !isTrained ? 'font-bold text-today' : '',
+                  isToday && !isGym && !isMarked && !isTrained ? 'font-bold text-today' : '',
                 ].join(' ')}
               >
                 {d.getDate()}

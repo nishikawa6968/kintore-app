@@ -18,15 +18,15 @@ export function HomePage() {
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
 
-  const { last, marked, trained, recency } = useMemo(() => {
-    if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>(), recency: {} };
+  const { last, marked, trained, gym, recency } = useMemo(() => {
+    if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>(), gym: new Set<string>(), recency: {} };
     const byDate = partsByDate(data.sets, data.exercises);
     const marked = new Set([...byDate].filter(([, parts]) => filter === 'all' || parts.has(filter)).map(([d]) => d));
     const lastByPart = lastTrainedByPart(data.sets, data.exercises);
     const last = filter === 'all' ? [...lastByPart.values()].sort().at(-1) : lastByPart.get(filter);
     // ALL のときの図の色：最後に鍛えた日が近い部位ほど赤、前ほど青みがかり、2週間〜は暗い紺色（記録なしはグレー）
     const recency = Object.fromEntries(BODY_PARTS.map((p) => [p.id, recencyColor(lastByPart.has(p.id) ? daysSince(lastByPart.get(p.id)!, today) : null)]));
-    return { last, marked, trained: new Set(byDate.keys()), recency };
+    return { last, marked, trained: new Set(byDate.keys()), gym: new Set(data.days.filter((d) => d.kind === 'gymnastics').map((d) => d.date)), recency };
   }, [data, filter, today]);
 
   return (
@@ -37,7 +37,7 @@ export function HomePage() {
         <>
           {/* 画面の高さぴったりに並べ、残った高さはすべて人の図に使う（画面が大きいほど図も大きくなる） */}
             <section className="shrink-0 px-4 pt-3">
-              <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
+              <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} gym={gym} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
             </section>
 
             {/* 選んでいる部位の最終トレーニング → 人の図 → ロール（親指の届く下の方に） */}

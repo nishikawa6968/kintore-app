@@ -45,3 +45,12 @@ export interface SetRecord {
   order: number;
   createdAt: number;
 }
+
+/** 筋トレ以外の日（体操など）。筋トレと同じ日にはしない */
+export interface DayRecord {
+  /** 'YYYY-MM-DD' */
+  date: string;
+  kind: 'gymnastics';
+  /** その日にやったことのメモ */
+  memo?: string;
+}

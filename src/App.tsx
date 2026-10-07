@@ -7,7 +7,7 @@ import { RecordsPage } from './pages/RecordsPage';
 import { SetInputPage } from './pages/SetInputPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { HelpPage } from './pages/HelpPage';
-import { Loading, StatusBarFill } from './components/Layout';
+import { Loading, RotateNotice, StatusBarFill } from './components/Layout';
 
 // グラフライブラリが大きいので詳細画面は開いたときに読み込む
 const ExerciseDetailPage = lazy(() => import('./pages/ExerciseDetailPage').then((m) => ({ default: m.ExerciseDetailPage })));
@@ -26,6 +26,7 @@ export default function App() {
     <HashRouter>
       <ScrollToTop />
       <StatusBarFill />
+      <RotateNotice />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/day/:date" element={<DayPage />} />

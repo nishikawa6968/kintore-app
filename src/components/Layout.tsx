@@ -58,6 +58,19 @@ export function BottomNav() {
   );
 }
 
+/** 横向きにしたときだけ画面全体に出す「縦向きにしてください」の案内 */
+export function RotateNotice() {
+  return (
+    <div className="rotate-notice fixed inset-0 z-50 flex-col items-center justify-center gap-3 bg-brand-500 text-white">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="7" y="2" width="10" height="20" rx="2" />
+        <path d="M11 18h2" />
+      </svg>
+      <p className="text-lg font-bold">画面を縦向きにしてください</p>
+    </div>
+  );
+}
+
 /** iPhone のステータスバー（時刻・電池）の裏を画面幅いっぱい青で塗る */
 export function StatusBarFill() {
   return <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-brand-500" />;

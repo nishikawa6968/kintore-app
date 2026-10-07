@@ -94,6 +94,16 @@ textarea {
   }
 }
 
+/* 横向きの案内：iPhone のホーム画面アプリは向きを固定できないので、横向きのときだけ出す */
+.rotate-notice {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .rotate-notice {
+    display: flex;
+  }
+}
+
 /* 使い方ページのお手本：指のマーク */
 .demo-finger {
   position: absolute;

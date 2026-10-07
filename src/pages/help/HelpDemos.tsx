@@ -154,6 +154,7 @@ export function CalendarDemo() {
   const day = (n: number) => toKey(addDays(t, n));
   const marked = new Set([day(-1), day(-4), day(-8)]);
   const trained = new Set([day(-2), day(-6)]);
+  const gym = new Set([day(-3)]);
   return (
     <DemoBox
       caption={
@@ -167,6 +168,10 @@ export function CalendarDemo() {
             ほかの筋トレをした日
           </span>
           <span className="inline-flex items-center gap-1">
+            <span className="h-3 w-3 rounded-full bg-pink-400" />
+            体操の日
+          </span>
+          <span className="inline-flex items-center gap-1">
             <span className="h-3 w-3 rounded-full ring-2 ring-today" />
             今日
           </span>
@@ -174,7 +179,7 @@ export function CalendarDemo() {
       }
     >
       <div className="pointer-events-none">
-        <MonthCalendar month={t} onMonthChange={() => {}} marked={marked} trained={trained} today={today} onSelect={() => {}} />
+        <MonthCalendar month={t} onMonthChange={() => {}} marked={marked} trained={trained} gym={gym} today={today} onSelect={() => {}} />
       </div>
     </DemoBox>
   );
