@@ -1,12 +1,12 @@
 /**
  * 最後に鍛えた日の近さを色で表す。最近ほど赤、そこから 赤紫 → 紫 → 青紫 と青みがかっていき、
- * 2週間以上前は暗い紺色（鮮やかでない色で「やれていない」と分かるように）。
+ * 1週間以上前は暗い紺色（鮮やかでない色で「やれていない」と分かるように）。
  */
 const STOPS = ['#ef4444', '#c4286f', '#8b3aa8', '#4b3a96', '#1e2f5c'];
 /** まだ一度も鍛えていない部位 */
 export const NEVER_COLOR = '#e5e7eb';
 /** この日数で一番昔の色（暗い紺色）になる */
-export const FADE_DAYS = 14;
+export const FADE_DAYS = 7;
 
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 const toHex = (c: number[]) => `#${c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')}`;
@@ -24,5 +24,5 @@ export function recencyColor(days: number | null): string {
   return toHex(a.map((v, k) => v + (b[k] - v) * f));
 }
 
-/** 見本の帯に使うグラデーション（最近 → 2週間〜） */
+/** 見本の帯に使うグラデーション（最近 → 1週間〜） */
 export const RECENCY_GRADIENT = `linear-gradient(to right, ${STOPS.join(', ')})`;

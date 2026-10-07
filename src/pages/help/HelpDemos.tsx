@@ -190,10 +190,10 @@ export function CalendarDemo() {
 export function RecencyDemo() {
   const colors: Record<BodyPart, string> = {
     leg: recencyColor(0),
-    chest: recencyColor(3),
-    shoulder: recencyColor(6),
-    back: recencyColor(9),
-    arm: recencyColor(30),
+    chest: recencyColor(2),
+    shoulder: recencyColor(4),
+    back: recencyColor(5),
+    arm: recencyColor(10),
     abs: recencyColor(null),
   };
   return (
@@ -203,12 +203,12 @@ export function RecencyDemo() {
           <span className="inline-flex items-center gap-1.5">
             最近
             <span className="h-2 w-16 rounded-full" style={{ background: RECENCY_GRADIENT }} />
-            2週間〜
+            1週間〜
             <span className="ml-1 h-2 w-2 rounded-full" style={{ background: NEVER_COLOR }} />
             未
           </span>
           <br />
-          例：脚＝今日、胸＝3日前、背中＝9日前、腕＝30日前
+          例：脚＝今日、胸＝2日前、背中＝5日前、腕＝10日前
         </>
       }
     >

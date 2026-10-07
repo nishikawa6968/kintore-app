@@ -8,7 +8,7 @@ describe('最後に鍛えた日の近さで色を決める', () => {
   });
 
   it('日がたつと 赤紫 → 紫 → 青紫 と青みがかっていく', () => {
-    // 2週間を4区間に分けた、それぞれの区切りの日
+    // 1週間を4区間に分けた、それぞれの区切りの日
     const at = (k: number) => recencyColor(1 + ((FADE_DAYS - 1) * k) / 4);
     expect(at(1)).toBe('#c4286f');
     expect(at(2)).toBe('#8b3aa8');
@@ -19,7 +19,7 @@ describe('最後に鍛えた日の近さで色を決める', () => {
     expect(red(recencyColor(9))).toBeLessThan(red(recencyColor(4)));
   });
 
-  it('2週間以上前は暗い紺色', () => {
+  it('1週間以上前は暗い紺色', () => {
     expect(recencyColor(FADE_DAYS)).toBe('#1e2f5c');
     expect(recencyColor(60)).toBe('#1e2f5c');
   });
