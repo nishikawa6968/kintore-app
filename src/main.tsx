@@ -10,10 +10,20 @@ registerSW({ immediate: true });
 navigator.storage?.persist?.();
 
 // 実際に見えている画面の高さを CSS の --app-h に入れる（index.css の説明を参照）
-const setAppHeight = () => document.documentElement.style.setProperty('--app-h', `${window.innerHeight}px`);
+const setAppHeight = () => {
+  document.documentElement.style.setProperty('--app-h', `${window.innerHeight}px`);
+  window.scrollTo(0, 0);
+};
+// iPhone は向きを変えた直後、まだ前の向きの高さを返すことがあるので、少し時間をおいて何度か測り直す
+const timers: number[] = [];
+const remeasure = () => {
+  setAppHeight();
+  timers.splice(0).forEach(clearTimeout);
+  for (const ms of [100, 300, 700]) timers.push(window.setTimeout(setAppHeight, ms));
+};
 setAppHeight();
-window.addEventListener('resize', setAppHeight);
-window.addEventListener('orientationchange', setAppHeight);
+window.addEventListener('resize', remeasure);
+window.addEventListener('orientationchange', remeasure);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

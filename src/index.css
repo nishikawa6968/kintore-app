@@ -33,6 +33,21 @@ body {
   width: 100%;
 }
 
+/*
+ * ページ全体は画面に固定してスクロールさせない（スクロールは各画面の真ん中の部分だけ）。
+ * iPhone で横向き→縦向きにしたとき、ページ全体が上にずれたまま戻らず、
+ * タップの位置もずれて操作できなくなるのを防ぐ。
+ */
+html {
+  overflow: hidden;
+  height: 100%;
+}
+body {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
 /* iOS で入力時に勝手にズームしないように */
 input,
 select,
