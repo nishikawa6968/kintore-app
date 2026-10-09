@@ -163,6 +163,26 @@ textarea {
   }
 }
 
+/* 称号のエンブレムに、光の筋がキランと横切る */
+.emblem-glint {
+  animation: emblem-glint 3s ease-in-out infinite;
+}
+@keyframes emblem-glint {
+  0%,
+  60% {
+    transform: translateX(0);
+  }
+  85%,
+  100% {
+    transform: translateX(84px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emblem-glint {
+    animation: none;
+  }
+}
+
 /* 横向きの案内：iPhone のホーム画面アプリは向きを固定できないので、横向きのときだけ出す */
 .rotate-notice {
   display: none;

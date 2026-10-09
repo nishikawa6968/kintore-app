@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useId, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Emblem } from '../components/Emblem';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { db } from '../db/db';
 import { BIG3, LEVEL_COLORS, LEVEL_RANKS, LEVELS, STANDARDS, big3Bests, levelOf, type Big3Lift } from '../lib/big3';
@@ -80,7 +81,7 @@ function RankHero({ bodyweight, total, complete }: { bodyweight: number; total: 
       {info ? (
         <>
           <div className="mt-1 flex items-center gap-3">
-            <Emblem tier={info.index} size={76} glow />
+            <Emblem tier={info.index} size={76} glow shine />
             <div className="min-w-0 flex-1">
               <div className="text-[11px] font-black tracking-widest" style={{ color: LIGHT_COLORS[info.index] }}>
                 {TIER_EN[info.index]}
@@ -144,26 +145,28 @@ function TierCard({
   cleared: boolean;
 }) {
   const color = LEVEL_COLORS[tier];
+  const locked = !current && !cleared;
   return (
     <section
       className={`relative overflow-hidden rounded-2xl bg-white p-3 pl-4 shadow-sm`}
       style={current ? { boxShadow: `0 0 0 2px ${color}, 0 6px 22px ${color}55` } : undefined}
     >
       {/* 左端の色の帯 */}
-      <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: color }} />
+      <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: color, opacity: locked ? 0.35 : 1 }} />
       <div className="flex items-center gap-2.5">
-        <Emblem tier={tier} size={44} />
+        <Emblem tier={tier} size={44} shine={!locked} glow={current} locked={locked} />
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-black tracking-widest" style={{ color }}>
+          <div className="text-[10px] font-black tracking-widest" style={{ color, opacity: locked ? 0.5 : 1 }}>
             {TIER_EN[tier]}
           </div>
-          <div className="text-lg leading-tight font-black text-gray-800">{LEVELS[tier]}</div>
+          <div className={`text-lg leading-tight font-black ${locked ? 'text-gray-400' : 'text-gray-800'}`}>{LEVELS[tier]}</div>
         </div>
         {current && (
           <span className="animate-pulse rounded-full px-2.5 py-0.5 text-[11px] font-black tracking-wider text-white" style={{ background: color }}>
             NOW
           </span>
         )}
+        {locked && <span className="rounded-full border border-dashed border-gray-300 px-2.5 py-0.5 text-[11px] font-black tracking-wider text-gray-400">LOCKED</span>}
         {cleared && <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-black tracking-wider text-gray-500">CLEAR</span>}
       </div>
 
@@ -199,36 +202,5 @@ function TierCard({
         })}
       </div>
     </section>
-  );
-}
-
-/** ゲームのランクのような盾のエンブレム（tier が null なら「？」） */
-function Emblem({ tier, size, glow = false }: { tier: number | null; size: number; glow?: boolean }) {
-  const id = useId();
-  const color = tier === null ? '#64748b' : LEVEL_COLORS[tier];
-  const rank = tier === null ? '?' : LEVEL_RANKS[tier];
-  return (
-    <svg
-      viewBox="0 0 48 56"
-      width={size}
-      height={(size * 56) / 48}
-      className="shrink-0"
-      style={glow ? { filter: `drop-shadow(0 0 10px ${color})` } : { filter: 'drop-shadow(0 2px 3px rgb(0 0 0 / 0.18))' }}
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={`${id}-shine`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.18" />
-        </linearGradient>
-      </defs>
-      <path d="M24 2 L44 9 V27 C44 41 35 50 24 54 C13 50 4 41 4 27 V9 Z" fill={color} />
-      <path d="M24 2 L44 9 V27 C44 41 35 50 24 54 C13 50 4 41 4 27 V9 Z" fill={`url(#${id}-shine)`} />
-      <path d="M24 7 L39.5 12.5 V27 C39.5 38.5 32.5 45.5 24 49 C15.5 45.5 8.5 38.5 8.5 27 V12.5 Z" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="1.5" />
-      <text x="24" y="35" textAnchor="middle" fontSize="22" fontWeight="900" fill="#fff" style={{ fontFamily: 'system-ui, sans-serif' }}>
-        {rank}
-      </text>
-    </svg>
   );
 }

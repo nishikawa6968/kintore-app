@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu } from '../components/Icons';
+import { Emblem } from '../components/Emblem';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { db, setBodyweight } from '../db/db';
 import {
@@ -50,6 +50,8 @@ export function Big3Page() {
                   <span className="ml-0.5 text-lg font-bold">kg</span>
                 </div>
               </div>
+              {/* 今の称号のエンブレム（押すと称号のティア表） */}
+              <RankBanner rank={view.complete && bodyweight ? levelOf('total', view.total, bodyweight) : null} />
               <BodyweightInput value={bodyweight} />
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2">
@@ -77,6 +79,16 @@ export function Big3Page() {
         </ScrollArea>
       )}
     </SubPage>
+  );
+}
+
+/** 今の称号のエンブレム。キランと光り、押すと称号のティア表を開く */
+function RankBanner({ rank }: { rank: LevelInfo | null }) {
+  return (
+    <Link to="/big3/tiers" className="-mb-1 flex flex-col items-center active:scale-95" aria-label="称号のティア表">
+      <Emblem tier={rank?.index ?? null} size={40} glow={!!rank} shine={!!rank} />
+      <span className="mt-0.5 text-[10px] font-black tracking-wider whitespace-nowrap">{rank ? rank.level : '称号'}</span>
+    </Link>
   );
 }
 
@@ -200,7 +212,7 @@ function LevelCard({ bests, total, bodyweight }: { bests: ReturnType<typeof big3
   if (!bodyweight) {
     return (
       <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <LevelHeader />
+        <h2 className="font-bold">レベル</h2>
         <p className="mt-2 text-sm text-gray-500">上の「体重」を入れると、初心者〜エリートのどのレベルかが分かります。</p>
       </section>
     );
@@ -211,25 +223,13 @@ function LevelCard({ bests, total, bodyweight }: { bests: ReturnType<typeof big3
   ];
   return (
     <section className="rounded-2xl bg-white p-4 shadow-sm">
-      <LevelHeader />
+      <h2 className="font-bold">レベル</h2>
       <div className="mt-1 divide-y divide-gray-100">
         {rows.map((r) => (
           <LevelRow key={r.key} kind={r.key} name={r.name} info={r.weight > 0 ? levelOf(r.key, r.weight, bodyweight) : null} />
         ))}
       </div>
     </section>
-  );
-}
-
-/** 「レベル」の見出し。右の三本線で、称号ごとに必要な重さのティア表を開く */
-function LevelHeader() {
-  return (
-    <div className="-my-1 flex items-center justify-between">
-      <h2 className="font-bold">レベル</h2>
-      <Link to="/big3/tiers" className="-mr-2 flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 active:bg-gray-100" aria-label="称号のティア表">
-        <Menu width={22} height={22} />
-      </Link>
-    </div>
   );
 }
 
