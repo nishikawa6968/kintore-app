@@ -24,6 +24,8 @@ const remeasure = () => {
 setAppHeight();
 window.addEventListener('resize', remeasure);
 window.addEventListener('orientationchange', remeasure);
+// キーボードを閉じたあと、画面がずれたまま残らないように元の位置に戻す
+window.addEventListener('focusout', remeasure);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
