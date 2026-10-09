@@ -13,6 +13,9 @@ export const BODY_PARTS: { id: BodyPart; label: string }[] = [
 export const bodyPartLabel = (id: BodyPart) =>
   BODY_PARTS.find((p) => p.id === id)?.label ?? id;
 
+/** アプリに固定で入っている種目 */
+export type BuiltinKey = 'bench' | 'squat' | 'deadlift' | 'running';
+
 /** weight：重量×回数で記録 / cardio：距離×時間で記録（ランニング） */
 export type ExerciseKind = 'weight' | 'cardio';
 
@@ -22,6 +25,8 @@ export interface Exercise {
   bodyPart: BodyPart;
   /** 未設定は weight */
   kind?: ExerciseKind;
+  /** アプリに固定で入っている種目（BIG3・ランニング）。名前や部位は変えられない（非表示はできる） */
+  builtin?: BuiltinKey;
   archived: boolean;
   order: number;
 }

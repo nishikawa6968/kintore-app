@@ -20,6 +20,7 @@ export function ExerciseSheet({
   const save = async () => {
     const trimmed = name.trim();
     if (!trimmed) return;
+    if (initial?.builtin) return onClose(); // 固定の種目は変えない
     if (initial) {
       await db.exercises.update(initial.id, { name: trimmed, bodyPart: part });
       onSaved?.(initial.id);

@@ -4,7 +4,7 @@ import { db, exportData, importData, type BackupData } from '../db/db';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Plus } from '../components/Icons';
+import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Lock, Plus } from '../components/Icons';
 import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
 import { useData } from '../lib/useData';
 import { neighborPart, useSlideDirection } from '../lib/useSwipe';
@@ -29,9 +29,17 @@ export function SettingsPage() {
       <ul className="overflow-hidden rounded-2xl bg-white shadow-sm">
         {list.map((ex, i) => (
           <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
-            <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
-              {ex.name}
-            </button>
+            {ex.builtin ? (
+              // アプリ固定の種目（BIG3・ランニング）は名前・部位を変えられない
+              <div className={`flex flex-1 items-center gap-1.5 py-3 ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+                {ex.name}
+                <Lock width={14} height={14} className="text-gray-300" aria-label="固定の種目" />
+              </div>
+            ) : (
+              <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+                {ex.name}
+              </button>
+            )}
             <button
               onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
               className="p-2.5 text-gray-400 active:text-brand-500"

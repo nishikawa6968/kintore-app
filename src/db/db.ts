@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { DayRecord, Exercise, SetRecord, Setting } from '../types';
-import { presetExercises } from './seed';
+import { BUILTINS, CARDIO_NAMES, presetExercises } from './seed';
 
 class KintoreDB extends Dexie {
   exercises!: EntityTable<Exercise, 'id'>;
@@ -48,6 +48,10 @@ class KintoreDB extends Dexie {
     this.version(4).stores({ ...stores, days: 'date' });
     // v5: 体重などの設定を追加（BIG3 のレベル判定に使う）
     this.version(5).stores({ ...stores, days: 'date', settings: 'key' });
+    // v6: ベンチプレス・スクワット・デッドリフト・ランニングをアプリ固定の種目にする
+    this.version(6)
+      .stores({ ...stores, days: 'date', settings: 'key' })
+      .upgrade((tx) => ensureBuiltins(tx.table('exercises') as EntityTable<Exercise, 'id'>));
     this.on('populate', (tx) => {
       tx.table('exercises').bulkAdd(presetExercises());
     });
@@ -55,6 +59,27 @@ class KintoreDB extends Dexie {
 }
 
 export const db = new KintoreDB();
+
+/**
+ * 固定の種目がそろっているようにする。同じ名前・部位の種目があればそれを固定の種目にし
+ * （名前を変えていたら元に戻す必要はないので、見つからなければ部位の末尾に追加する）。
+ */
+async function ensureBuiltins(table: EntityTable<Exercise, 'id'>) {
+  const all = await table.toArray();
+  for (const b of BUILTINS) {
+    if (all.some((e) => e.builtin === b.key)) continue;
+    const kind = CARDIO_NAMES.has(b.name) ? ('cardio' as const) : ('weight' as const);
+    const same = all.find((e) => !e.builtin && e.name.trim() === b.name && e.bodyPart === b.bodyPart);
+    if (same) {
+      same.builtin = b.key;
+      await table.update(same.id, { builtin: b.key, kind, name: b.name });
+      continue;
+    }
+    const order = all.filter((e) => e.bodyPart === b.bodyPart).reduce((max, e) => Math.max(max, e.order), -1) + 1;
+    const id = await table.add({ name: b.name, bodyPart: b.bodyPart, kind, builtin: b.key, archived: false, order } as Exercise);
+    all.push({ id, name: b.name, bodyPart: b.bodyPart, kind, builtin: b.key, archived: false, order });
+  }
+}
 
 /** 種目の、ある日のセットを並び順で取得 */
 export async function setsOf(exerciseId: number, date: string) {
@@ -124,5 +149,7 @@ export async function importData(data: BackupData) {
       data.exercises.map((e) => ((e.bodyPart as string) === 'glute' ? { ...e, bodyPart: 'leg' } : e)),
     );
     await db.sets.bulkAdd(data.sets);
+    // 固定の種目が入っていない古いバックアップでも、固定の種目をそろえる
+    await ensureBuiltins(db.exercises);
   });
 }

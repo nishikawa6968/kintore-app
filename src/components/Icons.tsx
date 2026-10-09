@@ -23,6 +23,12 @@ export const ChevronLeft = (p: P) => <Svg {...p}><path d="M15 18l-6-6 6-6" /></S
 export const ChevronRight = (p: P) => <Svg {...p}><path d="M9 18l6-6-6-6" /></Svg>;
 export const ChevronUp = (p: P) => <Svg {...p}><path d="M18 15l-6-6-6 6" /></Svg>;
 export const ChevronDown = (p: P) => <Svg {...p}><path d="M6 9l6 6 6-6" /></Svg>;
+export const Lock = (p: P) => (
+  <Svg {...p}>
+    <rect x="5" y="11" width="14" height="10" rx="2" />
+    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+  </Svg>
+);
 export const Menu = (p: P) => <Svg {...p}><path d="M4 6h16M4 12h16M4 18h16" /></Svg>;
 export const Plus = (p: P) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>;
 export const Minus = (p: P) => <Svg {...p}><path d="M5 12h14" /></Svg>;

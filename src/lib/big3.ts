@@ -48,13 +48,12 @@ export interface LiftBest {
   date: string;
 }
 
-/** 種目名が BIG3 のどれかなら、その種類を返す（前後の空白は無視） */
+/** アプリ固定の BIG3 の種目なら、その種類を返す */
 export function big3Of(exercise: Exercise): Big3Lift | undefined {
-  const name = exercise.name.trim();
-  return BIG3.find((l) => l.name === name)?.id;
+  return BIG3.find((l) => l.id === exercise.builtin)?.id;
 }
 
-/** BIG3 それぞれの、これまでに持ち上げた一番重い重量（同じ重さなら回数の多い方、さらに同じなら古い日） */
+/** BIG3（アプリ固定の種目。非表示にしていても数える）それぞれの、これまでに持ち上げた一番重い重量（同じ重さなら回数の多い方、さらに同じなら古い日） */
 export function big3Bests(exercises: Exercise[], sets: SetRecord[]): Record<Big3Lift, LiftBest | null> {
   const liftOf = new Map<number, Big3Lift>();
   for (const e of exercises) {
