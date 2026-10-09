@@ -24,7 +24,11 @@
 
 html,
 body {
-  background: #f3f5f9;
+  /*
+   * 下地。上端（ステータスバー＋ヘッダーの高さ）だけ青にしておき、iPhone でヘッダーの端に
+   * 1ピクセルほどの隙間ができたり画面の角が見えたりしても、白っぽく見えないようにする。
+   */
+  background: linear-gradient(to bottom, var(--color-brand-500) calc(env(safe-area-inset-top) + 3rem), #f3f5f9 0) #f3f5f9;
   color: #1f2937;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
