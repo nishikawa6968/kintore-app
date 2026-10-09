@@ -9,6 +9,9 @@ import { SettingsPage } from './pages/SettingsPage';
 import { HelpPage } from './pages/HelpPage';
 import { Big3Page } from './pages/Big3Page';
 import { Big3TiersPage } from './pages/Big3TiersPage';
+import { AchievementsPage } from './pages/AchievementsPage';
+import { ReportPage } from './pages/ReportPage';
+import { AchievementToast } from './components/AchievementToast';
 import { Loading, RotateNotice, StatusBarFill } from './components/Layout';
 
 // グラフライブラリが大きいので詳細画面は開いたときに読み込む
@@ -29,6 +32,7 @@ export default function App() {
       <ScrollToTop />
       <StatusBarFill />
       <RotateNotice />
+      <AchievementToast />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/day/:date" element={<DayPage />} />
@@ -47,6 +51,8 @@ export default function App() {
         <Route path="/help" element={<HelpPage />} />
         <Route path="/big3" element={<Big3Page />} />
         <Route path="/big3/tiers" element={<Big3TiersPage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
+        <Route path="/report/:month" element={<ReportPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

@@ -60,8 +60,21 @@ export interface DayRecord {
   memo?: string;
 }
 
-/** アプリの設定（体重など）。key ごとに1行 */
+/** アプリの設定と、その値の型 */
+export interface SettingValues {
+  /** 体重（kg）。BIG3 のレベル判定に使う */
+  bodyweight: number;
+  /** 1週間（月〜日）に何日トレーニングするか */
+  weeklyGoal: number;
+  /** プレート計算のバーの重さ（kg） */
+  barWeight: number;
+  /** もうお知らせした実績の id */
+  seenAchievements: string[];
+}
+export type SettingKey = keyof SettingValues;
+
+/** アプリの設定。key ごとに1行 */
 export interface Setting {
-  key: 'bodyweight';
-  value: number;
+  key: SettingKey;
+  value: SettingValues[SettingKey];
 }

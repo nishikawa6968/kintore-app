@@ -187,6 +187,21 @@ textarea {
   }
 }
 
+/* 実績解除のお知らせ：上から降りてくる */
+.toast-in {
+  animation: toast-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* 横向きの案内：iPhone のホーム画面アプリは向きを固定できないので、横向きのときだけ出す */
 .rotate-notice {
   display: none;

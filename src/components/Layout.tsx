@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronLeft, Gear, Trophy } from './Icons';
 
 /** 青いヘッダー。back に戻り先を渡すと左に「戻る」ボタンが出る */
-export function Header({ title, back, right }: { title: string; back?: string; right?: ReactNode }) {
+export function Header({ title, back, left, right }: { title: string; back?: string; left?: ReactNode; right?: ReactNode }) {
   const navigate = useNavigate();
   const goBack = () => {
     // 履歴があればブラウザの戻る、直接開いた場合は既定の戻り先へ
@@ -14,6 +14,7 @@ export function Header({ title, back, right }: { title: string; back?: string; r
     <header className="sticky top-0 z-20 bg-brand-500 pt-safe text-white shadow-sm">
       <div className="mx-auto flex h-12 max-w-md items-center px-2">
         <div className="w-20">
+          {!back && left}
           {back && (
             <button onClick={goBack} className="flex h-10 items-center pr-2 active:opacity-60" aria-label="戻る">
               <ChevronLeft />

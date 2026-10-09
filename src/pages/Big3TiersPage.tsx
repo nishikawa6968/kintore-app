@@ -1,12 +1,10 @@
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Emblem } from '../components/Emblem';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
-import { db } from '../db/db';
 import { BIG3, LEVEL_COLORS, LEVEL_RANKS, LEVELS, STANDARDS, big3Bests, levelOf, type Big3Lift } from '../lib/big3';
 import { fmtKg } from '../lib/records';
-import { useData } from '../lib/useData';
+import { useData, useSetting } from '../lib/useData';
 
 const TIER_EN = ['BEGINNER', 'NOVICE', 'INTERMEDIATE', 'ADVANCED', 'ELITE'];
 /** 紺色の背景の上でも読みやすい、明るめのレベルの色 */
@@ -24,7 +22,7 @@ const required = (kind: Big3Lift | 'total', tier: number, bodyweight: number) =>
 /** BIG3 の称号（初心者〜エリート）ごとに、何kg挙げれば届くかのティア表 */
 export function Big3TiersPage() {
   const data = useData();
-  const bodyweight = useLiveQuery(async () => (await db.settings.get('bodyweight'))?.value ?? 0, []);
+  const bodyweight = useSetting('bodyweight', 0);
 
   const mine = useMemo(() => {
     if (!data) return null;

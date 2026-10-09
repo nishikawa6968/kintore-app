@@ -2,22 +2,27 @@ import { useState, type ReactNode } from 'react';
 import { Header, ScrollArea, SubPage } from '../components/Layout';
 import { ChevronDown } from '../components/Icons';
 import {
+  AchievementDemo,
   BackupDemo,
   BalanceDemo,
   Big3FlowDemo,
   BodyTapDemo,
   CalendarDemo,
   FlowDemo,
+  GoalDemo,
   GymDemo,
   ManageDemo,
   OverviewDemo,
+  PlateDemo,
   RankDemo,
   RecencyDemo,
   RecordKindDemo,
+  ReportDemo,
   ReopenDemo,
   RollerDemo,
   RunDemo,
   StepperDemo,
+  StreakDemo,
   SwipeTableDemo,
 } from './help/HelpDemos';
 
@@ -56,6 +61,7 @@ export function HelpPage() {
             <li>筋トレの種目・重さ・回数を、日ごとに記録できます。</li>
             <li>どの部位を最近やれていないかが、カレンダーと人の図でひと目で分かります。</li>
             <li>自己ベストは自動で計算され、更新するとお祝いの演出が出ます。</li>
+            <li>次の目標・週の目標・実績バッジで、ゲームのように続けられます。</li>
             <li>BIG3（ベンチプレス・スクワット・デッドリフト）のバランスと称号が分かります。</li>
           </List>
         </Section>
@@ -94,12 +100,37 @@ export function HelpPage() {
           </List>
         </Section>
 
+        <Section title="次の目標">
+          <GoalDemo />
+          <List>
+            <li>記録の画面の「次の目標」に、記録を更新するための重さと回数が出ます。</li>
+            <li>「炎を狙う」は今までで一番重い重さ＋2.5kg、「青を狙う」はいつもの重さで回数を増やす目標です。</li>
+            <li>押すと、その重さと回数のセットが入ります。</li>
+          </List>
+        </Section>
+
+        <Section title="プレート計算">
+          <PlateDemo />
+          <List>
+            <li>セットの右下のバーベルのマークを押すと、バーの片側に付けるプレートが絵で出ます。</li>
+            <li>バーの重さ（20・15・10kg）も選べます。</li>
+          </List>
+        </Section>
+
         <Section title="ホームの見方">
           <CalendarDemo />
           <RecencyDemo />
           <List>
             <li>カレンダーの青い丸は選んだ部位をやった日、水色はほかの筋トレの日、ピンクは体操の日です。</li>
             <li>ALL のときの人の図は、最近鍛えた部位ほど赤く、1週間以上あいた部位ほど暗い紺色になります。</li>
+          </List>
+        </Section>
+
+        <Section title="週の目標と連続記録">
+          <StreakDemo />
+          <List>
+            <li>ホームの「今週 2/3」は、今週（月〜日）トレーニングした日数と目標です。体操の日も数えます。</li>
+            <li>目標を達成した週が続くと🔥の週の数が増えます。押すと目標の日数を変えられます。</li>
           </List>
         </Section>
 
@@ -137,6 +168,13 @@ export function HelpPage() {
           </List>
         </Section>
 
+        <Section title="月間レポート">
+          <ReportDemo />
+          <List>
+            <li>ホームのカレンダーの「〇年〇月」を押すと、その月のトレーニング日数・新記録・一番伸びた種目などが見られます。</li>
+          </List>
+        </Section>
+
         <Section title="BIG3と称号">
           <Big3FlowDemo />
           <List>
@@ -155,6 +193,14 @@ export function HelpPage() {
               <b>レベルの目安について：</b>
               成人男性の一般的な基準をもとにした、おおまかな目安です。基準は「1回だけ挙げられる重さ」なので、回数を多くやった重さが記録になっていると、実力より低めに出ます。
             </li>
+          </List>
+        </Section>
+
+        <Section title="実績バッジ">
+          <AchievementDemo />
+          <List>
+            <li>「トレーニング100日」「ベンチ100kg」などの条件を満たすと、メダルがもらえます。</li>
+            <li>ホーム左上のメダルのマークで一覧が見られます。まだのメダルには「あと〇〇」が出ます。</li>
           </List>
         </Section>
 

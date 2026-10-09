@@ -7,6 +7,7 @@ import { BottomAction, Header, Loading, PrimaryButton, ScrollArea, SubPage } fro
 import { RestTimer } from '../components/RestTimer';
 import { RunRow } from '../components/RunRow';
 import { SetRow } from '../components/SetRow';
+import { NextGoals } from '../components/NextGoals';
 import { daysAgoLabel, slashDate } from '../lib/date';
 import {
   chronological,
@@ -67,7 +68,7 @@ export function SetInputPage() {
     // この日のセットで自己ベストを更新し、それが今も自己ベストなら「本日更新」
     const weightToday = todays.some((s) => records.get(s.id) === 'weight');
     const anyToday = todays.some((s) => records.has(s.id));
-    return { exercise, cardio, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, weightToday, anyToday) };
+    return { exercise, cardio, all, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, weightToday, anyToday) };
   }, [data, exerciseId, date]);
 
   // セットを追加したら、入力欄の一覧を一番下までスクロール
@@ -81,7 +82,7 @@ export function SetInputPage() {
   }, [count]);
 
   if (!view) return <Loading />;
-  const { exercise, cardio, todays, prevDate, prevSets, records, card } = view;
+  const { exercise, cardio, all, todays, prevDate, prevSets, records, card } = view;
   const unit = cardio ? '本' : 'セット';
 
   /** 直前のセット → 前回の同じセット番号 → 前回の最終セット の順で値を引き継ぐ */
@@ -120,6 +121,7 @@ export function SetInputPage() {
       </div>
 
       <ScrollArea ref={scrollRef} className="space-y-3">
+        <NextGoals sets={all} cardio={cardio} exerciseId={exerciseId} date={date} />
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">
             <div className="mb-1 flex items-center">

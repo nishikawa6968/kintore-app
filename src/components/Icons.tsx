@@ -29,6 +29,18 @@ export const Lock = (p: P) => (
     <path d="M8 11V7a4 4 0 0 1 8 0v4" />
   </Svg>
 );
+export const ReportIcon = (p: P) => (
+  <Svg {...p}>
+    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+  </Svg>
+);
+export const PlateIcon = (p: P) => (
+  <Svg {...p}>
+    <path d="M2 12h20" />
+    <rect x="5" y="6" width="3" height="12" rx="1" />
+    <rect x="16" y="6" width="3" height="12" rx="1" />
+  </Svg>
+);
 export const Menu = (p: P) => <Svg {...p}><path d="M4 6h16M4 12h16M4 18h16" /></Svg>;
 export const Plus = (p: P) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>;
 export const Minus = (p: P) => <Svg {...p}><path d="M5 12h14" /></Svg>;

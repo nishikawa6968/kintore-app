@@ -1,14 +1,18 @@
+import { format } from 'date-fns';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { MedalIcon } from '../components/Medal';
+import { WeeklyGoalPill } from '../components/WeeklyGoal';
+import { activeDays, DEFAULT_WEEKLY_GOAL, weeklySummary } from '../lib/streak';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, TabPage } from '../components/Layout';
 import { MonthCalendar } from '../components/MonthCalendar';
 import { BodyMap } from '../illustrations/BodyMap';
-import { daysAgoLabel, daysSince, fromKey, slashDate, todayKey } from '../lib/date';
+import { daysAgoLabel, daysSince, fromKey, todayKey } from '../lib/date';
 import { NEVER_COLOR, RECENCY_GRADIENT, recencyColor } from '../lib/recency';
 import { lastTrainedByPart, partsByDate } from '../lib/records';
-import { useData } from '../lib/useData';
+import { useData, useSetting } from '../lib/useData';
 import { BODY_PARTS, bodyPartLabel, type BodyPart } from '../types';
 
 export function HomePage() {
@@ -17,6 +21,8 @@ export function HomePage() {
   const today = todayKey();
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
+  const weeklyGoal = useSetting('weeklyGoal', DEFAULT_WEEKLY_GOAL);
+  const weekly = useMemo(() => (data && weeklyGoal ? weeklySummary(activeDays(data.sets, data.days), weeklyGoal, today) : null), [data, weeklyGoal, today]);
 
   const { last, marked, trained, gym, recency } = useMemo(() => {
     if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>(), gym: new Set<string>(), recency: {} };
@@ -34,6 +40,11 @@ export function HomePage() {
       header={
         <Header
           title="筋トレ記録"
+          left={
+            <Link to="/achievements" className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-white/20 active:bg-white/35" aria-label="実績">
+              <MedalIcon width={20} height={20} />
+            </Link>
+          }
           right={
             <button onClick={() => navigate('/big3')} className="mr-1 rounded-full bg-white/20 px-3 py-1 text-sm font-black tracking-wide active:bg-white/35">
               BIG3
@@ -48,15 +59,28 @@ export function HomePage() {
         <>
           {/* 画面の高さぴったりに並べ、残った高さはすべて人の図に使う（画面が大きいほど図も大きくなる） */}
             <section className="shrink-0 px-4 pt-3">
-              <MonthCalendar month={month} onMonthChange={setMonth} marked={marked} trained={trained} gym={gym} today={today} onSelect={(d) => navigate(`/day/${d}`)} />
+              <MonthCalendar
+                month={month}
+                onMonthChange={setMonth}
+                marked={marked}
+                trained={trained}
+                gym={gym}
+                today={today}
+                onSelect={(d) => navigate(`/day/${d}`)}
+                onTitleClick={() => navigate(`/report/${format(month, 'yyyy-MM')}`)}
+              />
             </section>
 
             {/* 選んでいる部位の最終トレーニング → 人の図 → ロール（親指の届く下の方に） */}
-            <p className="mt-3 shrink-0 text-center text-sm text-gray-500">
-              {filter !== 'all' && <span className="font-bold text-gray-700">{bodyPartLabel(filter)}の</span>}
-              最終トレーニング：
-              <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${slashDate(last)}）` : '記録なし'}</span>
-            </p>
+            {/* 左：選んでいる部位の最終トレーニング／右：週の目標と連続記録 */}
+            <div className="mt-2.5 flex shrink-0 items-center gap-2 px-4">
+              <p className="min-w-0 flex-1 truncate text-[13px] text-gray-500">
+                {filter !== 'all' && <span className="font-bold text-gray-700">{bodyPartLabel(filter)}の</span>}
+                最終：
+                <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${format(fromKey(last), 'M/d')}）` : '記録なし'}</span>
+              </p>
+              {weekly && weeklyGoal && <WeeklyGoalPill summary={weekly} goal={weeklyGoal} />}
+            </div>
             {/* 筋肉のまわりはその部位、それ以外の空いた所をタップすると ALL */}
             <div className="relative min-h-0 flex-1 px-4 py-1" onClick={() => setFilter('all')}>
               <BodyMap selected={filter} onSelect={setFilter} allColors={recency} className="h-full w-full" />

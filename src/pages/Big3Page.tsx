@@ -1,9 +1,8 @@
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Emblem } from '../components/Emblem';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
-import { db, setBodyweight } from '../db/db';
+import { setBodyweight } from '../db/db';
 import {
   BIG3,
   IDEAL_RATIO,
@@ -19,13 +18,13 @@ import {
 } from '../lib/big3';
 import { slashDate } from '../lib/date';
 import { fmtKg } from '../lib/records';
-import { useData } from '../lib/useData';
+import { useData, useSetting } from '../lib/useData';
 
 
 /** BIG3（ベンチプレス・スクワット・デッドリフト）の記録・バランス・レベル */
 export function Big3Page() {
   const data = useData();
-  const bodyweight = useLiveQuery(async () => (await db.settings.get('bodyweight'))?.value ?? 0, []);
+  const bodyweight = useSetting('bodyweight', 0);
 
   const view = useMemo(() => {
     if (!data) return null;

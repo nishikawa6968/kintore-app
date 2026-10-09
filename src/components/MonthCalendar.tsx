@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { addDays, addMonths, format, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
 import { toKey } from '../lib/date';
-import { ChevronLeft, ChevronRight } from './Icons';
+import { ChevronLeft, ChevronRight, ReportIcon } from './Icons';
 import { SwipePager } from './SwipePager';
 
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
@@ -14,6 +14,7 @@ export function MonthCalendar({
   gym,
   today,
   onSelect,
+  onTitleClick,
 }: {
   month: Date;
   onMonthChange: (d: Date) => void;
@@ -25,6 +26,8 @@ export function MonthCalendar({
   gym: Set<string>;
   today: string;
   onSelect: (key: string) => void;
+  /** 「〇年〇月」を押したとき（月間レポートを開く） */
+  onTitleClick?: () => void;
 }) {
   /** その月の日付のマス目。いつも6週（42日）並べて、月を切り替えても高さが変わらないようにする */
   const renderDays = (m: Date) => {
@@ -82,7 +85,14 @@ export function MonthCalendar({
         <button onClick={() => onMonthChange(addMonths(month, -1))} className="p-2 text-brand-500 active:opacity-50" aria-label="前の月">
           <ChevronLeft />
         </button>
-        <div className="text-lg font-bold text-brand-600">{format(month, 'yyyy年M月')}</div>
+        {onTitleClick ? (
+          <button onClick={onTitleClick} className="flex items-center gap-1 rounded-full px-2 py-0.5 text-lg font-bold text-brand-600 active:bg-brand-50" aria-label="月間レポート">
+            {format(month, 'yyyy年M月')}
+            <ReportIcon width={16} height={16} className="text-brand-400" />
+          </button>
+        ) : (
+          <div className="text-lg font-bold text-brand-600">{format(month, 'yyyy年M月')}</div>
+        )}
         <button onClick={() => onMonthChange(addMonths(month, 1))} className="p-2 text-brand-500 active:opacity-50" aria-label="次の月">
           <ChevronRight />
         </button>

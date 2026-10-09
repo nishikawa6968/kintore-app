@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { db } from '../db/db';
 import { estimate1RM, fmtKg, type RecordKind } from '../lib/records';
 import type { SetRecord } from '../types';
-import { Memo, Trash } from './Icons';
+import { Memo, PlateIcon, Trash } from './Icons';
+import { PlateView } from './PlateView';
 import { NumberStepper } from './NumberStepper';
 import { RecordBadge, recordIndexClass, recordRowClass } from './RecordBadge';
 
 export function SetRow({ set, index, recordKind }: { set: SetRecord; index: number; recordKind?: RecordKind }) {
   const [memoOpen, setMemoOpen] = useState(!!set.memo);
+  const [platesOpen, setPlatesOpen] = useState(false);
   const rm = estimate1RM(set.weight, set.reps);
   const update = (changes: Partial<SetRecord>) => db.sets.update(set.id, changes);
 
@@ -31,6 +33,15 @@ export function SetRow({ set, index, recordKind }: { set: SetRecord; index: numb
         <span className="tabular-nums">推定1RM {rm > 0 ? `${fmtKg(rm)}kg` : '—'}</span>
         {recordKind && <RecordBadge kind={recordKind} small />}
         <div className="ml-auto flex gap-1">
+          {set.weight > 0 && (
+            <button
+              onClick={() => setPlatesOpen((o) => !o)}
+              className={`rounded-lg p-1.5 active:bg-gray-100 ${platesOpen ? 'text-brand-500' : 'text-gray-400'}`}
+              aria-label="プレート計算"
+            >
+              <PlateIcon width={18} height={18} />
+            </button>
+          )}
           <button
             onClick={() => setMemoOpen((o) => !o)}
             className={`rounded-lg p-1.5 active:bg-gray-100 ${set.memo ? 'text-brand-500' : 'text-gray-400'}`}
@@ -43,6 +54,7 @@ export function SetRow({ set, index, recordKind }: { set: SetRecord; index: numb
           </button>
         </div>
       </div>
+      {platesOpen && set.weight > 0 && <PlateView weight={set.weight} />}
       {memoOpen && (
         <input
           defaultValue={set.memo ?? ''}

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { DayRecord, Exercise, SetRecord, Setting } from '../types';
+import type { DayRecord, Exercise, SetRecord, Setting, SettingKey, SettingValues } from '../types';
 import { BUILTINS, CARDIO_NAMES, presetExercises } from './seed';
 
 class KintoreDB extends Dexie {
@@ -118,9 +118,19 @@ export interface BackupData {
   settings?: Setting[];
 }
 
+/** 設定を読む（無ければ undefined） */
+export async function getSetting<K extends SettingKey>(key: K): Promise<SettingValues[K] | undefined> {
+  return (await db.settings.get(key))?.value as SettingValues[K] | undefined;
+}
+
+/** 設定を保存する */
+export async function setSetting<K extends SettingKey>(key: K, value: SettingValues[K]) {
+  await db.settings.put({ key, value });
+}
+
 /** 体重を保存する（0 や空なら消す） */
 export async function setBodyweight(kg: number) {
-  if (kg > 0) await db.settings.put({ key: 'bodyweight', value: kg });
+  if (kg > 0) await setSetting('bodyweight', kg);
   else await db.settings.delete('bodyweight');
 }
 

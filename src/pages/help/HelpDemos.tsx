@@ -12,7 +12,9 @@ import { MonthCalendar } from '../../components/MonthCalendar';
 import { NumberStepper } from '../../components/NumberStepper';
 import { SwipePager } from '../../components/SwipePager';
 import { BodyMap } from '../../illustrations/BodyMap';
-import { Flame } from '../../illustrations/Illustrations';
+import { Flame, Sparkle } from '../../illustrations/Illustrations';
+import { Medal } from '../../components/Medal';
+import { Barbell } from '../../components/PlateView';
 import { LEVELS, LEVEL_COLORS } from '../../lib/big3';
 import { fmtDuration, fmtKm, fmtPace } from '../../lib/records';
 import { RatioBar } from '../Big3Page';
@@ -754,6 +756,163 @@ export function ReopenDemo() {
           <div className="rounded-t-xl bg-brand-500 py-1 text-center text-[8px] font-bold text-white">筋トレ記録</div>
         </div>
         {step === 0 && <Finger x={50} y={80} />}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 次の目標 ---------- */
+
+export function GoalDemo() {
+  const step = useTicker(3, 1800);
+  return (
+    <DemoBox caption={step === 2 ? '押した目標がセットに入る' : step === 1 ? '「青を狙う」を押すと…' : '「炎を狙う」は重さの新記録、「青を狙う」は回数を増やす'}>
+      <div className="relative rounded-2xl bg-white px-3 pt-2 pb-3 shadow-sm">
+        <div className="mb-1.5 px-1 text-sm font-bold text-gray-700">次の目標</div>
+        <div className="flex gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-50 to-red-50 px-2 py-2 ring-1 ring-orange-200">
+            <Flame className="animate-flame h-5 w-5 text-orange-500" />
+            <span>
+              <span className="block text-[10px] font-black text-orange-500">炎を狙う</span>
+              <span className="block text-[13px] font-black tracking-tight whitespace-nowrap">82.5kg×1回〜</span>
+            </span>
+          </div>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-50 to-brand-50 px-2 py-2 ring-1 ring-sky-200">
+            <Sparkle className="twinkle h-5 w-5 text-sky-500" />
+            <span>
+              <span className="block text-[10px] font-black text-sky-600">青を狙う</span>
+              <span className="block text-[13px] font-black tracking-tight whitespace-nowrap">75kg×10回</span>
+            </span>
+          </div>
+        </div>
+        {step === 1 && <Finger x={75} y={68} />}
+      </div>
+      <div className={`mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-all duration-500 ${step === 2 ? 'bg-sky-50 opacity-100' : 'bg-white opacity-30'}`}>
+        <span className="font-bold text-sky-500">3</span>
+        <span className="flex-1 text-center font-black">75kg × 10回</span>
+        <RecordBadge kind="rm" small />
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- プレート計算 ---------- */
+
+const PLATE_SAMPLES = [60, 82.5, 100, 140];
+
+export function PlateDemo() {
+  const w = PLATE_SAMPLES[useTicker(PLATE_SAMPLES.length, 1800)];
+  return (
+    <DemoBox caption={`${w}kg（バー20kg）のときに付けるプレート`}>
+      <div className="rounded-xl bg-white p-3 shadow-sm">
+        <Barbell weight={w} bar={20} />
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 週の目標と連続記録 ---------- */
+
+export function StreakDemo() {
+  const step = useTicker(5, 1100);
+  const count = Math.min(step, 3);
+  const done = count >= 3;
+  return (
+    <DemoBox caption={done ? '目標を達成すると🔥が付き、連続の週が増える' : 'トレーニングした日が数えられていく'}>
+      <div className="flex flex-col items-center gap-3">
+        <span
+          className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold tabular-nums transition-colors ${
+            done ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-sm shadow-orange-500/40' : 'bg-white text-gray-600 shadow-sm'
+          }`}
+        >
+          今週 <span className="text-base font-black">{count}</span>/3
+          <span className={`flex items-center gap-0.5 ${done ? '' : 'text-orange-500'}`}>
+            <Flame className="animate-flame h-4 w-4" />
+            {done ? 5 : 4}週
+          </span>
+        </span>
+        <div className="grid w-full grid-cols-8 gap-1.5">
+          {Array.from({ length: 8 }, (_, i) => {
+            const now = i === 7;
+            const achieved = i >= 3 && (!now || done);
+            return (
+              <div
+                key={i}
+                className={`flex h-8 items-center justify-center rounded-lg text-xs font-black ${
+                  achieved ? 'bg-gradient-to-b from-orange-400 to-red-500 text-white' : now ? 'bg-brand-50 text-brand-600 ring-2 ring-brand-300' : 'bg-gray-100 text-gray-400'
+                }`}
+              >
+                {achieved ? <Flame className="h-4 w-4" /> : now ? count : 1}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 月間レポート ---------- */
+
+export function ReportDemo() {
+  const step = useTicker(2, 2200);
+  const bars = step ? [16, 20, 4, 16, 10, 19] : [10, 14, 6, 9, 5, 12];
+  return (
+    <DemoBox caption="カレンダーの「〇年〇月」を押すと、その月のまとめが見られる">
+      <div className="space-y-2">
+        <div className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-500 p-3 text-white">
+          <div className="text-center text-[9px] font-black tracking-[0.3em] text-sky-200">MONTHLY REPORT</div>
+          <div className="mt-1.5 grid grid-cols-3 gap-1.5 text-center">
+            {[
+              ['トレーニング', step ? '17' : '12', '日'],
+              ['新記録', step ? '37' : '21', '回'],
+              ['総挙上重量', step ? '32.2' : '24.8', 't'],
+            ].map(([l, v, u]) => (
+              <div key={l} className="rounded-lg bg-white/10 py-1">
+                <div className="text-[9px] opacity-80">{l}</div>
+                <div className="text-lg leading-tight font-black">
+                  {v}
+                  <span className="text-[10px]">{u}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-1 rounded-2xl bg-white p-3 shadow-sm">
+          {BODY_PARTS.map((p, i) => (
+            <div key={p.id} className="flex items-center gap-2 text-xs">
+              <span className="w-7 font-bold text-gray-600">{p.label}</span>
+              <div className="h-3 flex-1 overflow-hidden rounded bg-gray-100">
+                <div className="h-full rounded bg-gradient-to-r from-brand-400 to-brand-600 transition-all duration-700" style={{ width: `${(bars[i] / 20) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 実績バッジ ---------- */
+
+const DEMO_MEDALS = [
+  { rarity: 'bronze' as const, label: '10日', title: '10日の努力' },
+  { rarity: 'silver' as const, label: '80', title: 'ベンチ 80kg' },
+  { rarity: 'gold' as const, label: '100', title: '100kgクラブ' },
+];
+
+export function AchievementDemo() {
+  const step = useTicker(4, 1500);
+  const latest = DEMO_MEDALS[step - 1];
+  return (
+    <DemoBox caption={latest ? <span className="font-bold text-amber-600">実績解除！「{latest.title}」</span> : '条件を満たすと、メダルが解除される'}>
+      <div className="flex items-end justify-center gap-5 py-1">
+        {DEMO_MEDALS.map((m, i) => (
+          <div key={m.title} className="flex flex-col items-center">
+            <Medal rarity={m.rarity} label={m.label} size={i < step ? 50 : 44} shine={i < step} locked={i >= step} />
+            <span className={`mt-1 text-[10px] font-bold ${i < step ? 'text-gray-700' : 'text-gray-300'}`}>{m.title}</span>
+          </div>
+        ))}
       </div>
     </DemoBox>
   );
