@@ -1,11 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu } from '../components/Icons';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { db, setBodyweight } from '../db/db';
 import {
   BIG3,
   IDEAL_RATIO,
   LEVELS,
+  LEVEL_COLORS,
   STANDARDS,
   big3Balance,
   big3Bests,
@@ -18,7 +21,6 @@ import { slashDate } from '../lib/date';
 import { fmtKg } from '../lib/records';
 import { useData } from '../lib/useData';
 
-const LEVEL_COLORS = ['#9ca3af', '#38bdf8', '#1e6fd9', '#8b3aa8', '#f59e0b'];
 
 /** BIG3（ベンチプレス・スクワット・デッドリフト）の記録・バランス・レベル */
 export function Big3Page() {
@@ -198,7 +200,7 @@ function LevelCard({ bests, total, bodyweight }: { bests: ReturnType<typeof big3
   if (!bodyweight) {
     return (
       <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <h2 className="font-bold">レベル</h2>
+        <LevelHeader />
         <p className="mt-2 text-sm text-gray-500">上の「体重」を入れると、初心者〜エリートのどのレベルかが分かります。</p>
       </section>
     );
@@ -209,13 +211,25 @@ function LevelCard({ bests, total, bodyweight }: { bests: ReturnType<typeof big3
   ];
   return (
     <section className="rounded-2xl bg-white p-4 shadow-sm">
-      <h2 className="font-bold">レベル</h2>
+      <LevelHeader />
       <div className="mt-1 divide-y divide-gray-100">
         {rows.map((r) => (
           <LevelRow key={r.key} kind={r.key} name={r.name} info={r.weight > 0 ? levelOf(r.key, r.weight, bodyweight) : null} />
         ))}
       </div>
     </section>
+  );
+}
+
+/** 「レベル」の見出し。右の三本線で、称号ごとに必要な重さのティア表を開く */
+function LevelHeader() {
+  return (
+    <div className="-my-1 flex items-center justify-between">
+      <h2 className="font-bold">レベル</h2>
+      <Link to="/big3/tiers" className="-mr-2 flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 active:bg-gray-100" aria-label="称号のティア表">
+        <Menu width={22} height={22} />
+      </Link>
+    </div>
   );
 }
 

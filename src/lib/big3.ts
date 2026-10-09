@@ -26,6 +26,10 @@ const BALANCE_MARGIN = 2.5;
 export const LEVELS = ['初心者', '初級者', '中級者', '上級者', 'エリート'] as const;
 export type Level = (typeof LEVELS)[number];
 
+/** レベルごとの色（初心者 → エリート）と、ゲームのランクのような記号 */
+export const LEVEL_COLORS = ['#9ca3af', '#38bdf8', '#1e6fd9', '#8b3aa8', '#f59e0b'];
+export const LEVEL_RANKS = ['D', 'C', 'B', 'A', 'S'];
+
 /**
  * 成人男性の目安（体重の何倍を1回挙げられるか）。各レベルに届く倍率。
  * 一般に知られている筋力の基準表をもとにした、おおまかな値。
