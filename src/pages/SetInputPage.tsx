@@ -24,14 +24,14 @@ import { useData } from '../lib/useData';
 import { isCardio, type SetRecord } from '../types';
 
 /** 最高記録の欄の中身。その日に更新した項目には up を付ける */
-function bestCardFor(cardio: boolean, all: SetRecord[], date: string, recordToday: boolean) {
+function bestCardFor(cardio: boolean, all: SetRecord[], date: string, weightToday: boolean, anyToday: boolean) {
   const before = all.filter((s) => s.date < date);
   if (cardio) {
     const best = computeRunBest(all);
     if (!best) return null;
     const prev = computeRunBest(before);
-    const longUp = recordToday && best.longestDate === date;
-    const paceUp = recordToday && best.bestPaceDate === date;
+    const longUp = weightToday && best.longestDate === date;
+    const paceUp = anyToday && best.bestPaceDate === date;
     const left: BestStat = { label: '最長距離', value: fmtKm(best.longest), up: longUp };
     const right: BestStat = { label: 'ベスト平均ペース', value: `${fmtPace(best.bestPace)}/km`, up: paceUp };
     return { left, right, before: prev && (longUp ? fmtKm(prev.longest) : `${fmtPace(prev.bestPace)}/km`) };
@@ -39,8 +39,8 @@ function bestCardFor(cardio: boolean, all: SetRecord[], date: string, recordToda
   const best = computeBest(all);
   if (!best) return null;
   const prev = computeBest(before);
-  const weightUp = recordToday && best.maxDate === date;
-  const rmUp = recordToday && best.best1RMDate === date;
+  const weightUp = weightToday && best.maxDate === date;
+  const rmUp = anyToday && best.best1RMDate === date;
   const left: BestStat = { label: '自己ベスト', value: `${fmtWeight(best.maxWeight)} × ${best.repsAtMax}回`, up: weightUp };
   const right: BestStat = { label: '推定1RM', value: best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—', up: rmUp };
   return { left, right, before: prev && (weightUp ? `${fmtWeight(prev.maxWeight)}×${prev.repsAtMax}回` : `1RM ${fmtKg(prev.best1RM)}kg`) };
@@ -65,8 +65,9 @@ export function SetInputPage() {
     const cardio = isCardio(exercise);
     const records = recordIdsFor(exercise, all);
     // この日のセットで自己ベストを更新し、それが今も自己ベストなら「本日更新」
-    const recordToday = todays.some((s) => records.has(s.id));
-    return { exercise, cardio, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, recordToday) };
+    const weightToday = todays.some((s) => records.get(s.id) === 'weight');
+    const anyToday = todays.some((s) => records.has(s.id));
+    return { exercise, cardio, todays, prevDate, prevSets, records, card: bestCardFor(cardio, all, date, weightToday, anyToday) };
   }, [data, exerciseId, date]);
 
   // セットを追加したら、入力欄の一覧を一番下までスクロール
@@ -170,9 +171,9 @@ export function SetInputPage() {
             <div className="divide-y divide-gray-100">
               {todays.map((s, i) =>
                 cardio ? (
-                  <RunRow key={s.id} set={s} index={i + 1} isRecord={records.has(s.id)} />
+                  <RunRow key={s.id} set={s} index={i + 1} recordKind={records.get(s.id)} />
                 ) : (
-                  <SetRow key={s.id} set={s} index={i + 1} isRecord={records.has(s.id)} />
+                  <SetRow key={s.id} set={s} index={i + 1} recordKind={records.get(s.id)} />
                 ),
               )}
             </div>

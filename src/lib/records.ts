@@ -51,7 +51,20 @@ export function computeBest(sets: SetRecord[]): Best | null {
  * その種目の最初のセットは比較対象がないので新記録扱いにしない。
  */
 export function recordSetIds(sets: SetRecord[]): Set<number> {
-  const ids = new Set<number>();
+  return new Set(weightRecordKinds(sets).keys());
+}
+
+/**
+ * 新記録の種類。
+ * - weight：持った重量の新記録（最高重量を超えた／同じ重量で回数が増えた）。ランニングは最長距離
+ * - rm：推定1RMだけの新記録（重量の記録は更新していない）。ランニングは平均ペース
+ * 持った重量の新記録のほうが嬉しいので、両方更新したときは weight にする。
+ */
+export type RecordKind = 'weight' | 'rm';
+
+/** 重量の種目で、新記録になったセットの id → 種類 */
+export function weightRecordKinds(sets: SetRecord[]): Map<number, RecordKind> {
+  const kinds = new Map<number, RecordKind>();
   let maxWeight = -1;
   let repsAtMax = 0;
   let best1RM = 0;
@@ -60,7 +73,8 @@ export function recordSetIds(sets: SetRecord[]): Set<number> {
     const rm = estimate1RM(s.weight, s.reps);
     const beatsWeight = s.weight > maxWeight || (s.weight === maxWeight && s.reps > repsAtMax);
     const beats1RM = rm > best1RM;
-    if (seen && (beatsWeight || beats1RM)) ids.add(s.id);
+    if (seen && beatsWeight) kinds.set(s.id, 'weight');
+    else if (seen && beats1RM) kinds.set(s.id, 'rm');
     if (beatsWeight) {
       maxWeight = s.weight;
       repsAtMax = s.reps;
@@ -68,7 +82,7 @@ export function recordSetIds(sets: SetRecord[]): Set<number> {
     if (beats1RM) best1RM = rm;
     seen = true;
   }
-  return ids;
+  return kinds;
 }
 
 /** 部位ごとの最終トレーニング日 */
@@ -142,7 +156,12 @@ export function computeRunBest(sets: SetRecord[]): RunBest | null {
 
 /** それまでの最長距離か、平均ペースのベストを更新したランの id（最初の1本は除く） */
 export function runRecordIds(sets: SetRecord[]): Set<number> {
-  const ids = new Set<number>();
+  return new Set(runRecordKinds(sets).keys());
+}
+
+/** ランニングで、新記録になったランの id → 種類（最長距離は weight、平均ペースだけなら rm） */
+export function runRecordKinds(sets: SetRecord[]): Map<number, RecordKind> {
+  const kinds = new Map<number, RecordKind>();
   let longest = 0;
   let bestPace = Infinity;
   let seen = false;
@@ -150,17 +169,18 @@ export function runRecordIds(sets: SetRecord[]): Set<number> {
     const p = paceOf(s);
     const longer = s.distance! > longest;
     const faster = p < bestPace;
-    if (seen && (longer || faster)) ids.add(s.id);
+    if (seen && longer) kinds.set(s.id, 'weight');
+    else if (seen && faster) kinds.set(s.id, 'rm');
     if (longer) longest = s.distance!;
     if (faster) bestPace = p;
     seen = true;
   }
-  return ids;
+  return kinds;
 }
 
-/** 種目に合わせて「新記録のセット」を求める */
+/** 種目に合わせて「新記録のセット（id → 種類）」を求める */
 export const recordIdsFor = (exercise: Exercise | undefined, sets: SetRecord[]) =>
-  isCardio(exercise) ? runRecordIds(sets) : recordSetIds(sets);
+  isCardio(exercise) ? runRecordKinds(sets) : weightRecordKinds(sets);
 
 /** 5 → "5km"、5.25 → "5.25km" */
 export const fmtKm = (km: number) => `${Number(km.toFixed(2))}km`;
@@ -193,6 +213,8 @@ export interface BestSummary {
   sub: string;
   /** main を達成した日 */
   date: string;
+  /** sub を達成した日 */
+  subDate: string;
   /** どれかの記録を更新した一番新しい日 */
   latest: string;
 }
@@ -206,6 +228,7 @@ export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): 
       main: `最長 ${fmtKm(b.longest)}`,
       sub: `ベスト平均 ${fmtPace(b.bestPace)}/km`,
       date: b.longestDate,
+      subDate: b.bestPaceDate,
       latest: b.longestDate > b.bestPaceDate ? b.longestDate : b.bestPaceDate,
     };
   }
@@ -215,6 +238,7 @@ export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): 
     main: `${fmtWeight(b.maxWeight)}×${b.repsAtMax}回`,
     sub: `1RM ${b.best1RM > 0 ? `${fmtKg(b.best1RM)}kg` : '—'}`,
     date: b.maxDate,
+    subDate: b.best1RMDate,
     latest: b.maxDate > b.best1RMDate ? b.maxDate : b.best1RMDate,
   };
 }

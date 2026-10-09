@@ -109,6 +109,60 @@ textarea {
   }
 }
 
+/* 推定1RMだけを更新した日の「青く光る」欄：まわりがじんわり光り、光の筋がときどき横切る */
+.glow-blue {
+  animation: glow-blue 2.2s ease-in-out infinite;
+}
+@keyframes glow-blue {
+  0%,
+  100% {
+    box-shadow: 0 4px 14px rgb(30 111 217 / 0.35);
+  }
+  50% {
+    box-shadow: 0 6px 26px rgb(56 189 248 / 0.75);
+  }
+}
+.shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shine {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  85%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+.twinkle {
+  animation: twinkle 1.6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    transform: scale(0.85) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15) rotate(20deg);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-blue,
+  .shine::after,
+  .twinkle {
+    animation: none;
+  }
+}
+
 /* 横向きの案内：iPhone のホーム画面アプリは向きを固定できないので、横向きのときだけ出す */
 .rotate-notice {
   display: none;

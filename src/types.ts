@@ -54,3 +54,9 @@ export interface DayRecord {
   /** その日にやったことのメモ */
   memo?: string;
 }
+
+/** アプリの設定（体重など）。key ごとに1行 */
+export interface Setting {
+  key: 'bodyweight';
+  value: number;
+}

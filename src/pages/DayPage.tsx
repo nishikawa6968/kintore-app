@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight, Plus } from '../components/Icons';
 import { BottomAction, Header, Loading, PrimaryButton, ScrollArea, SubPage } from '../components/Layout';
 import { RecordBadge } from '../components/RecordBadge';
+import type { RecordKind } from '../lib/records';
 import { FrontFigure } from '../illustrations/Illustrations';
 import { dayLabel } from '../lib/date';
 import { chronological, recordIdsFor, setLabel, volume } from '../lib/records';
@@ -108,7 +109,7 @@ export function DayPage() {
                     {exercise && bodyPartLabel(exercise.bodyPart)}
                   </span>
                   <span className="flex-1 truncate font-bold">{exercise?.name ?? '（削除された種目）'}</span>
-                  {sets.some((s) => records.has(s.id)) && <RecordBadge small />}
+                  {dayKind(sets, records) && <RecordBadge kind={dayKind(sets, records)} cardio={isCardio(exercise)} small />}
                   <ChevronRight className="text-gray-300" />
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -116,7 +117,11 @@ export function DayPage() {
                     <span
                       key={s.id}
                       className={`rounded-lg px-2 py-1 text-sm tabular-nums ${
-                        records.has(s.id) ? 'bg-amber-100 font-bold text-amber-700' : 'bg-gray-50 text-gray-600'
+                        records.get(s.id) === 'weight'
+                          ? 'bg-amber-100 font-bold text-amber-700'
+                          : records.get(s.id) === 'rm'
+                            ? 'bg-sky-100 font-bold text-sky-700'
+                            : 'bg-gray-50 text-gray-600'
                       }`}
                     >
                       {setLabel(s, isCardio(exercise))}
@@ -135,4 +140,10 @@ export function DayPage() {
       )}
     </SubPage>
   );
+}
+
+/** その日の種目の新記録の種類（重量の新記録があればそちらを優先） */
+function dayKind(sets: { id: number }[], records: Map<number, RecordKind>): RecordKind | undefined {
+  const kinds = sets.map((s) => records.get(s.id));
+  return kinds.includes('weight') ? 'weight' : kinds.includes('rm') ? 'rm' : undefined;
 }

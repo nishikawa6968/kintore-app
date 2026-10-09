@@ -13,6 +13,7 @@ import {
   recordSetIds,
   runRecordIds,
   speedKmh,
+  weightRecordKinds,
 } from './records';
 import { daysAgoLabel } from './date';
 
@@ -148,5 +149,23 @@ describe('ランニング', () => {
 
   it('重量の種目のベストにはランニングを混ぜない', () => {
     expect(computeBest([run('2026-10-01', 5, 25)])).toBeNull();
+  });
+});
+
+describe('新記録の種類', () => {
+  it('持った重量の新記録は weight、推定1RMだけの新記録は rm', () => {
+    const first = set('2026-10-01', 75, 3); // 1RM 82.5
+    const rmOnly = set('2026-10-08', 70, 6); // 1RM 84：重量は 75 に届かない
+    const heavier = set('2026-10-09', 77.5, 2); // 重量の新記録
+    const kinds = weightRecordKinds([first, rmOnly, heavier]);
+    expect(kinds.get(rmOnly.id)).toBe('rm');
+    expect(kinds.get(heavier.id)).toBe('weight');
+    expect(kinds.has(first.id)).toBe(false);
+  });
+
+  it('同じ重量で回数が増えたら weight（推定1RMも上がっても weight を優先）', () => {
+    const a = set('2026-10-01', 60, 5);
+    const b = set('2026-10-02', 60, 7);
+    expect(weightRecordKinds([a, b]).get(b.id)).toBe('weight');
   });
 });

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { db } from '../db/db';
-import { estimate1RM, fmtKg } from '../lib/records';
+import { estimate1RM, fmtKg, type RecordKind } from '../lib/records';
 import type { SetRecord } from '../types';
 import { Memo, Trash } from './Icons';
 import { NumberStepper } from './NumberStepper';
-import { RecordBadge } from './RecordBadge';
+import { RecordBadge, recordIndexClass, recordRowClass } from './RecordBadge';
 
-export function SetRow({ set, index, isRecord }: { set: SetRecord; index: number; isRecord: boolean }) {
+export function SetRow({ set, index, recordKind }: { set: SetRecord; index: number; recordKind?: RecordKind }) {
   const [memoOpen, setMemoOpen] = useState(!!set.memo);
   const rm = estimate1RM(set.weight, set.reps);
   const update = (changes: Partial<SetRecord>) => db.sets.update(set.id, changes);
@@ -16,9 +16,9 @@ export function SetRow({ set, index, isRecord }: { set: SetRecord; index: number
   };
 
   return (
-    <div className={`px-3 py-2.5 transition-colors ${isRecord ? 'bg-amber-50' : ''}`}>
+    <div className={`px-3 py-2.5 transition-colors ${recordRowClass(recordKind)}`}>
       <div className="flex items-center gap-2">
-        <div className={`w-6 shrink-0 text-center text-lg font-bold ${isRecord ? 'text-amber-500' : 'text-brand-500'}`}>{index}</div>
+        <div className={`w-6 shrink-0 text-center text-lg font-bold ${recordIndexClass(recordKind)}`}>{index}</div>
         <div className="flex-[1.15]">
           <NumberStepper value={set.weight} step={2.5} unit="kg" decimal onChange={(weight) => update({ weight })} />
         </div>
@@ -29,7 +29,7 @@ export function SetRow({ set, index, isRecord }: { set: SetRecord; index: number
       </div>
       <div className="mt-1.5 flex items-center gap-2 pl-8 text-xs text-gray-500">
         <span className="tabular-nums">推定1RM {rm > 0 ? `${fmtKg(rm)}kg` : '—'}</span>
-        {isRecord && <RecordBadge small />}
+        {recordKind && <RecordBadge kind={recordKind} small />}
         <div className="ml-auto flex gap-1">
           <button
             onClick={() => setMemoOpen((o) => !o)}

@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ChevronRight } from '../components/Icons';
 import { BodyMap } from '../illustrations/BodyMap';
-import { Trophy } from '../illustrations/Illustrations';
+import { Sparkle, Trophy } from '../illustrations/Illustrations';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
@@ -81,18 +81,20 @@ function RecordsTable({ part, exercises, sets }: { part: BodyPart; exercises: Ex
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {rows.map(({ exercise, best }) => {
-          const recent = best && daysSince(best.latest) < RECENT_DAYS;
+          // 最近、持った重量（ランニングは距離）を更新 → 金色のトロフィー、1RM（ペース）だけ更新 → 青い光
+          const recent = best && daysSince(best.date) < RECENT_DAYS ? 'weight' : best && daysSince(best.subDate) < RECENT_DAYS ? 'rm' : null;
           return (
             <Link
               key={exercise.id}
               to={`/exercise/${exercise.id}`}
               className={`flex items-center gap-2 border-b border-gray-100 px-4 py-2 last:border-0 active:bg-gray-50 ${
-                recent ? 'bg-amber-50/70' : ''
+                recent === 'weight' ? 'bg-amber-50/70' : recent === 'rm' ? 'bg-sky-50/70' : ''
               }`}
             >
               <div className="min-w-0 flex-1">
                 <div className="truncate font-bold">
-                  {recent && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
+                  {recent === 'weight' && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
+                  {recent === 'rm' && <Sparkle className="mr-1 inline h-4 w-4 align-[-2px] text-sky-500" />}
                   {exercise.name}
                 </div>
                 <div className="text-xs text-gray-400">{best ? slashDate(best.date) : '未記録'}</div>

@@ -30,7 +30,18 @@ export function HomePage() {
   }, [data, filter, today]);
 
   return (
-    <TabPage header={<Header title="筋トレ記録" />}>
+    <TabPage
+      header={
+        <Header
+          title="筋トレ記録"
+          right={
+            <button onClick={() => navigate('/big3')} className="mr-1 rounded-full bg-white/20 px-3 py-1 text-sm font-black tracking-wide active:bg-white/35">
+              BIG3
+            </button>
+          }
+        />
+      }
+    >
       {!data ? (
         <Loading />
       ) : (

@@ -1,5 +1,5 @@
 import type { SVGProps } from 'react';
-import { FLAME, TROPHY } from './shapes.ts';
+import { FLAME, SPARKLE, TROPHY } from './shapes.ts';
 import { FRONT_BASE, FRONT_HAIR, FRONT_REGIONS, FRONT_VIEWBOX } from './bodyShapes.ts';
 
 type P = SVGProps<SVGSVGElement>;
@@ -34,6 +34,15 @@ export function Trophy(p: P) {
       {TROPHY.map((d) => (
         <path key={d} d={d} />
       ))}
+    </svg>
+  );
+}
+
+/** キラッとした星（推定1RMだけの新記録の印）。色は currentColor */
+export function Sparkle(p: P) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d={SPARKLE} />
     </svg>
   );
 }

@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ProgressChart } from '../components/ProgressChart';
-import { Trophy } from '../illustrations/Illustrations';
+import { Sparkle, Trophy } from '../illustrations/Illustrations';
+import { recordRowClass } from '../components/RecordBadge';
 import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { slashDate } from '../lib/date';
 import {
@@ -113,7 +114,7 @@ export function ExerciseDetailPage() {
                 </thead>
                 <tbody>
                   {d.sets.map((s, i) => (
-                    <tr key={s.id} className={`border-t border-gray-100 ${records.has(s.id) ? 'bg-amber-50' : ''}`}>
+                    <tr key={s.id} className={`border-t border-gray-100 ${recordRowClass(records.get(s.id))}`}>
                       <td className="py-2.5 text-gray-500">{i + 1}</td>
                       {cardio ? (
                         <>
@@ -131,7 +132,12 @@ export function ExerciseDetailPage() {
                           <td className="text-sm text-gray-600">{s.weight > 0 ? `${fmtKg(estimate1RM(s.weight, s.reps))}kg` : '—'}</td>
                         </>
                       )}
-                      <td className="pr-2">{records.has(s.id) && <Trophy className="mx-auto h-5 w-5 text-amber-500" aria-label="新記録" />}</td>
+                      <td className="pr-2">
+                        {records.get(s.id) === 'weight' && <Trophy className="mx-auto h-5 w-5 text-amber-500" aria-label="新記録" />}
+                        {records.get(s.id) === 'rm' && (
+                          <Sparkle className="mx-auto h-5 w-5 text-sky-500" aria-label={cardio ? 'ペース更新' : '1RM更新'} />
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

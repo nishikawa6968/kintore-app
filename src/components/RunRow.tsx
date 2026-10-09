@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { db } from '../db/db';
-import { fmtPace, paceOf, speedKmh } from '../lib/records';
+import { fmtPace, paceOf, speedKmh, type RecordKind } from '../lib/records';
 import type { SetRecord } from '../types';
 import { Memo, Trash } from './Icons';
 import { NumberStepper } from './NumberStepper';
-import { RecordBadge } from './RecordBadge';
+import { RecordBadge, recordIndexClass, recordRowClass } from './RecordBadge';
 
 /** ランニング1本の入力行：距離（km）と時間（分・秒）。ペースと時速は自動で出す */
-export function RunRow({ set, index, isRecord }: { set: SetRecord; index: number; isRecord: boolean }) {
+export function RunRow({ set, index, recordKind }: { set: SetRecord; index: number; recordKind?: RecordKind }) {
   const [memoOpen, setMemoOpen] = useState(!!set.memo);
   const duration = set.duration ?? 0;
   const minutes = Math.floor(duration / 60);
@@ -21,9 +21,9 @@ export function RunRow({ set, index, isRecord }: { set: SetRecord; index: number
   };
 
   return (
-    <div className={`px-3 py-3 transition-colors ${isRecord ? 'bg-amber-50' : ''}`}>
+    <div className={`px-3 py-3 transition-colors ${recordRowClass(recordKind)}`}>
       <div className="flex items-center gap-2">
-        <div className={`w-6 shrink-0 text-center text-lg font-bold ${isRecord ? 'text-amber-500' : 'text-brand-500'}`}>{index}</div>
+        <div className={`w-6 shrink-0 text-center text-lg font-bold ${recordIndexClass(recordKind)}`}>{index}</div>
         <span className="w-9 shrink-0 text-xs font-bold text-gray-400">距離</span>
         <div className="flex-1">
           <NumberStepper value={set.distance ?? 0} step={0.5} unit="km" decimal onChange={(distance) => update({ distance })} />
@@ -43,7 +43,7 @@ export function RunRow({ set, index, isRecord }: { set: SetRecord; index: number
           平均ペース <span className="font-bold text-gray-700">{fmtPace(paceOf(set))}</span>/km
         </span>
         {speedKmh(set) > 0 && <span className="whitespace-nowrap tabular-nums">時速 {speedKmh(set)}km</span>}
-        {isRecord && <RecordBadge small />}
+        {recordKind && <RecordBadge kind={recordKind} cardio small />}
         <div className="ml-auto flex gap-1">
           <button
             onClick={() => setMemoOpen((o) => !o)}

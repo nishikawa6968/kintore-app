@@ -7,6 +7,7 @@ import { RecordsPage } from './pages/RecordsPage';
 import { SetInputPage } from './pages/SetInputPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { HelpPage } from './pages/HelpPage';
+import { Big3Page } from './pages/Big3Page';
 import { Loading, RotateNotice, StatusBarFill } from './components/Layout';
 
 // グラフライブラリが大きいので詳細画面は開いたときに読み込む
@@ -43,6 +44,7 @@ export default function App() {
         />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/big3" element={<Big3Page />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
