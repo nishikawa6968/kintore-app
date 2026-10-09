@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getSetting } from '../db/db';
 import type { SettingKey, SettingValues } from '../types';
@@ -10,7 +11,8 @@ export function useData() {
   const exercises = useLiveQuery(() => db.exercises.orderBy('order').toArray(), []);
   const sets = useLiveQuery(() => db.sets.toArray(), []);
   const days = useLiveQuery(() => db.days.toArray(), []);
-  return exercises && sets && days ? { exercises, sets, days } : null;
+  // 中身が変わったときだけ新しいまとまりを返す（毎回作り直すと、これを使う計算や効果が毎回やり直しになる）
+  return useMemo(() => (exercises && sets && days ? { exercises, sets, days } : null), [exercises, sets, days]);
 }
 
 /** 設定を1つ読み込む（無ければ fallback。読み込み中は undefined） */

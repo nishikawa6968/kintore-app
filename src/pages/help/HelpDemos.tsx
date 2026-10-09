@@ -899,17 +899,18 @@ const DEMO_MEDALS = [
   { rarity: 'bronze' as const, label: '10日', title: '10日の努力' },
   { rarity: 'silver' as const, label: '80', title: 'ベンチ 80kg' },
   { rarity: 'gold' as const, label: '100', title: '100kgクラブ' },
+  { rarity: 'legend' as const, label: 'S', title: '称号：エリート' },
 ];
 
 export function AchievementDemo() {
-  const step = useTicker(4, 1500);
+  const step = useTicker(DEMO_MEDALS.length + 1, 1500);
   const latest = DEMO_MEDALS[step - 1];
   return (
     <DemoBox caption={latest ? <span className="font-bold text-amber-600">実績解除！「{latest.title}」</span> : '条件を満たすと、メダルが解除される'}>
-      <div className="flex items-end justify-center gap-5 py-1">
+      <div className="flex items-end justify-center gap-3 py-1">
         {DEMO_MEDALS.map((m, i) => (
           <div key={m.title} className="flex flex-col items-center">
-            <Medal rarity={m.rarity} label={m.label} size={i < step ? 50 : 44} shine={i < step} locked={i >= step} />
+            <Medal rarity={m.rarity} label={m.label} size={i < step ? 48 : 42} shine={i < step} locked={i >= step} />
             <span className={`mt-1 text-[10px] font-bold ${i < step ? 'text-gray-700' : 'text-gray-300'}`}>{m.title}</span>
           </div>
         ))}

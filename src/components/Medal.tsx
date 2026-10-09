@@ -6,8 +6,10 @@ export const RARITY_COLORS: Record<Rarity, [string, string]> = {
   bronze: ['#f0b27a', '#9a5523'],
   silver: ['#f1f5f9', '#8492a6'],
   gold: ['#fde68a', '#d97706'],
+  platinum: ['#ecfeff', '#3fa7c2'],
+  legend: ['#f9a8d4', '#6d28d9'],
 };
-export const RARITY_LABEL: Record<Rarity, string> = { bronze: 'ブロンズ', silver: 'シルバー', gold: 'ゴールド' };
+export const RARITY_LABEL: Record<Rarity, string> = { bronze: 'ブロンズ', silver: 'シルバー', gold: 'ゴールド', platinum: 'プラチナ', legend: 'レジェンド' };
 
 /**
  * 実績バッジのメダル。リボンの付いた丸いメダルの真ん中に短い文字。
@@ -17,14 +19,18 @@ export const RARITY_LABEL: Record<Rarity, string> = { bronze: 'ブロンズ', si
 export function Medal({ rarity, label, size, shine = false, locked = false }: { rarity: Rarity; label: string; size: number; shine?: boolean; locked?: boolean }) {
   const id = useId();
   const [light, dark] = RARITY_COLORS[rarity];
-  const fontSize = label.length <= 2 ? 13 : label.length === 3 ? 11 : 9;
+  const fontSize = label.length <= 2 ? 13 : label.length === 3 ? 11 : label.length === 4 ? 9 : 8;
+  const legend = rarity === 'legend';
   return (
     <svg
       viewBox="0 0 48 56"
       width={size}
       height={(size * 56) / 48}
       className="shrink-0"
-      style={{ filter: locked ? 'grayscale(0.7) brightness(0.85)' : 'drop-shadow(0 2px 3px rgb(0 0 0 / 0.2))', opacity: locked ? 0.5 : 1 }}
+      style={{
+        filter: locked ? 'grayscale(0.7) brightness(0.85)' : legend ? 'drop-shadow(0 0 5px rgb(217 70 239 / 0.7))' : 'drop-shadow(0 2px 3px rgb(0 0 0 / 0.2))',
+        opacity: locked ? 0.5 : 1,
+      }}
       aria-hidden="true"
     >
       <defs>
@@ -37,6 +43,12 @@ export function Medal({ rarity, label, size, shine = false, locked = false }: { 
           <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
           <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
+        <linearGradient id={`${id}-rainbow`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#f472b6" />
+          <stop offset="0.35" stopColor="#facc15" />
+          <stop offset="0.7" stopColor="#38bdf8" />
+          <stop offset="1" stopColor="#a78bfa" />
+        </linearGradient>
         <clipPath id={`${id}-clip`}>
           <circle cx="24" cy="34" r="18" />
         </clipPath>
@@ -46,6 +58,8 @@ export function Medal({ rarity, label, size, shine = false, locked = false }: { 
       <path d="M36 2 H26 L20 20 H30 Z" fill="#ef4444" />
       {/* メダル */}
       <circle cx="24" cy="34" r="18" fill={`url(#${id}-face)`} />
+      {/* レジェンドは虹色のふち */}
+      {legend && <circle cx="24" cy="34" r="17" fill="none" stroke={`url(#${id}-rainbow)`} strokeWidth="2.5" />}
       <circle cx="24" cy="34" r="14.5" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="1.2" />
       <text
         x="24"

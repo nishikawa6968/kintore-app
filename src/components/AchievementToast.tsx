@@ -17,6 +17,8 @@ export function AchievementToast() {
   const [shown, setShown] = useState<{ items: AchievementState[]; key: number } | null>(null);
   const navigate = useNavigate();
   const counter = useRef(0);
+  // お知らせした実績（保存が反映される前に、同じ実績をもう一度お知らせしないように）
+  const announced = useRef(new Set<string>());
 
   useEffect(() => {
     if (!states || seen === undefined) return;
@@ -25,8 +27,9 @@ export function AchievementToast() {
       setSetting('seenAchievements', unlocked);
       return;
     }
-    const fresh = states.filter((a) => a.unlocked && !seen.includes(a.id));
+    const fresh = states.filter((a) => a.unlocked && !seen.includes(a.id) && !announced.current.has(a.id));
     if (!fresh.length) return;
+    fresh.forEach((a) => announced.current.add(a.id));
     setSetting('seenAchievements', [...new Set([...seen, ...unlocked])]);
     setShown({ items: fresh, key: ++counter.current });
   }, [states, seen]);

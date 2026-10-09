@@ -107,6 +107,24 @@ describe('実績', () => {
     expect(remainingLabel(get('bench100'))).toBe('あと 18kg');
   });
 
+  it('体重比と称号の実績：体重から必要な重さを出し、体重がなければ案内を出す', () => {
+    const sets = [set('2026-10-01', 105, 1, 1), set('2026-10-02', 140, 1, 2), set('2026-10-03', 170, 1, 3)];
+    const get = (bw: number, id: string) => achievementStates(achievementStats(exercises, sets, [], bw, 3, '2026-10-09')).find((a) => a.id === id)!;
+    // 体重70kg：ベンチ105kg は ×1.5 にちょうど届く、×2 はあと35kg
+    expect(get(70, 'bench1.5BW').unlocked).toBe(true);
+    expect(remainingLabel(get(70, 'bench2BW'))).toBe('あと 35kg');
+    // 合計415kg ÷ 70kg = 5.9倍 → 中級者（4.75）は解除、上級者（6.5）はまだ
+    expect(get(70, 'rank2').unlocked).toBe(true);
+    expect(get(70, 'rank3').unlocked).toBe(false);
+    expect(remainingLabel(get(0, 'rank3'))).toBe('BIG3で体重を入力');
+    expect(get(0, 'rank1').unlocked).toBe(false);
+  });
+
+  it('大きな残りは「万」で短く出す', () => {
+    const stats = achievementStats(exercises, [set('2026-10-01', 100, 10, 1)], [], 0, 3, '2026-10-09');
+    expect(remainingLabel(achievementStates(stats).find((a) => a.id === 'vol10m')!)).toBe('あと 999.9万kg');
+  });
+
   it('体重を入れていなければ体重ベンチは解除されない', () => {
     const stats = achievementStats(exercises, [set('2026-10-01', 200, 1, 1)], [], 0, 3, '2026-10-09');
     expect(achievementStates(stats).find((a) => a.id === 'benchBW')!.unlocked).toBe(false);
