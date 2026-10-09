@@ -137,7 +137,7 @@ export function ProgressChart({ sets, kind }: { sets: SetRecord[]; kind: Kind })
                 }`}
                 style={{ left: `clamp(56px, ${selected.cx}px, calc(100% - 56px))`, top: selected.cy < 56 ? selected.cy + 12 : selected.cy - 12 }}
               >
-                <div className="text-[10px] whitespace-nowrap opacity-80">{format(selected.t, 'yyyy/M/d(E)', { locale: ja })}</div>
+                <div className="text-[10px] whitespace-nowrap text-white/80">{format(selected.t, 'yyyy/M/d(E)', { locale: ja })}</div>
                 <div className="text-sm font-bold whitespace-nowrap">{fmtValue(selected.value)}</div>
               </div>
             )}

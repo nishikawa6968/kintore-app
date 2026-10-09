@@ -85,7 +85,7 @@ function RankHero({ bodyweight, total, complete }: { bodyweight: number; total: 
                 {TIER_EN[info.index]}
               </div>
               <div className="text-3xl font-black">{info.level}</div>
-              <div className="text-xs tabular-nums opacity-80">
+              <div className="text-xs tabular-nums text-white/80">
                 BIG3合計 {fmtKg(total)}kg ／ 体重 {fmtKg(bodyweight)}kg
               </div>
             </div>
@@ -93,7 +93,7 @@ function RankHero({ bodyweight, total, complete }: { bodyweight: number; total: 
           {info.next ? (
             <div className="mt-3">
               <div className="flex items-baseline justify-between text-xs">
-                <span className="font-bold opacity-90">
+                <span className="font-bold text-white/90">
                   次の称号 <span style={{ color: LIGHT_COLORS[info.index + 1] }}>{LEVEL_RANKS[info.index + 1]}・{info.next.level}</span> まで
                 </span>
                 <span className="tabular-nums">

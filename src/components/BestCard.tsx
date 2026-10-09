@@ -22,15 +22,15 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
         <div className="mb-1 flex items-center gap-1.5">
           <Sparkle className="twinkle h-5 w-5 text-sky-100" />
           <span className="shrink-0 text-[15px] font-black tracking-wide whitespace-nowrap drop-shadow">{right.label.replace('ベスト', '')}更新！</span>
-          {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold opacity-90">前回 {before} から更新</span>}
+          {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold text-white/90">前回 {before} から更新</span>}
         </div>
         <div className="flex items-end justify-between">
           <div>
-            <div className="text-xs opacity-80">{left.label}</div>
+            <div className="text-xs text-white/80">{left.label}</div>
             <div className="text-xl font-bold tabular-nums">{left.value}</div>
           </div>
           <div className="text-right">
-            <div className="flex items-center justify-end gap-1 text-xs opacity-90">
+            <div className="flex items-center justify-end gap-1 text-xs text-white/90">
               {right.label}
               <UpBadge tone="blue" />
             </div>
@@ -45,11 +45,11 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
     return (
       <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 px-4 py-3 text-white shadow-sm">
         <div>
-          <div className="text-xs opacity-80">{left.label}</div>
+          <div className="text-xs text-white/80">{left.label}</div>
           <div className="text-xl font-bold tabular-nums">{left.value}</div>
         </div>
         <div className="text-right">
-          <div className="text-xs opacity-80">{right.label}</div>
+          <div className="text-xs text-white/80">{right.label}</div>
           <div className="text-xl font-bold tabular-nums">{right.value}</div>
         </div>
       </div>
@@ -62,18 +62,18 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
         <Flame className="animate-flame h-6 w-6" />
         <span className="shrink-0 text-[15px] font-black tracking-wide whitespace-nowrap drop-shadow">本日更新！</span>
         <Flame className="animate-flame h-6 w-6 [animation-delay:-0.45s]" />
-        {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold opacity-90">前回 {before} から更新</span>}
+        {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold text-white/90">前回 {before} から更新</span>}
       </div>
       <div className="flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-1 text-xs opacity-90">
+          <div className="flex items-center gap-1 text-xs text-white/90">
             {left.label}
             {left.up && <UpBadge />}
           </div>
           <div className="text-2xl font-black tabular-nums drop-shadow">{left.value}</div>
         </div>
         <div className="text-right">
-          <div className="flex items-center justify-end gap-1 text-xs opacity-90">
+          <div className="flex items-center justify-end gap-1 text-xs text-white/90">
             {right.label}
             {right.up && <UpBadge />}
           </div>

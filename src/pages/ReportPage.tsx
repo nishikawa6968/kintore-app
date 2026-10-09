@@ -68,7 +68,7 @@ export function ReportPage() {
                   <div className="flex items-center gap-3">
                     <Flame className="animate-flame h-9 w-9 shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold opacity-90">今月いちばん伸びた種目</div>
+                      <div className="text-xs font-bold text-white/90">今月いちばん伸びた種目</div>
                       <div className="truncate text-lg font-black">{report.topGain.exercise.name}</div>
                     </div>
                     <div className="text-2xl font-black tabular-nums">+{Math.max(1, Math.round(report.topGain.pct))}%</div>
@@ -76,12 +76,12 @@ export function ReportPage() {
                   {/* 最高記録（最高重量×回数）の、月の前 → 月の終わり */}
                   <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white/15 px-3 py-2 tabular-nums">
                     <span className="text-center">
-                      <span className="block text-[10px] font-bold opacity-80">先月まで</span>
-                      <span className="text-base font-bold opacity-90">{bestSetText(report.topGain.before)}</span>
+                      <span className="block text-[10px] font-bold text-white/80">先月まで</span>
+                      <span className="text-base font-bold text-white/90">{bestSetText(report.topGain.before)}</span>
                     </span>
                     <span className="text-xl font-black">→</span>
                     <span className="text-center">
-                      <span className="block text-[10px] font-bold opacity-80">今月</span>
+                      <span className="block text-[10px] font-bold text-white/80">今月</span>
                       <span className="text-lg font-black">{bestSetText(report.topGain.after)}</span>
                     </span>
                   </div>
@@ -134,13 +134,13 @@ function HeroStat({ label, value, unit, diff, diffPct }: { label: string; value:
   const d = diffPct ?? diff;
   return (
     <div className="rounded-xl bg-white/10 px-1 py-2">
-      <div className="text-[10px] font-bold opacity-80">{label}</div>
+      <div className="text-[10px] font-bold text-white/80">{label}</div>
       <div className="text-2xl leading-tight font-black tabular-nums">
         {value}
         <span className="ml-0.5 text-xs font-bold">{unit}</span>
       </div>
       {d !== undefined && (
-        <div className={`text-[10px] font-bold tabular-nums ${d > 0 ? 'text-emerald-300' : d < 0 ? 'text-rose-300' : 'opacity-60'}`}>
+        <div className={`text-[10px] font-bold tabular-nums ${d > 0 ? 'text-emerald-300' : d < 0 ? 'text-rose-300' : 'text-white/60'}`}>
           前月比 {d > 0 ? '+' : ''}
           {d}
           {diffPct !== undefined ? '%' : '日'}

@@ -1,8 +1,23 @@
-import type { ReactNode, Ref } from 'react';
+import type { MouseEvent, ReactNode, Ref } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronLeft, Gear, Trophy } from './Icons';
 
 /** 青いヘッダー。back に戻り先を渡すと左に「戻る」ボタンが出る */
+/**
+ * 今の画面のスクロールを一番上へ戻す。iPhone のふつうのアプリと同じように、
+ * 画面の一番上（ステータスバーの裏やヘッダー）を押したときに使う。
+ */
+export function scrollToTop() {
+  document.querySelectorAll<HTMLElement>('.overflow-y-auto').forEach((el) => {
+    if (el.scrollTop > 0) el.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+/** ヘッダーのボタンやリンク以外の所を押したら、一番上へスクロール */
+const onHeaderTap = (e: MouseEvent) => {
+  if (!(e.target as Element).closest('button, a, input, label')) scrollToTop();
+};
+
 export function Header({ title, back, left, right }: { title: string; back?: string; left?: ReactNode; right?: ReactNode }) {
   const navigate = useNavigate();
   const goBack = () => {
@@ -11,7 +26,7 @@ export function Header({ title, back, left, right }: { title: string; back?: str
     else navigate(back!, { replace: true });
   };
   return (
-    <header className="sticky top-0 z-20 bg-brand-500 pt-safe text-white shadow-sm">
+    <header onClick={onHeaderTap} className="sticky top-0 z-20 bg-brand-500 pt-safe text-white shadow-sm">
       <div className="mx-auto flex h-12 max-w-md items-center px-2">
         <div className="w-20">
           {!back && left}
@@ -74,7 +89,8 @@ export function RotateNotice() {
 
 /** iPhone のステータスバー（時刻・電池）の裏を画面幅いっぱい青で塗る */
 export function StatusBarFill() {
-  return <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-brand-500" />;
+  // 押すと、今の画面を一番上までスクロール
+  return <div aria-hidden onClick={scrollToTop} className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-brand-500" />;
 }
 
 /**

@@ -43,7 +43,7 @@ export function Big3Page() {
           <section className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-4 text-white shadow-sm">
             <div className="flex items-end justify-between">
               <div>
-                <div className="text-xs font-bold opacity-80">BIG3 合計</div>
+                <div className="text-xs font-bold text-white/80">BIG3 合計</div>
                 <div className="text-4xl font-black tabular-nums">
                   {fmtKg(view.total)}
                   <span className="ml-0.5 text-lg font-bold">kg</span>
@@ -58,10 +58,10 @@ export function Big3Page() {
                 const b = view.bests[l.id];
                 return (
                   <div key={l.id} className="rounded-xl bg-white/15 px-2 py-2 text-center">
-                    <div className="text-[11px] font-bold opacity-90">{l.name}</div>
+                    <div className="text-[11px] font-bold text-white/90">{l.name}</div>
                     <div className="text-xl font-black tabular-nums">{b ? `${fmtKg(b.weight)}kg` : '—'}</div>
-                    <div className="text-[11px] leading-tight tabular-nums opacity-85">{b ? `${b.reps}回` : '未記録'}</div>
-                    {b && <div className="text-[10px] leading-tight tabular-nums opacity-70">{slashDate(b.date)}</div>}
+                    <div className="text-[11px] leading-tight tabular-nums text-white/85">{b ? `${b.reps}回` : '未記録'}</div>
+                    {b && <div className="text-[10px] leading-tight tabular-nums text-white/70">{slashDate(b.date)}</div>}
                   </div>
                 );
               })}
@@ -100,7 +100,7 @@ function BodyweightInput({ value }: { value: number }) {
   }, [value]);
   return (
     <label className="flex items-baseline gap-1 rounded-xl bg-white/20 px-3 py-1.5">
-      <span className="text-xs font-bold opacity-90">体重</span>
+      <span className="text-xs font-bold text-white/90">体重</span>
       <input
         value={text}
         inputMode="decimal"
@@ -121,7 +121,7 @@ function BodyweightInput({ value }: { value: number }) {
         }}
         className="w-14 bg-transparent text-right text-xl font-black tabular-nums text-white outline-none placeholder:text-base placeholder:font-bold placeholder:text-white/60"
       />
-      <span className="text-xs font-bold opacity-90">kg</span>
+      <span className="text-xs font-bold text-white/90">kg</span>
     </label>
   );
 }

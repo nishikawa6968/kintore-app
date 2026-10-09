@@ -39,7 +39,7 @@ function AchievementList({ states }: { states: AchievementState[] }) {
         <div className="mt-1 flex items-end justify-between">
           <div className="text-4xl font-black tabular-nums">
             {unlocked.length}
-            <span className="text-lg font-bold opacity-70"> / {states.length}</span>
+            <span className="text-lg font-bold text-white/70"> / {states.length}</span>
           </div>
           <div className="flex gap-1.5 pb-1">
             {RARITIES.map((r) => (

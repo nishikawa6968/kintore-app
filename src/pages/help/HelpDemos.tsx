@@ -523,7 +523,7 @@ export function Big3FlowDemo() {
     <div className="m-2 rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 p-2 text-white">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[8px] opacity-80">BIG3 合計</div>
+          <div className="text-[8px] text-white/80">BIG3 合計</div>
           <div className="text-base leading-none font-black">300kg</div>
         </div>
         <Emblem tier={weight ? 1 : null} size={22} glow={weight} shine={weight} />
@@ -869,7 +869,7 @@ export function ReportDemo() {
               ['総挙上重量', step ? '32.2' : '24.8', 't'],
             ].map(([l, v, u]) => (
               <div key={l} className="rounded-lg bg-white/10 py-1">
-                <div className="text-[9px] opacity-80">{l}</div>
+                <div className="text-[9px] text-white/80">{l}</div>
                 <div className="text-lg leading-tight font-black">
                   {v}
                   <span className="text-[10px]">{u}</span>

@@ -61,7 +61,7 @@ export function ExerciseDetailPage() {
       <>
         <div className="shrink-0 px-4 pt-4">
           <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 p-4 text-white shadow">
-            <div className="mb-2 flex items-center gap-2 text-sm opacity-90">
+            <div className="mb-2 flex items-center gap-2 text-sm text-white/90">
               <span className="rounded bg-white/20 px-1.5 py-0.5 text-xs font-bold">{exercise && bodyPartLabel(exercise.bodyPart)}</span>
               自己ベスト
             </div>
@@ -86,7 +86,7 @@ export function ExerciseDetailPage() {
             <div key={d.date} className="overflow-hidden rounded-2xl bg-white shadow-sm">
               <Link to={`/day/${d.date}/ex/${exerciseId}`} className="flex items-center bg-brand-500 px-4 py-2 text-white active:bg-brand-600">
                 <span className="text-lg font-bold">{slashDate(d.date)}</span>
-                <span className="ml-auto text-right text-[11px] font-bold leading-tight whitespace-nowrap opacity-90">
+                <span className="ml-auto text-right text-[11px] font-bold leading-tight whitespace-nowrap text-white/90">
                   {cardio ? (
                     <>
                       TOTAL {fmtKm(d.distance)}
@@ -156,9 +156,9 @@ export function ExerciseDetailPage() {
 function Stat({ label, value, date }: { label: string; value: string; date: string }) {
   return (
     <div>
-      <div className="text-xs opacity-75">{label}</div>
+      <div className="text-xs text-white/75">{label}</div>
       <div className="text-2xl font-bold tabular-nums">{value}</div>
-      <div className="text-xs opacity-75">{slashDate(date)}</div>
+      <div className="text-xs text-white/75">{slashDate(date)}</div>
     </div>
   );
 }
