@@ -147,8 +147,20 @@ describe('月間レポート', () => {
     expect(r.volume).toBe(75 * 5 + 75 * 7 + 92.5 * 5);
     expect(r.prev).toEqual({ trainingDays: 2, volume: 70 * 5 + 90 * 5 });
     expect(r.records.map((x) => x.kind)).toEqual(['weight', 'weight', 'rm']);
-    expect(r.topGain?.exercise.name).toBe('ベンチプレス'); // 81.7 → 92.5 の方が伸び率が大きい
+    // ベンチ 70kg×5回 → 75kg×7回（推定1RM +13%）の方が、スクワット 90kg×5回 → 92.5kg×5回（+3%）より伸びた
+    expect(r.topGain).toMatchObject({ exercise: { name: 'ベンチプレス' }, before: { weight: 70, reps: 5 }, after: { weight: 75, reps: 7 } });
+    expect(Math.round(r.topGain!.pct)).toBe(13);
     expect(r.partSets).toEqual({ chest: 2, leg: 1 });
+  });
+
+  it('最高重量が変わらず回数だけ増えても「伸びた」に数え、最高記録が変わらなければ数えない', () => {
+    const exercises = [ex(1, 'ベンチプレス', 'chest', 'bench')];
+    const base = [set('2026-09-10', 80, 5, 1)];
+    expect(monthReport('2026-10', exercises, [...base, set('2026-10-02', 80, 6, 1)], []).topGain).toMatchObject({ before: { reps: 5 }, after: { reps: 6 } });
+    // 75kg×9回 は推定1RMは上がるが、最高記録（80kg×5回）は変わらない
+    expect(monthReport('2026-10', exercises, [...base, set('2026-10-02', 75, 9, 1)], []).topGain).toBeNull();
+    // 重くして回数が減った（推定1RMは下がる）ときも、重さの伸び（+3%）で数える
+    expect(Math.round(monthReport('2026-10', exercises, [...base, set('2026-10-02', 82.5, 1, 1)], []).topGain!.pct)).toBe(3);
   });
 
   it('月をまたいで前後へ移れる', () => {

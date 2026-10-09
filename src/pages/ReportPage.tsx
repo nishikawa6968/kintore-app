@@ -6,7 +6,7 @@ import { Header, Loading, ScrollArea, SubPage } from '../components/Layout';
 import { RecordBadge } from '../components/RecordBadge';
 import { Flame } from '../illustrations/Illustrations';
 import { fromKey, todayKey } from '../lib/date';
-import { fmtKg, setLabel } from '../lib/records';
+import { fmtWeight, setLabel } from '../lib/records';
 import { monthReport, shiftMonth } from '../lib/report';
 import { useData } from '../lib/useData';
 import { BODY_PARTS, isCardio } from '../types';
@@ -64,16 +64,27 @@ export function ReportPage() {
             <>
               {/* 一番伸びた種目 */}
               {report.topGain && (
-                <section className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 p-4 text-white shadow-sm">
-                  <Flame className="animate-flame h-9 w-9 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-bold opacity-90">今月いちばん伸びた種目</div>
-                    <div className="truncate text-lg font-black">{report.topGain.exercise.name}</div>
-                    <div className="text-xs tabular-nums opacity-90">
-                      推定1RM {fmtKg(report.topGain.before)} → {fmtKg(report.topGain.after)}kg
+                <section className="rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 p-4 text-white shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Flame className="animate-flame h-9 w-9 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold opacity-90">今月いちばん伸びた種目</div>
+                      <div className="truncate text-lg font-black">{report.topGain.exercise.name}</div>
                     </div>
+                    <div className="text-2xl font-black tabular-nums">+{Math.max(1, Math.round(report.topGain.pct))}%</div>
                   </div>
-                  <div className="text-2xl font-black tabular-nums">+{Math.round((report.topGain.after / report.topGain.before - 1) * 100)}%</div>
+                  {/* 最高記録（最高重量×回数）の、月の前 → 月の終わり */}
+                  <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white/15 px-3 py-2 tabular-nums">
+                    <span className="text-center">
+                      <span className="block text-[10px] font-bold opacity-80">先月まで</span>
+                      <span className="text-base font-bold opacity-90">{bestSetText(report.topGain.before)}</span>
+                    </span>
+                    <span className="text-xl font-black">→</span>
+                    <span className="text-center">
+                      <span className="block text-[10px] font-bold opacity-80">今月</span>
+                      <span className="text-lg font-black">{bestSetText(report.topGain.after)}</span>
+                    </span>
+                  </div>
                 </section>
               )}
 
@@ -115,6 +126,9 @@ export function ReportPage() {
     </SubPage>
   );
 }
+
+/** 最高記録の表示（例：80kg×5回） */
+const bestSetText = (b: { weight: number; reps: number }) => `${fmtWeight(b.weight)}×${b.reps}回`;
 
 function HeroStat({ label, value, unit, diff, diffPct }: { label: string; value: string; unit: string; diff?: number; diffPct?: number }) {
   const d = diffPct ?? diff;
