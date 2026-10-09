@@ -32,3 +32,15 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// 開くときの画面（index.html の #splash）を、アプリの準備ができてから少なくとも MIN_MS は見せて、ふわっと消す
+const splash = document.getElementById('splash');
+if (splash) {
+  const MIN_MS = 1200;
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 500);
+    }, Math.max(0, MIN_MS - performance.now()));
+  });
+}
