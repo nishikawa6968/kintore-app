@@ -39,7 +39,7 @@ function bestCardFor(cardio: boolean, all: SetRecord[], date: string, weightToda
   const best = computeBest(all);
   if (!best) return null;
   const prev = computeBest(before);
-  const weightUp = weightToday && best.maxDate === date;
+  const weightUp = weightToday && best.heaviestDate === date;
   const rmUp = anyToday && best.best1RMDate === date;
   const left: BestStat = { label: '自己ベスト', value: `${fmtWeight(best.maxWeight)} × ${best.repsAtMax}回`, up: weightUp };
   const right: BestStat = { label: '推定1RM', value: best.best1RM > 0 ? `${fmtKg(best.best1RM)}kg` : '—', up: rmUp };

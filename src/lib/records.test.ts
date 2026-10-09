@@ -163,9 +163,10 @@ describe('新記録の種類', () => {
     expect(kinds.has(first.id)).toBe(false);
   });
 
-  it('同じ重量で回数が増えたら weight（推定1RMも上がっても weight を優先）', () => {
-    const a = set('2026-10-01', 60, 5);
-    const b = set('2026-10-02', 60, 7);
-    expect(weightRecordKinds([a, b]).get(b.id)).toBe('weight');
+  it('同じ重量で回数が増えただけなら rm（重量の新記録ではない）', () => {
+    const a = set('2026-10-01', 12, 10);
+    const b = set('2026-10-02', 12, 21);
+    expect(weightRecordKinds([a, b]).get(b.id)).toBe('rm');
+    expect(computeBest([a, b])).toMatchObject({ repsAtMax: 21, maxDate: '2026-10-02', heaviestDate: '2026-10-01' });
   });
 });

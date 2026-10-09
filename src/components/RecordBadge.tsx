@@ -3,7 +3,7 @@ import type { RecordKind } from '../lib/records';
 
 /**
  * 新記録の印。持った重量の新記録（weight）は金色の「新記録」、
- * 推定1RMだけの新記録（rm）は青い「1RM更新」（ランニングは「ペース更新」）。
+ * 同じ重さで回数が増えた・推定1RMだけの新記録（rm）は青い「1RM更新」（ランニングは「ペース更新」）。
  */
 export function RecordBadge({ kind = 'weight', cardio = false, small = false }: { kind?: RecordKind; cardio?: boolean; small?: boolean }) {
   const icon = small ? 'h-2.5 w-2.5' : 'h-3 w-3';

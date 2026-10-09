@@ -17,6 +17,8 @@ export interface Best {
   repsAtMax: number;
   /** 最高重量×回数を最初に達成した日 */
   maxDate: string;
+  /** 最高重量を初めて持った日（同じ重さで回数が増えた日は含まない） */
+  heaviestDate: string;
   best1RM: number;
   best1RMDate: string;
 }
@@ -29,9 +31,10 @@ export function computeBest(sets: SetRecord[]): Best | null {
   for (const s of valid) {
     const rm = estimate1RM(s.weight, s.reps);
     if (!best) {
-      best = { maxWeight: s.weight, repsAtMax: s.reps, maxDate: s.date, best1RM: rm, best1RMDate: s.date };
+      best = { maxWeight: s.weight, repsAtMax: s.reps, maxDate: s.date, heaviestDate: s.date, best1RM: rm, best1RMDate: s.date };
       continue;
     }
+    if (s.weight > best.maxWeight) best.heaviestDate = s.date;
     if (s.weight > best.maxWeight || (s.weight === best.maxWeight && s.reps > best.repsAtMax)) {
       best.maxWeight = s.weight;
       best.repsAtMax = s.reps;
@@ -56,8 +59,8 @@ export function recordSetIds(sets: SetRecord[]): Set<number> {
 
 /**
  * 新記録の種類。
- * - weight：持った重量の新記録（最高重量を超えた／同じ重量で回数が増えた）。ランニングは最長距離
- * - rm：推定1RMだけの新記録（重量の記録は更新していない）。ランニングは平均ペース
+ * - weight：持った重量の新記録（今までで一番重い重さを持った）。ランニングは最長距離
+ * - rm：それ以外の更新（同じ重さで回数が増えた／推定1RMが上がった）。ランニングは平均ペース
  * 持った重量の新記録のほうが嬉しいので、両方更新したときは weight にする。
  */
 export type RecordKind = 'weight' | 'rm';
@@ -71,11 +74,12 @@ export function weightRecordKinds(sets: SetRecord[]): Map<number, RecordKind> {
   let seen = false;
   for (const s of sets.filter((s) => s.reps > 0).sort(chronological)) {
     const rm = estimate1RM(s.weight, s.reps);
-    const beatsWeight = s.weight > maxWeight || (s.weight === maxWeight && s.reps > repsAtMax);
+    const heavier = s.weight > maxWeight;
+    const moreReps = s.weight === maxWeight && s.reps > repsAtMax;
     const beats1RM = rm > best1RM;
-    if (seen && beatsWeight) kinds.set(s.id, 'weight');
-    else if (seen && beats1RM) kinds.set(s.id, 'rm');
-    if (beatsWeight) {
+    if (seen && heavier) kinds.set(s.id, 'weight');
+    else if (seen && (moreReps || beats1RM)) kinds.set(s.id, 'rm');
+    if (heavier || moreReps) {
       maxWeight = s.weight;
       repsAtMax = s.reps;
     }
@@ -213,6 +217,8 @@ export interface BestSummary {
   sub: string;
   /** main を達成した日 */
   date: string;
+  /** 持った重量（ランニングは距離）の新記録の日 */
+  weightDate: string;
   /** sub を達成した日 */
   subDate: string;
   /** どれかの記録を更新した一番新しい日 */
@@ -228,6 +234,7 @@ export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): 
       main: `最長 ${fmtKm(b.longest)}`,
       sub: `ベスト平均 ${fmtPace(b.bestPace)}/km`,
       date: b.longestDate,
+      weightDate: b.longestDate,
       subDate: b.bestPaceDate,
       latest: b.longestDate > b.bestPaceDate ? b.longestDate : b.bestPaceDate,
     };
@@ -238,6 +245,7 @@ export function bestSummary(exercise: Exercise | undefined, sets: SetRecord[]): 
     main: `${fmtWeight(b.maxWeight)}×${b.repsAtMax}回`,
     sub: `1RM ${b.best1RM > 0 ? `${fmtKg(b.best1RM)}kg` : '—'}`,
     date: b.maxDate,
+    weightDate: b.heaviestDate,
     subDate: b.best1RMDate,
     latest: b.maxDate > b.best1RMDate ? b.maxDate : b.best1RMDate,
   };

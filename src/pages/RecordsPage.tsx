@@ -81,8 +81,8 @@ function RecordsTable({ part, exercises, sets }: { part: BodyPart; exercises: Ex
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {rows.map(({ exercise, best }) => {
-          // 最近、持った重量（ランニングは距離）を更新 → 金色のトロフィー、1RM（ペース）だけ更新 → 青い光
-          const recent = best && daysSince(best.date) < RECENT_DAYS ? 'weight' : best && daysSince(best.subDate) < RECENT_DAYS ? 'rm' : null;
+          // 最近、持った重量（ランニングは距離）を更新 → 金色のトロフィー、それ以外（回数・1RM・ペース）の更新 → 青い光
+          const recent = best && daysSince(best.weightDate) < RECENT_DAYS ? 'weight' : best && daysSince(best.latest) < RECENT_DAYS ? 'rm' : null;
           return (
             <Link
               key={exercise.id}
