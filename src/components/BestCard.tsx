@@ -21,8 +21,8 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
       <div className="glow-blue shine relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-sky-400 px-4 pt-2.5 pb-3 text-white">
         <div className="mb-1 flex items-center gap-1.5">
           <Sparkle className="twinkle h-5 w-5 text-sky-100" />
-          <span className="text-[15px] font-black tracking-wide drop-shadow">{right.label.replace('ベスト', '')}更新！</span>
-          {before && <span className="ml-auto text-[11px] font-bold opacity-90">前回 {before} から更新</span>}
+          <span className="shrink-0 text-[15px] font-black tracking-wide whitespace-nowrap drop-shadow">{right.label.replace('ベスト', '')}更新！</span>
+          {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold opacity-90">前回 {before} から更新</span>}
         </div>
         <div className="flex items-end justify-between">
           <div>
@@ -60,9 +60,9 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
     <div className="bg-fire animate-ember relative overflow-hidden rounded-2xl px-4 pt-2.5 pb-3 text-white">
       <div className="mb-1 flex items-center gap-1.5">
         <Flame className="animate-flame h-6 w-6" />
-        <span className="text-[15px] font-black tracking-wide drop-shadow">本日更新！</span>
+        <span className="shrink-0 text-[15px] font-black tracking-wide whitespace-nowrap drop-shadow">本日更新！</span>
         <Flame className="animate-flame h-6 w-6 [animation-delay:-0.45s]" />
-        {before && <span className="ml-auto text-[11px] font-bold opacity-90">前回 {before} から更新</span>}
+        {before && <span className="ml-auto min-w-0 text-right text-[11px] leading-tight font-bold opacity-90">前回 {before} から更新</span>}
       </div>
       <div className="flex items-end justify-between">
         <div>

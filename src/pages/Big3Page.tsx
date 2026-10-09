@@ -188,7 +188,7 @@ function BalanceCard({ balance }: { balance: ReturnType<typeof big3Balance> }) {
 
 const fmtRatio = (n: number) => n.toFixed(1).replace(/\.0$/, '');
 
-function RatioBar({ label, parts, muted = false }: { label: string; parts: { lift: Big3Lift; share: number; text: string }[]; muted?: boolean }) {
+export function RatioBar({ label, parts, muted = false }: { label: string; parts: { lift: Big3Lift; share: number; text: string }[]; muted?: boolean }) {
   return (
     <div className="flex items-center gap-2">
       <span className="w-10 shrink-0 text-[11px] font-bold text-gray-500">{label}</span>

@@ -5,12 +5,17 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { BestCard } from '../../components/BestCard';
 import { BodyPartTabs } from '../../components/BodyPartTabs';
-import { ChevronRight, Plus } from '../../components/Icons';
+import { RecordBadge } from '../../components/RecordBadge';
+import { Emblem } from '../../components/Emblem';
+import { ChevronRight, Eye, EyeOff, Lock, Plus } from '../../components/Icons';
 import { MonthCalendar } from '../../components/MonthCalendar';
 import { NumberStepper } from '../../components/NumberStepper';
 import { SwipePager } from '../../components/SwipePager';
 import { BodyMap } from '../../illustrations/BodyMap';
-import { Trophy } from '../../illustrations/Illustrations';
+import { Flame } from '../../illustrations/Illustrations';
+import { LEVELS, LEVEL_COLORS } from '../../lib/big3';
+import { fmtDuration, fmtKm, fmtPace } from '../../lib/records';
+import { RatioBar } from '../Big3Page';
 import { fromKey, todayKey, toKey } from '../../lib/date';
 import { NEVER_COLOR, RECENCY_GRADIENT, recencyColor } from '../../lib/recency';
 import { neighborPart, useSlideDirection } from '../../lib/useSwipe';
@@ -353,22 +358,402 @@ export function StepperDemo() {
   );
 }
 
-export function FireDemo() {
-  const fire = useTicker(2, 2600) === 1;
+/** 新記録の2種類：同じ重さで回数が増えた・推定1RMだけ → 青く光る／一番重い重さ → 赤く燃える */
+export function RecordKindDemo() {
+  const step = useTicker(3, 2600);
+  const states = [
+    {
+      caption: 'ふだんの自己ベストの欄',
+      left: { label: '自己ベスト', value: '75kg × 6回', up: false },
+      right: { label: '推定1RM', value: '90kg', up: false },
+      before: null,
+      kind: null,
+    },
+    {
+      caption: '同じ重さで回数が増えた・推定1RMが上がった → 青く光る',
+      left: { label: '自己ベスト', value: '75kg × 8回', up: false },
+      right: { label: '推定1RM', value: '95kg', up: true },
+      before: '1RM 90kg',
+      kind: 'rm' as const,
+    },
+    {
+      caption: '今までで一番重い重さを持った → 赤く燃える',
+      left: { label: '自己ベスト', value: '80kg × 5回', up: true },
+      right: { label: '推定1RM', value: '93.3kg', up: true },
+      before: '75kg×8回',
+      kind: 'weight' as const,
+    },
+  ];
+  const st = states[step];
   return (
-    <DemoBox caption={fire ? '自己ベストを更新すると、赤く燃える' : 'ふだんの自己ベストの欄'}>
-      <BestCard
-        left={{ label: '自己ベスト', value: fire ? '80kg × 5回' : '75kg × 6回', up: fire }}
-        right={{ label: '推定1RM', value: fire ? '93.3kg' : '90kg', up: fire }}
-        before={fire ? '75kg×6回' : null}
-      />
-      <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-gray-500">
-        更新したセットには
-        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-px text-[10px] font-bold text-white">
-          <Trophy className="h-2.5 w-2.5" />
-          新記録
-        </span>
-        の印
+    <DemoBox caption={<span className="font-bold text-gray-700">{st.caption}</span>}>
+      <BestCard left={st.left} right={st.right} before={st.before} />
+      <div className="mt-2 flex h-5 items-center justify-center gap-1 text-[11px] text-gray-500">
+        {st.kind ? (
+          <>
+            そのセットには <RecordBadge kind={st.kind} small /> の印
+          </>
+        ) : (
+          '記録を更新すると…'
+        )}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- できること（4つのまとめ） ---------- */
+
+export function OverviewDemo() {
+  const colors: Record<BodyPart, string> = {
+    leg: recencyColor(0),
+    chest: recencyColor(1),
+    shoulder: recencyColor(3),
+    back: recencyColor(6),
+    arm: recencyColor(9),
+    abs: recencyColor(null),
+  };
+  const tiles = [
+    {
+      title: '毎日の記録',
+      body: (
+        <div className="w-full space-y-1 px-1">
+          {['72.5kg × 5', '72.5kg × 5', '70kg × 6'].map((t, i) => (
+            <div key={i} className="flex items-center gap-1 rounded-md bg-white px-1.5 py-1 text-[10px] font-bold shadow-sm">
+              <span className="text-brand-500">{i + 1}</span>
+              <span className="flex-1 text-center">{t}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    { title: '部位ごとの間隔', body: <BodyMap selected="all" allColors={colors} className="h-16 w-full" /> },
+    {
+      title: '自己ベストの更新',
+      body: (
+        <div className="bg-fire animate-ember flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-black text-white">
+          <Flame className="animate-flame h-3.5 w-3.5" />
+          本日更新！
+        </div>
+      ),
+    },
+    { title: 'BIG3と称号', body: <Emblem tier={2} size={40} glow shine /> },
+  ];
+  return (
+    <DemoBox caption="記録するほど、伸びや弱点が見えてくる">
+      <div className="grid grid-cols-2 gap-2">
+        {tiles.map((t) => (
+          <div key={t.title} className="flex flex-col items-center rounded-xl bg-white p-2 shadow-sm">
+            <div className="flex h-20 w-full items-center justify-center">{t.body}</div>
+            <div className="mt-1 text-[11px] font-bold text-gray-700">{t.title}</div>
+          </div>
+        ))}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 体操の日 ---------- */
+
+export function GymDemo() {
+  const on = useTicker(2, 2200) === 1;
+  return (
+    <DemoBox caption={on ? 'カレンダーがピンクの丸になる' : '「体操をする」を押すと…'}>
+      <div className="mx-auto w-56">
+        <div className="grid grid-cols-7 gap-1 rounded-xl bg-white p-2 shadow-sm">
+          {['日', '月', '火', '水', '木', '金', '土'].map((d) => (
+            <span key={d} className="text-center text-[9px] text-gray-400">
+              {d}
+            </span>
+          ))}
+          {Array.from({ length: 7 }, (_, i) => (
+            <span
+              key={i}
+              className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold transition-colors duration-500 ${
+                i === 4 ? (on ? 'bg-pink-400 text-white' : 'ring-2 ring-today') : i === 1 ? 'bg-brand-500 text-white' : 'text-gray-600'
+              }`}
+            >
+              {i + 5}
+            </span>
+          ))}
+        </div>
+        <div className="relative mt-2">
+          <div className={`rounded-xl py-2 text-center text-xs font-bold transition-colors ${on ? 'bg-pink-100 text-pink-500' : 'bg-pink-400 text-white'}`}>
+            {on ? '体操の日（メモを書ける）' : '体操をする'}
+          </div>
+          {!on && <Finger x={50} y={50} />}
+        </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- ランニング ---------- */
+
+const RUNS = [
+  { km: 3, sec: 17 * 60 },
+  { km: 5, sec: 25 * 60 + 30 },
+  { km: 10, sec: 55 * 60 },
+];
+
+export function RunDemo() {
+  const r = RUNS[useTicker(RUNS.length, 2000)];
+  return (
+    <DemoBox caption="距離と時間を入れると、平均ペースが自動で出る">
+      <div className="mx-auto flex w-64 items-center gap-1.5 rounded-xl bg-white p-2.5 shadow-sm">
+        <div className="flex-1 rounded-lg bg-gray-50 py-1.5 text-center text-sm font-bold ring-1 ring-gray-200">{fmtKm(r.km)}</div>
+        <div className="flex-1 rounded-lg bg-gray-50 py-1.5 text-center text-sm font-bold ring-1 ring-gray-200">{fmtDuration(r.sec)}</div>
+        <span className="text-gray-300">→</span>
+        <div className="text-center">
+          <div className="text-[9px] text-gray-400">平均ペース</div>
+          <div className="text-sm font-black text-brand-600 tabular-nums">{fmtPace(r.sec / r.km)}</div>
+        </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- BIG3 ---------- */
+
+/** ホームの BIG3 ボタン → 体重を入れる → エンブレムでティア表、の流れ */
+export function Big3FlowDemo() {
+  const step = useTicker(4, 2600);
+  const Big3Card = ({ weight }: { weight: boolean }) => (
+    <div className="m-2 rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 p-2 text-white">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[8px] opacity-80">BIG3 合計</div>
+          <div className="text-base leading-none font-black">300kg</div>
+        </div>
+        <Emblem tier={weight ? 1 : null} size={22} glow={weight} shine={weight} />
+        <div className={`rounded-md px-1.5 py-1 text-[9px] font-bold ${weight ? 'bg-white/20' : 'bg-white/40 ring-2 ring-white'}`}>体重 {weight ? '70' : '--'}kg</div>
+      </div>
+      <div className="mt-1.5 grid grid-cols-3 gap-1 text-center text-[8px]">
+        {[
+          ['ベンチ', '72.5'],
+          ['スクワット', '97.5'],
+          ['デッド', '130'],
+        ].map(([n, w]) => (
+          <div key={n} className="rounded-md bg-white/15 py-1">
+            {n}
+            <div className="text-[11px] font-black">{w}kg</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  const frames = [
+    {
+      caption: '① ホーム右上の「BIG3」を押す',
+      finger: { x: 84, y: 5 },
+      body: (
+        <>
+          <div className="flex items-center bg-brand-500 py-1.5 pr-1.5 pl-10 text-[10px] font-bold text-white">
+            <span className="flex-1 text-center">筋トレ記録</span>
+            <span className="rounded-full bg-white/25 px-1.5 text-[9px] font-black">BIG3</span>
+          </div>
+          <div className="m-2 grid grid-cols-7 gap-0.5 rounded-lg bg-white p-1.5">
+            {Array.from({ length: 28 }, (_, i) => (
+              <span key={i} className={`h-3 rounded-full ${[3, 8, 12, 17, 22].includes(i) ? 'bg-brand-500' : 'bg-gray-100'}`} />
+            ))}
+          </div>
+          <BodyMap selected="all" className="mx-auto h-24 w-full" />
+        </>
+      ),
+    },
+    {
+      caption: '② 体重を入れる（レベルの判定に使う）',
+      finger: { x: 80, y: 18 },
+      body: (
+        <>
+          <MiniHeader title="BIG3" />
+          <Big3Card weight={false} />
+        </>
+      ),
+    },
+    {
+      caption: '③ 今の称号のエンブレムを押すと…',
+      finger: { x: 50, y: 17 },
+      body: (
+        <>
+          <MiniHeader title="BIG3" />
+          <Big3Card weight />
+          <div className="mx-2 space-y-1 rounded-xl bg-white p-2">
+            {['ベンチ', 'スクワット', 'デッド'].map((n, i) => (
+              <div key={n} className="flex items-center gap-1">
+                <span className="w-12 font-bold">{n}</span>
+                <span className="h-1.5 flex-1 rounded-full bg-gray-100">
+                  <span className="block h-full rounded-full bg-sky-400" style={{ width: `${[45, 55, 50][i]}%` }} />
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      ),
+    },
+    {
+      caption: '④ 称号ごとに必要な重さのティア表が開く',
+      finger: null,
+      body: (
+        <>
+          <MiniHeader title="称号ティア表" />
+          <div className="space-y-1 p-2">
+            {[4, 3, 2, 1, 0].map((t) => (
+              <div key={t} className="flex items-center gap-1.5 rounded-lg bg-white px-1.5 py-1">
+                <Emblem tier={t} size={16} shine={t <= 1} locked={t > 1} />
+                <span className={`flex-1 font-black ${t > 1 ? 'text-gray-400' : 'text-gray-700'}`}>{LEVELS[t]}</span>
+                <span className="tabular-nums text-gray-500">{[157.5, 245, 332.5, 455, 542.5][t]}kg</span>
+              </div>
+            ))}
+          </div>
+        </>
+      ),
+    },
+  ];
+  const f = frames[step];
+  return (
+    <DemoBox caption={<span className="font-bold text-gray-700">{f.caption}</span>}>
+      <MiniPhone>
+        {f.body}
+        {f.finger && <Finger x={f.finger.x} y={f.finger.y} />}
+      </MiniPhone>
+      <div className="mt-2 flex justify-center gap-1.5">
+        {frames.map((_, i) => (
+          <span key={i} className={`h-1.5 w-1.5 rounded-full ${i === step ? 'bg-brand-500' : 'bg-gray-300'}`} />
+        ))}
+      </div>
+    </DemoBox>
+  );
+}
+
+/** バランス：あなたの割合と目安の 3 : 4 : 5 */
+export function BalanceDemo() {
+  return (
+    <DemoBox caption="目安より少ない種目が「弱め」、多い種目が「強め」">
+      <div className="space-y-1.5 rounded-xl bg-white p-3 shadow-sm">
+        <RatioBar
+          label="あなた"
+          parts={[
+            { lift: 'bench', share: 30, text: '3.6' },
+            { lift: 'squat', share: 28, text: '3.4' },
+            { lift: 'deadlift', share: 42, text: '5' },
+          ]}
+        />
+        <RatioBar
+          label="目安"
+          muted
+          parts={[
+            { lift: 'bench', share: 25, text: '3' },
+            { lift: 'squat', share: 33.3, text: '4' },
+            { lift: 'deadlift', share: 41.7, text: '5' },
+          ]}
+        />
+        <div className="flex flex-wrap justify-center gap-1 pt-1 text-[10px] font-bold whitespace-nowrap">
+          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-brand-600">ベンチ 強め</span>
+          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-rose-600">スクワット 弱め</span>
+          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-600">デッド ちょうど良い</span>
+        </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/** 称号が D → S へ上がっていく様子。取得した称号は光り、まだの称号は暗く鍵付き */
+export function RankDemo() {
+  const current = useTicker(5, 1500);
+  return (
+    <DemoBox
+      caption={
+        <>
+          今の称号：<span className="font-bold" style={{ color: LEVEL_COLORS[current] }}>{LEVELS[current]}</span>（取得した称号は光り、まだの称号は暗い）
+        </>
+      }
+    >
+      <div className="flex items-end justify-center gap-2 py-1">
+        {LEVELS.map((lv, t) => (
+          <div key={lv} className="flex flex-col items-center">
+            <Emblem tier={t} size={t === current ? 46 : 36} glow={t === current} shine={t <= current} locked={t > current} />
+            <span className={`mt-0.5 text-[9px] font-bold ${t <= current ? 'text-gray-700' : 'text-gray-300'}`}>{lv}</span>
+          </div>
+        ))}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 種目の管理 ---------- */
+
+export function ManageDemo() {
+  const hidden = useTicker(2, 2000) === 1;
+  const rows = [
+    { name: 'ベンチプレス', locked: true, hidden: false },
+    { name: 'ダンベルプレス', locked: false, hidden: false },
+    { name: 'ダンベルフライ', locked: false, hidden },
+  ];
+  return (
+    <DemoBox caption={hidden ? '目のアイコンで隠す（記録は消えない）' : '鍵マークはアプリ固定の種目'}>
+      <ul className="relative mx-auto w-64 overflow-hidden rounded-xl bg-white text-sm shadow-sm">
+        {rows.map((r) => (
+          <li key={r.name} className="flex items-center border-b border-gray-100 py-2 pr-2 pl-3 last:border-0">
+            <span className={`flex flex-1 items-center gap-1 ${r.hidden ? 'text-gray-300 line-through' : ''}`}>
+              {r.name}
+              {r.locked && <Lock width={12} height={12} className="text-gray-300" />}
+            </span>
+            <span className="text-gray-400">{r.hidden ? <EyeOff width={18} height={18} /> : <Eye width={18} height={18} />}</span>
+          </li>
+        ))}
+        <Finger x={91} y={83} />
+      </ul>
+    </DemoBox>
+  );
+}
+
+/* ---------- バックアップ ---------- */
+
+export function BackupDemo() {
+  const moved = useTicker(2, 1800) === 1;
+  const Phone = ({ label, filled }: { label: string; filled: boolean }) => (
+    <div className="flex flex-col items-center">
+      <div className="flex h-24 w-14 flex-col overflow-hidden rounded-xl border-4 border-gray-800 bg-[#f3f5f9]">
+        <div className="bg-brand-500 py-0.5 text-center text-[7px] font-bold text-white">筋トレ記録</div>
+        <div className="grid flex-1 grid-cols-4 content-start gap-0.5 p-1">
+          {Array.from({ length: 12 }, (_, i) => (
+            <span key={i} className={`h-1.5 rounded-full transition-colors duration-500 ${filled && i % 3 === 0 ? 'bg-brand-500' : 'bg-gray-200'}`} />
+          ))}
+        </div>
+      </div>
+      <span className="mt-1 text-[10px] font-bold text-gray-500">{label}</span>
+    </div>
+  );
+  return (
+    <DemoBox caption="今の端末で「書き出す」→ 新しい端末で「読み込む」">
+      <div className="relative mx-auto flex w-60 items-start justify-between">
+        <Phone label="今の端末" filled />
+        <div
+          className="absolute top-7 flex h-9 w-8 items-center justify-center rounded-md bg-white text-[8px] font-black text-brand-600 shadow ring-1 ring-brand-200 transition-all duration-1000 ease-in-out"
+          style={{ left: moved ? 'calc(100% - 6rem)' : '4rem' }}
+        >
+          JSON
+        </div>
+        <Phone label="新しい端末" filled={moved} />
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- アプリを開き直す ---------- */
+
+export function ReopenDemo() {
+  const step = useTicker(3, 1400);
+  return (
+    <DemoBox caption={['下から上にスワイプしてアプリを閉じる', '完全に閉じたら…', 'ホーム画面のアイコンから開き直す'][step]}>
+      <div className="relative mx-auto h-36 w-24 overflow-hidden rounded-2xl border-4 border-gray-800 bg-gray-700">
+        <div
+          className="absolute inset-2 rounded-xl bg-[#f3f5f9] transition-all duration-700 ease-in-out"
+          style={{ transform: step === 1 ? 'translateY(-130%) scale(0.8)' : step === 0 ? 'scale(0.8)' : 'scale(1)', opacity: step === 1 ? 0 : 1 }}
+        >
+          <div className="rounded-t-xl bg-brand-500 py-1 text-center text-[8px] font-bold text-white">筋トレ記録</div>
+        </div>
+        {step === 0 && <Finger x={50} y={80} />}
       </div>
     </DemoBox>
   );

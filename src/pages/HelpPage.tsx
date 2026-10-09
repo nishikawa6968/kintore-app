@@ -1,7 +1,25 @@
 import { useState, type ReactNode } from 'react';
 import { Header, ScrollArea, SubPage } from '../components/Layout';
 import { ChevronDown } from '../components/Icons';
-import { BodyTapDemo, CalendarDemo, FireDemo, FlowDemo, RecencyDemo, RollerDemo, StepperDemo, SwipeTableDemo } from './help/HelpDemos';
+import {
+  BackupDemo,
+  BalanceDemo,
+  Big3FlowDemo,
+  BodyTapDemo,
+  CalendarDemo,
+  FlowDemo,
+  GymDemo,
+  ManageDemo,
+  OverviewDemo,
+  RankDemo,
+  RecencyDemo,
+  RecordKindDemo,
+  ReopenDemo,
+  RollerDemo,
+  RunDemo,
+  StepperDemo,
+  SwipeTableDemo,
+} from './help/HelpDemos';
 
 /**
  * 見出しをタップして開け閉めできる説明のまとまり。
@@ -33,10 +51,12 @@ export function HelpPage() {
     <SubPage header={<Header title="使い方" back="/settings" />}>
       <ScrollArea className="space-y-3">
         <Section title="このアプリでできること" open>
+          <OverviewDemo />
           <List>
             <li>筋トレの種目・重さ・回数を、日ごとに記録できます。</li>
-            <li>種目ごとの自己ベストを自動で計算し、更新するとお知らせします。</li>
-            <li>カレンダーと人の図で、どの部位を最近やれていないかがひと目で分かります。</li>
+            <li>どの部位を最近やれていないかが、カレンダーと人の図でひと目で分かります。</li>
+            <li>自己ベストは自動で計算され、更新するとお祝いの演出が出ます。</li>
+            <li>BIG3（ベンチプレス・スクワット・デッドリフト）のバランスと称号が分かります。</li>
           </List>
         </Section>
 
@@ -49,7 +69,29 @@ export function HelpPage() {
             <li>「セットを追加」で重さと回数を入れる</li>
           </Steps>
           <p>入れた内容は自動で保存されます。別の日の記録は、カレンダーの日付から開けます。</p>
-          <p>体操をした日は、その日の画面で「体操をする」を押します。カレンダーがピンクの丸になり、やったことをメモできます。</p>
+        </Section>
+
+        <Section title="セットの入力">
+          <StepperDemo />
+          <List>
+            <li>「−」「＋」で重さ（2.5kgずつ）と回数を変えます。数字を押せば直接入力もできます。</li>
+            <li>「セットを追加」を押すと、前のセットと同じ値が入ります。</li>
+            <li>「前回」の欄の「コピー」で、前回と同じセットをまとめて入れられます。</li>
+            <li>上のタイマーで、セット間の休憩時間を計れます。</li>
+          </List>
+        </Section>
+
+        <Section title="新記録の演出">
+          <RecordKindDemo />
+          <List>
+            <li>
+              今までで<b>一番重い重さ</b>を持つと、上の欄が赤く燃え、セットに「新記録」の印が付きます。
+            </li>
+            <li>
+              <b>同じ重さで回数が増えた</b>とき、<b>推定1RMだけが上がった</b>ときは、上の欄が青く光り「1RM更新」の印が付きます。
+            </li>
+            <li>推定1RMは、重さと回数から計算した「1回だけ挙げられる重さ」の目安です。</li>
+          </List>
         </Section>
 
         <Section title="ホームの見方">
@@ -57,36 +99,32 @@ export function HelpPage() {
           <RecencyDemo />
           <List>
             <li>カレンダーの青い丸は選んだ部位をやった日、水色はほかの筋トレの日、ピンクは体操の日です。</li>
-            <li>下のロールで部位を選ぶと、カレンダーと人の図がその部位に切り替わります。</li>
-            <li>ALL のときの人の図は、最近鍛えた部位ほど赤、やれていない部位ほど暗い紺色になります。</li>
+            <li>ALL のときの人の図は、最近鍛えた部位ほど赤く、1週間以上あいた部位ほど暗い紺色になります。</li>
           </List>
         </Section>
 
-        <Section title="部位の選び方（ロール・人の図）">
+        <Section title="部位の選び方">
           <RollerDemo />
           <BodyTapDemo />
           <List>
-            <li>ロールを指でなぞって回すか、人の図の筋肉を押して部位を選びます。</li>
-            <li>ホームでは、人の図の空いた所を押すと ALL になります。</li>
+            <li>下のロールを指でなぞって回すか、人の図の筋肉を押して部位を選びます。</li>
+            <li>ホームでは、人の図のまわりの空いた所を押すと ALL に戻ります。</li>
           </List>
         </Section>
 
-        <Section title="セットの入力と自己ベスト">
-          <StepperDemo />
-          <FireDemo />
+        <Section title="体操の日">
+          <GymDemo />
           <List>
-            <li>「−」「＋」で重さと回数を変えます。数字を押せば直接入力もできます。</li>
-            <li>「セットを追加」を押すと、前のセットの値が自動で入ります。</li>
-            <li>「前回」の欄の「コピー」で、前回と同じセットをまとめて入れられます。</li>
-            <li>今までで一番重い重さを持つと、上の欄が赤く燃え、そのセットに「新記録」の印が付きます。</li>
-            <li>同じ重さで回数が増えたときや、推定1RMだけを更新したときは、上の欄が青く光り、「1RM更新」の印が付きます。</li>
+            <li>筋トレ以外に体操をした日は、その日の画面で「体操をする」を押します。</li>
+            <li>カレンダーがピンクの丸になり、やったことをメモできます。</li>
           </List>
         </Section>
 
         <Section title="ランニング">
+          <RunDemo />
           <List>
-            <li>「脚」の「ランニング」は、距離と時間を入れます。</li>
-            <li>1kmあたりの平均ペースが自動で出ます。自己ベストは最長距離とベスト平均ペースです。</li>
+            <li>「脚」の「ランニング」は、重さの代わりに距離と時間を入れます。</li>
+            <li>最長距離を更新すると赤く燃え、平均ペースだけを更新すると青く光ります。</li>
           </List>
         </Section>
 
@@ -94,28 +132,43 @@ export function HelpPage() {
           <SwipeTableDemo caption="表を左右にスワイプすると、隣の部位へ移る" />
           <List>
             <li>部位ごとに、種目の自己ベストが一覧で見られます。</li>
-            <li>種目を押すと、これまでの記録とグラフが見られます。</li>
+            <li>1週間以内に更新した種目には、金色のトロフィー（重さの新記録）か青い光（回数・1RMの更新）が付きます。</li>
+            <li>種目を押すと、これまでの記録と伸びのグラフが見られます。</li>
           </List>
         </Section>
 
-        <Section title="BIG3">
+        <Section title="BIG3と称号">
+          <Big3FlowDemo />
           <List>
-            <li>ホーム右上の「BIG3」で、ベンチプレス・スクワット・デッドリフトの一番重い記録と合計が見られます（隠していても数えます）。</li>
-            <li>3種目の割合を目安の 3 : 4 : 5 と比べ、強め・弱めが分かります。</li>
-            <li>体重を入れると、初心者〜エリートのどのレベルかが分かります。上の称号のエンブレムを押すと、称号ごとに必要な重さのティア表が見られます。</li>
+            <li>ホーム右上の「BIG3」で、ベンチプレス・スクワット・デッドリフトの記録と合計が見られます。</li>
+            <li>記録は、回数を問わず今までに持ち上げた一番重い重さです。</li>
+          </List>
+          <BalanceDemo />
+          <List>
+            <li>3種目の割合を、一般的な目安の「3 : 4 : 5」と比べて、強め・弱めを教えてくれます。</li>
+          </List>
+          <RankDemo />
+          <List>
+            <li>体重を入れると、体重の何倍を挙げたかで、種目ごとに初心者〜エリートのレベルが出ます。</li>
+            <li>今の称号は BIG3 合計で決まります。エンブレムを押すと、称号ごとに必要な重さのティア表が見られます。</li>
+            <li>
+              <b>レベルの目安について：</b>
+              成人男性の一般的な基準をもとにした、おおまかな目安です。基準は「1回だけ挙げられる重さ」なので、回数を多くやった重さが記録になっていると、実力より低めに出ます。
+            </li>
           </List>
         </Section>
 
-        <Section title="種目の追加・編集（設定）">
+        <Section title="種目の管理（設定）">
+          <ManageDemo />
           <List>
             <li>設定の「種目の管理」で、種目の追加・名前の変更・並び替えができます。</li>
             <li>目のアイコンで、使わない種目を隠せます（記録は消えません）。</li>
-            <li>鍵マークの種目（ベンチプレス・スクワット・デッドリフト・ランニング）はアプリ固定です。名前は変えられませんが、隠すことはできます。</li>
-            <li>種目選択の画面の「種目を追加」からも追加できます。</li>
+            <li>鍵マークの種目（ベンチプレス・スクワット・デッドリフト・ランニング）はアプリ固定で、名前は変えられません。隠すことはできます。</li>
           </List>
         </Section>
 
         <Section title="データのバックアップ">
+          <BackupDemo />
           <List>
             <li>記録はこの端末の中だけに保存されます。</li>
             <li>機種変更に備えて、ときどき設定の「データを書き出す」で保存しておきましょう。新しい端末では「データを読み込む」で戻せます。</li>
@@ -124,6 +177,7 @@ export function HelpPage() {
         </Section>
 
         <Section title="アプリが新しくならないとき">
+          <ReopenDemo />
           <List>
             <li>アプリを完全に閉じてから開き直してください（変わらなければもう一度）。</li>
           </List>
