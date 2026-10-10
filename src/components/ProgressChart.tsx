@@ -5,6 +5,8 @@ import { ja } from 'date-fns/locale';
 import { chartData, RANGES, timeTicks, type ChartPoint, type Range } from '../lib/chart';
 import { estimate1RM, fmtKg, fmtPace, paceOf } from '../lib/records';
 import type { SetRecord } from '../types';
+import { DEFAULT_THEME, themeOf } from '../lib/themes';
+import { useSetting } from '../lib/useData';
 
 type Kind = '1rm' | 'reps' | 'pace';
 /** 縦軸の目盛りの刻みの候補（小さい順。目盛りが5本以下になる一番細かい刻みを使う） */
@@ -40,6 +42,8 @@ interface Selected extends ChartPoint {
 export function ProgressChart({ sets, kind }: { sets: SetRecord[]; kind: Kind }) {
   const [range, setRange] = useState<Range>('all');
   const [selected, setSelected] = useState<Selected | null>(null);
+  // 線の色はテーマの色（グラフの部品は CSS の変数を使えないので、色そのものを渡す）
+  const lineColor = themeOf(useSetting('theme', DEFAULT_THEME)).colors[5];
 
   const { points, domain } = useMemo(() => {
     const value = kind === 'pace' ? paceOf : kind === 'reps' ? (s: SetRecord) => s.reps : (s: SetRecord) => estimate1RM(s.weight, s.reps);
@@ -65,8 +69,8 @@ export function ProgressChart({ sets, kind }: { sets: SetRecord[]; kind: Kind })
         }}
       >
         <circle cx={cx} cy={cy} r={18} fill="transparent" />
-        {on && <circle cx={cx} cy={cy} r={9} fill="#1e6fd9" opacity={0.18} />}
-        <circle cx={cx} cy={cy} r={on ? 6 : 5} fill="#1e6fd9" stroke="#ffffff" strokeWidth={2} />
+        {on && <circle cx={cx} cy={cy} r={9} style={{ fill: 'var(--color-brand-500)' }} opacity={0.18} />}
+        <circle cx={cx} cy={cy} r={on ? 6 : 5} style={{ fill: 'var(--color-brand-500)' }} stroke="#ffffff" strokeWidth={2} />
       </g>
     );
   };
@@ -120,7 +124,7 @@ export function ProgressChart({ sets, kind }: { sets: SetRecord[]; kind: Kind })
                 <Line
                   type="linear"
                   dataKey="value"
-                  stroke="#1e6fd9"
+                  stroke={lineColor}
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={renderDot}

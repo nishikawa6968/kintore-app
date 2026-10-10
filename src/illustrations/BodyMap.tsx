@@ -2,7 +2,7 @@ import type { BodyPart } from '../types';
 import { BACK_BASE, BACK_HAIR, BACK_REGIONS, BODY_VIEWBOX, FRONT_BASE, FRONT_HAIR, FRONT_REGIONS, type Region } from './bodyShapes';
 
 const MUSCLE = '#dde1ec';
-const SELECTED = '#1e6fd9';
+const SELECTED = 'var(--color-brand-500)';
 const ALL = '#7eb0ee';
 
 /** タップした位置から、これ以上離れた筋肉は選ばない（図の座標。図の高さは約570） */
@@ -73,11 +73,10 @@ export function BodyMap({
           key={i}
           d={r.d}
           data-part={r.part}
-          fill={fillOf(r.part)}
           stroke="#ffffff"
           strokeWidth={2.4}
           strokeLinejoin="round"
-          style={{ transition: 'fill 200ms' }}
+          style={{ fill: fillOf(r.part), transition: 'fill 200ms' }}
         />
       ))}
     </g>

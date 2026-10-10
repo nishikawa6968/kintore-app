@@ -176,6 +176,7 @@ export function achievementStats(
   bodyweight: number,
   weeklyGoal: number,
   today: string,
+  weekStartsOn: 0 | 1 = 1,
 ): AchievementStats {
   const partOf = new Map(exercises.map((e) => [e.id, e.bodyPart]));
   const byExercise = new Map<number, SetRecord[]>();
@@ -197,7 +198,7 @@ export function achievementStats(
   for (const s of sets) {
     const part = partOf.get(s.exerciseId);
     if (!part) continue;
-    const w = weekOf(s.date);
+    const w = weekOf(s.date, weekStartsOn);
     if (!partsByWeek.has(w)) partsByWeek.set(w, new Set());
     partsByWeek.get(w)!.add(part);
   }
@@ -215,7 +216,7 @@ export function achievementStats(
     longestRun: Math.max(0, ...runs.map((s) => s.distance!)),
     runTotal: runs.reduce((sum, s) => sum + s.distance!, 0),
     gymDays: days.filter((d) => d.kind === 'gymnastics').length,
-    bestStreak: weeklySummary(activeDays(sets, days), weeklyGoal, today).bestStreak,
+    bestStreak: weeklySummary(activeDays(sets, days), weeklyGoal, today, 8, weekStartsOn).bestStreak,
     allParts: [...partsByWeek.values()].some((p) => p.size >= 6) ? 1 : 0,
     hasRecord: sets.length > 0 ? 1 : 0,
   };

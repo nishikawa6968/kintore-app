@@ -49,7 +49,7 @@ function GoalChip({ tone, title, value, onClick }: { tone: 'fire' | 'blue'; titl
       onClick={onClick}
       disabled={!onClick}
       className={`flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2.5 py-2 text-left active:scale-[0.97] disabled:active:scale-100 ${
-        fire ? 'bg-gradient-to-r from-orange-50 to-red-50 ring-1 ring-orange-200' : 'bg-gradient-to-r from-sky-50 to-brand-50 ring-1 ring-sky-200'
+        fire ? 'bg-gradient-to-r from-orange-50 to-red-50 ring-1 ring-orange-200' : 'bg-gradient-to-r from-sky-50 to-blue-50 ring-1 ring-sky-200'
       }`}
     >
       {fire ? <Flame className="animate-flame h-5 w-5 shrink-0 text-orange-500" /> : <Sparkle className="twinkle h-5 w-5 shrink-0 text-sky-500" />}

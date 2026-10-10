@@ -16,6 +16,7 @@ import { Flame, Sparkle } from '../../illustrations/Illustrations';
 import { Medal } from '../../components/Medal';
 import { Barbell } from '../../components/PlateView';
 import { LEVELS, LEVEL_COLORS } from '../../lib/big3';
+import { themeOf } from '../../lib/themes';
 import { fmtDuration, fmtKm, fmtPace } from '../../lib/records';
 import { RatioBar } from '../Big3Page';
 import { fromKey, todayKey, toKey } from '../../lib/date';
@@ -777,7 +778,7 @@ export function GoalDemo() {
               <span className="block text-[13px] font-black tracking-tight whitespace-nowrap">82.5kg×1回〜</span>
             </span>
           </div>
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-50 to-brand-50 px-2 py-2 ring-1 ring-sky-200">
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 px-2 py-2 ring-1 ring-sky-200">
             <Sparkle className="twinkle h-5 w-5 text-sky-500" />
             <span>
               <span className="block text-[10px] font-black text-sky-600">青を狙う</span>
@@ -914,6 +915,53 @@ export function AchievementDemo() {
             <span className={`mt-1 text-[10px] font-bold ${i < step ? 'text-gray-700' : 'text-gray-300'}`}>{m.title}</span>
           </div>
         ))}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 詳細設定：テーマの色と週の始まり ---------- */
+
+const DEMO_THEMES = ['blue', 'red', 'green', 'violet', 'black'] as const;
+
+export function ThemeDemo() {
+  const step = useTicker(DEMO_THEMES.length, 1600);
+  const t = themeOf(DEMO_THEMES[step]);
+  const monday = step % 2 === 1;
+  const days = monday ? ['月', '火', '水', '木', '金', '土', '日'] : ['日', '月', '火', '水', '木', '金', '土'];
+  return (
+    <DemoBox caption={`テーマ「${t.name}」・週の始まり「${monday ? '月曜' : '日曜'}」`}>
+      <div className="mx-auto w-56 overflow-hidden rounded-2xl border-4 border-gray-800 bg-[#f3f5f9] text-[9px]">
+        <div className="py-1.5 text-center text-[10px] font-bold text-white transition-colors duration-500" style={{ background: t.colors[5] }}>
+          筋トレ記録
+        </div>
+        <div className="m-2 rounded-lg bg-white p-1.5">
+          <div className="grid grid-cols-7 text-center font-bold">
+            {days.map((d) => (
+              <span key={d} className={d === '日' ? 'text-rose-400' : d === '土' ? 'text-sky-400' : 'text-gray-400'}>
+                {d}
+              </span>
+            ))}
+          </div>
+          <div className="mt-1 grid grid-cols-7 gap-0.5">
+            {Array.from({ length: 14 }, (_, i) => (
+              <span
+                key={i}
+                className="mx-auto h-3.5 w-3.5 rounded-full transition-colors duration-500"
+                style={{ background: [2, 5, 8, 11].includes(i) ? t.colors[5] : '#f3f4f6' }}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="mx-2 mb-2 rounded-lg py-1.5 text-center font-bold text-white transition-colors duration-500" style={{ background: t.colors[5] }}>
+          ＋ 今日の記録をつける
+        </div>
+      </div>
+      <div className="mt-2 flex justify-center gap-2">
+        {DEMO_THEMES.map((id) => {
+          const c = themeOf(id).colors;
+          return <span key={id} className={`h-5 w-5 rounded-full ${id === t.id ? 'ring-2 ring-gray-700 ring-offset-1' : ''}`} style={{ background: `linear-gradient(135deg, ${c[4]}, ${c[7]})` }} />;
+        })}
       </div>
     </DemoBox>
   );

@@ -36,6 +36,15 @@ describe('週の目標と連続記録', () => {
     expect(s.bestStreak).toBe(1);
   });
 
+  it('日曜はじまりにすると、日曜から土曜までを1週間として数える', () => {
+    expect(weekOf('2026-10-10', 0)).toBe('2026-10-04'); // 土曜 → その週の日曜
+    expect(weekOf('2026-10-11', 0)).toBe('2026-10-11');
+    // 日曜(10/11)と月曜(10/12)：月曜はじまりだと別の週、日曜はじまりだと同じ週
+    const active = new Set(['2026-10-11', '2026-10-12']);
+    expect(weeklySummary(active, 2, '2026-10-13', 8, 0).thisWeek).toBe(2);
+    expect(weeklySummary(active, 2, '2026-10-13', 8, 1).thisWeek).toBe(1);
+  });
+
   it('体操の日もトレーニングした日に数える', () => {
     const days: DayRecord[] = [{ date: '2026-10-06', kind: 'gymnastics' }];
     expect(activeDays([set('2026-10-05', 60, 5)], days)).toEqual(new Set(['2026-10-05', '2026-10-06']));

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MedalIcon } from '../components/Medal';
 import { WeeklyGoalPill } from '../components/WeeklyGoal';
-import { activeDays, DEFAULT_WEEKLY_GOAL, weeklySummary } from '../lib/streak';
+import { activeDays, DEFAULT_WEEK_START, DEFAULT_WEEKLY_GOAL, weeklySummary } from '../lib/streak';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { Plus } from '../components/Icons';
 import { Header, Loading, PrimaryButton, TabPage } from '../components/Layout';
@@ -22,7 +22,11 @@ export function HomePage() {
   const [filter, setFilter] = useState<BodyPart | 'all'>('all');
   const [month, setMonth] = useState(() => fromKey(today));
   const weeklyGoal = useSetting('weeklyGoal', DEFAULT_WEEKLY_GOAL);
-  const weekly = useMemo(() => (data && weeklyGoal ? weeklySummary(activeDays(data.sets, data.days), weeklyGoal, today) : null), [data, weeklyGoal, today]);
+  const weekStart = useSetting('weekStart', DEFAULT_WEEK_START);
+  const weekly = useMemo(
+    () => (data && weeklyGoal && weekStart !== undefined ? weeklySummary(activeDays(data.sets, data.days), weeklyGoal, today, 8, weekStart) : null),
+    [data, weeklyGoal, weekStart, today],
+  );
 
   const { last, marked, trained, gym, recency } = useMemo(() => {
     if (!data) return { last: undefined, marked: new Set<string>(), trained: new Set<string>(), gym: new Set<string>(), recency: {} };
@@ -68,6 +72,7 @@ export function HomePage() {
                 today={today}
                 onSelect={(d) => navigate(`/day/${d}`)}
                 onTitleClick={() => navigate(`/report/${format(month, 'yyyy-MM')}`)}
+                weekStartsOn={weekStart ?? DEFAULT_WEEK_START}
               />
             </section>
 
@@ -79,7 +84,7 @@ export function HomePage() {
                 最終：
                 <span className="font-bold text-brand-600">{last ? `${daysAgoLabel(last)}（${format(fromKey(last), 'M/d')}）` : '記録なし'}</span>
               </p>
-              {weekly && weeklyGoal && <WeeklyGoalPill summary={weekly} goal={weeklyGoal} />}
+              {weekly && weeklyGoal && <WeeklyGoalPill summary={weekly} goal={weeklyGoal} weekStart={weekStart ?? DEFAULT_WEEK_START} />}
             </div>
             {/* 筋肉のまわりはその部位、それ以外の空いた所をタップすると ALL */}
             <div className="relative min-h-0 flex-1 px-4 py-1" onClick={() => setFilter('all')}>

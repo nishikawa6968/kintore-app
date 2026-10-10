@@ -70,6 +70,10 @@ export interface SettingValues {
   barWeight: number;
   /** もうお知らせした実績の id */
   seenAchievements: string[];
+  /** テーマの色（themes.ts の id） */
+  theme: string;
+  /** 週の始まり（0：日曜、1：月曜）。カレンダーと週の目標に使う */
+  weekStart: 0 | 1;
 }
 export type SettingKey = keyof SettingValues;
 

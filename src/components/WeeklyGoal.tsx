@@ -6,7 +6,7 @@ import { fromKey } from '../lib/date';
 import type { WeeklySummary } from '../lib/streak';
 
 /** ホームに置く「今週 2/3・🔥5週連続」。押すと週の目標を変える画面が出る */
-export function WeeklyGoalPill({ summary, goal }: { summary: WeeklySummary; goal: number }) {
+export function WeeklyGoalPill({ summary, goal, weekStart }: { summary: WeeklySummary; goal: number; weekStart: 0 | 1 }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -27,13 +27,13 @@ export function WeeklyGoalPill({ summary, goal }: { summary: WeeklySummary; goal
           </span>
         )}
       </button>
-      {open && <WeeklyGoalSheet summary={summary} goal={goal} onClose={() => setOpen(false)} />}
+      {open && <WeeklyGoalSheet summary={summary} goal={goal} weekStart={weekStart} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
 /** 週の目標（1週間に何日トレーニングするか）を選ぶボトムシート。直近8週の達成状況も出す */
-function WeeklyGoalSheet({ summary, goal, onClose }: { summary: WeeklySummary; goal: number; onClose: () => void }) {
+function WeeklyGoalSheet({ summary, goal, weekStart, onClose }: { summary: WeeklySummary; goal: number; weekStart: 0 | 1; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-40 flex items-end bg-black/40" onClick={onClose} data-swipe-ignore>
       <div className="mx-auto w-full max-w-md rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
@@ -46,7 +46,7 @@ function WeeklyGoalSheet({ summary, goal, onClose }: { summary: WeeklySummary; g
             <span className="ml-1 text-xs font-normal text-gray-400">（最長 {summary.bestStreak}週）</span>
           </span>
         </div>
-        <p className="mt-1 text-sm text-gray-500">1週間（月〜日）に何日トレーニングする？</p>
+        <p className="mt-1 text-sm text-gray-500">1週間（{weekStart === 1 ? '月〜日' : '日〜土'}）に何日トレーニングする？</p>
         <div className="mt-3 grid grid-cols-7 gap-1.5">
           {[1, 2, 3, 4, 5, 6, 7].map((n) => (
             <button

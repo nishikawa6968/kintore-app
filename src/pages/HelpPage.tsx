@@ -23,6 +23,7 @@ import {
   RunDemo,
   StepperDemo,
   StreakDemo,
+  ThemeDemo,
   SwipeTableDemo,
 } from './help/HelpDemos';
 
@@ -129,7 +130,7 @@ export function HelpPage() {
         <Section title="週の目標と連続記録">
           <StreakDemo />
           <List>
-            <li>ホームの「今週 2/3」は、今週（月〜日）トレーニングした日数と目標です。体操の日も数えます。</li>
+            <li>ホームの「今週 2/3」は、今週トレーニングした日数と目標です。体操の日も数えます。週の始まり（日曜・月曜）は設定で変えられます。</li>
             <li>目標を達成した週が続くと🔥の週の数が増えます。押すと目標の日数を変えられます。</li>
           </List>
         </Section>
@@ -208,9 +209,17 @@ export function HelpPage() {
         <Section title="種目の管理（設定）">
           <ManageDemo />
           <List>
-            <li>設定の「種目の管理」で、種目の追加・名前の変更・並び替えができます。</li>
+            <li>設定の「種目の管理」を押して開くと、種目の追加・名前の変更・並び替えができます。</li>
             <li>目のアイコンで、使わない種目を隠せます（記録は消えません）。</li>
             <li>鍵マークの種目（ベンチプレス・スクワット・デッドリフト・ランニング）はアプリ固定で、名前は変えられません。隠すことはできます。</li>
+          </List>
+        </Section>
+
+        <Section title="詳細設定（テーマの色・週の始まり）">
+          <ThemeDemo />
+          <List>
+            <li>設定の「テーマの色」で、アプリの色を8色から選べます。開くときの画面の色も変わります。</li>
+            <li>「週の始まり」で、カレンダーと週の目標を日曜はじまりか月曜はじまりにできます。</li>
           </List>
         </Section>
 

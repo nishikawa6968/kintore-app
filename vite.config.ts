@@ -15,6 +15,7 @@ import {
   splashArt,
   splashFileName,
 } from './src/illustrations/splash.ts';
+import { themeBootScript } from './src/lib/themes.ts';
 
 // アイコン画像の中身から作る印。アイコンを作り直すと変わり、iPhone が古い画像を使い回さなくなる
 const iconVersion = createHash('md5').update(readFileSync('public/apple-touch-icon.png')).digest('hex').slice(0, 8);
@@ -36,7 +37,7 @@ function splashHtml(base: string) {
       `<link rel="apple-touch-startup-image" media="screen and (device-width: ${s.w}px) and (device-height: ${s.h}px) and (-webkit-device-pixel-ratio: ${s.dpr}) and (orientation: portrait)" href="${base}splash/${splashFileName(s)}?v=${splashVersion}" />`,
   ).join('\n    ');
   const style = `<style>
-      #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(${SPLASH_TOP}, ${SPLASH_BOTTOM}); transition: opacity 0.45s ease; }
+      #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(var(--color-brand-400, ${SPLASH_TOP}), var(--color-brand-700, ${SPLASH_BOTTOM})); transition: opacity 0.45s ease; }
       #splash.hide { opacity: 0; pointer-events: none; }
       #splash .art { position: absolute; left: 50%; top: ${ART_CENTER_Y * 100}%; width: ${vw(ART_WIDTH)}; transform: translate(-50%, -50%); }
       #splash .loading { position: absolute; right: ${vw(LOADING.right)}; bottom: ${vw(LOADING.bottom - LOADING.font * 0.3)}; display: flex; align-items: center; font: 600 ${vw(LOADING.font)} ${SPLASH_FONT}; letter-spacing: 0.08em; color: rgb(255 255 255 / 0.85); }
@@ -47,7 +48,8 @@ function splashHtml(base: string) {
       @keyframes splash-dot { 0%, 80%, 100% { opacity: 0.35; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-40%); } }
     </style>`;
   const body = `<div id="splash" aria-hidden="true">${splashArt('class="art"')}<div class="loading">Loading<span class="dots"><i></i><i></i><i></i></span></div></div>`;
-  return { head: `${links}\n    ${style}`, body };
+  // テーマの色は、開くときの画面が出る前に当てる
+  return { head: `<script>${themeBootScript()}</script>\n    ${links}\n    ${style}`, body };
 }
 
 export default defineConfig({

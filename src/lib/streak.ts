@@ -5,8 +5,11 @@ import { fromKey, toKey } from './date';
 /** 週の目標（1週間に何日トレーニングするか）の初めの値 */
 export const DEFAULT_WEEKLY_GOAL = 3;
 
-/** その日を含む週（月曜はじまり）の月曜日 */
-export const weekOf = (key: string) => toKey(startOfWeek(fromKey(key), { weekStartsOn: 1 }));
+/** 週の始まり（0：日曜、1：月曜）の初めの値 */
+export const DEFAULT_WEEK_START = 0;
+
+/** その日を含む週の、最初の日（weekStartsOn：0 なら日曜、1 なら月曜） */
+export const weekOf = (key: string, weekStartsOn: 0 | 1 = 1) => toKey(startOfWeek(fromKey(key), { weekStartsOn }));
 
 /** トレーニングした日（筋トレ・ランニングのセットがある日と、体操の日） */
 export function activeDays(sets: SetRecord[], days: DayRecord[]) {
@@ -14,7 +17,7 @@ export function activeDays(sets: SetRecord[], days: DayRecord[]) {
 }
 
 export interface WeekStatus {
-  /** 週の月曜日 */
+  /** 週の最初の日 */
   start: string;
   count: number;
   achieved: boolean;
@@ -34,14 +37,14 @@ export interface WeeklySummary {
 }
 
 /** 週の目標の達成状況 */
-export function weeklySummary(active: Set<string>, goal: number, today: string, recentWeeks = 8): WeeklySummary {
+export function weeklySummary(active: Set<string>, goal: number, today: string, recentWeeks = 8, weekStartsOn: 0 | 1 = 1): WeeklySummary {
   const counts = new Map<string, number>();
   for (const d of active) {
     if (d > today) continue;
-    const w = weekOf(d);
+    const w = weekOf(d, weekStartsOn);
     counts.set(w, (counts.get(w) ?? 0) + 1);
   }
-  const thisWeekStart = weekOf(today);
+  const thisWeekStart = weekOf(today, weekStartsOn);
   const status = (start: string): WeekStatus => {
     const count = counts.get(start) ?? 0;
     return { start, count, achieved: count >= goal };

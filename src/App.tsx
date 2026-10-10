@@ -12,6 +12,8 @@ import { Big3TiersPage } from './pages/Big3TiersPage';
 import { AchievementsPage } from './pages/AchievementsPage';
 import { ReportPage } from './pages/ReportPage';
 import { AchievementToast } from './components/AchievementToast';
+import { applyTheme, DEFAULT_THEME } from './lib/themes';
+import { useSetting } from './lib/useData';
 import { Loading, RotateNotice, StatusBarFill } from './components/Layout';
 
 // グラフライブラリが大きいので詳細画面は開いたときに読み込む
@@ -25,6 +27,15 @@ function ScrollToTop() {
   return null;
 }
 
+/** 設定で選んだテーマの色を画面に当てる */
+function ThemeSync() {
+  const theme = useSetting('theme', DEFAULT_THEME);
+  useEffect(() => {
+    if (theme) applyTheme(theme);
+  }, [theme]);
+  return null;
+}
+
 export default function App() {
   return (
     // ホーム画面追加・静的ホスティングでも404にならないようハッシュルーティング
@@ -33,6 +44,7 @@ export default function App() {
       <StatusBarFill />
       <RotateNotice />
       <AchievementToast />
+      <ThemeSync />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/day/:date" element={<DayPage />} />

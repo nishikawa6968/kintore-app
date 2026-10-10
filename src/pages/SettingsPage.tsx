@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { db, exportData, importData, type BackupData } from '../db/db';
+import { db, exportData, importData, setSetting, type BackupData } from '../db/db';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Lock, Plus } from '../components/Icons';
 import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
-import { useData } from '../lib/useData';
+import { useData, useSetting } from '../lib/useData';
+import { DEFAULT_WEEK_START } from '../lib/streak';
+import { DEFAULT_THEME, THEMES } from '../lib/themes';
 import { neighborPart, useSlideDirection } from '../lib/useSwipe';
 import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
@@ -16,6 +18,10 @@ export function SettingsPage() {
   const [part, setPart] = useState<BodyPart>('chest');
   const [editing, setEditing] = useState<Exercise | 'new' | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 種目の管理は、いつもは閉じておく
+  const [manageOpen, setManageOpen] = useState(false);
+  const weekStart = useSetting('weekStart', DEFAULT_WEEK_START);
+  const theme = useSetting('theme', DEFAULT_THEME);
 
   const listOf = (p: BodyPart) => data?.exercises.filter((e) => e.bodyPart === p) ?? [];
 
@@ -102,26 +108,92 @@ export function SettingsPage() {
         <>
         {/* 真ん中：設定の中身（ここだけスクロール）／下：部位のロール（固定） */}
         <ScrollArea flush className="space-y-6">
+          {/* 種目の管理：見出しを押すと開く。開いているときは、下に部位のロールが出る */}
           <section>
-            <div className="flex items-center px-4">
-              <h2 className="text-sm font-bold text-gray-500">
-                種目の管理（<span className="text-brand-600">{bodyPartLabel(part)}</span>）
-              </h2>
+            <div className="px-4">
               <button
-                onClick={() => setEditing('new')}
-                className="ml-auto flex items-center gap-1 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-bold text-white"
+                onClick={() => setManageOpen((o) => !o)}
+                className="flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left shadow-sm active:bg-gray-50"
+                aria-expanded={manageOpen}
               >
-                <Plus width={16} height={16} /> 追加
+                <div className="flex-1">
+                  <div className="font-bold text-brand-600">種目の管理</div>
+                  <div className="text-xs text-gray-400">種目の追加・名前の変更・並び替え・非表示</div>
+                </div>
+                <ChevronDown className={`shrink-0 text-gray-400 transition-transform ${manageOpen ? 'rotate-180' : ''}`} width={20} height={20} />
               </button>
             </div>
-            {/* 表は指で左右に動かして隣の部位へ。ロールのように隣の部位の表がつながって出てくる */}
-            <SwipePager
-              pageKey={part}
-              direction={slide}
-              onSwipe={(dir) => setPart(neighborPart(part, dir))}
-              renderPage={(o) => <div className="px-4">{renderList(o === 0 ? part : neighborPart(part, o))}</div>}
-              className="pt-2 pb-1"
-            />
+            {manageOpen && (
+              <>
+                <div className="mt-3 flex items-center px-4">
+                  <h2 className="text-sm font-bold text-gray-500">
+                    <span className="text-brand-600">{bodyPartLabel(part)}</span>の種目
+                  </h2>
+                  <button
+                    onClick={() => setEditing('new')}
+                    className="ml-auto flex items-center gap-1 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-bold text-white"
+                  >
+                    <Plus width={16} height={16} /> 追加
+                  </button>
+                </div>
+                {/* 表は指で左右に動かして隣の部位へ。ロールのように隣の部位の表がつながって出てくる */}
+                <SwipePager
+                  pageKey={part}
+                  direction={slide}
+                  onSwipe={(dir) => setPart(neighborPart(part, dir))}
+                  renderPage={(o) => <div className="px-4">{renderList(o === 0 ? part : neighborPart(part, o))}</div>}
+                  className="pt-2 pb-1"
+                />
+              </>
+            )}
+          </section>
+
+          {/* 詳細設定：週の始まりとテーマの色 */}
+          <section className="px-4">
+            <h2 className="mb-2 text-sm font-bold text-gray-500">詳細設定</h2>
+            <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+              <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">週の始まり</div>
+                  <div className="text-xs text-gray-400">カレンダーと週の目標</div>
+                </div>
+                <div className="flex rounded-full bg-gray-100 p-1">
+                  {([0, 1] as const).map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setSetting('weekStart', d)}
+                      className={`rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${weekStart === d ? 'bg-brand-500 text-white shadow-sm' : 'text-gray-500'}`}
+                    >
+                      {d === 0 ? '日曜' : '月曜'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="px-4 py-3">
+                <div className="font-bold text-gray-800">テーマの色</div>
+                <div className="text-xs text-gray-400">アプリ全体と、開くときの画面の色が変わります</div>
+                <div className="mt-3 grid grid-cols-4 gap-x-2 gap-y-3">
+                  {THEMES.map((t) => {
+                    const on = t.id === theme;
+                    return (
+                      <button key={t.id} onClick={() => setSetting('theme', t.id)} className="flex flex-col items-center gap-1 active:scale-95" aria-pressed={on}>
+                        <span
+                          className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-shadow ${on ? 'ring-[3px] ring-offset-2' : ''}`}
+                          style={{ background: `linear-gradient(135deg, ${t.colors[4]}, ${t.colors[7]})`, ['--tw-ring-color' as string]: t.colors[5] }}
+                        >
+                          {on && (
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M5 12l5 5 9-10" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className={`text-[11px] ${on ? 'font-black text-gray-800' : 'text-gray-500'}`}>{t.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </section>
 
           <section className="px-4">
@@ -159,9 +231,11 @@ export function SettingsPage() {
             </Link>
           </section>
         </ScrollArea>
-        <div className="shrink-0 pb-1">
-          <BodyPartTabs value={part} onChange={setPart} />
-        </div>
+        {manageOpen && (
+          <div className="shrink-0 pb-1">
+            <BodyPartTabs value={part} onChange={setPart} />
+          </div>
+        )}
         </>
       )}
       {editing && (

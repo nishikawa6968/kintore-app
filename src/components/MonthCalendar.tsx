@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight, ReportIcon } from './Icons';
 import { SwipePager } from './SwipePager';
 
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+/** 週の始まりに合わせた曜日の並び（0：日曜はじまり、1：月曜はじまり） */
+const weekdays = (start: 0 | 1) => Array.from({ length: 7 }, (_, i) => (i + start) % 7);
 
 export function MonthCalendar({
   month,
@@ -15,6 +17,7 @@ export function MonthCalendar({
   today,
   onSelect,
   onTitleClick,
+  weekStartsOn = 0,
 }: {
   month: Date;
   onMonthChange: (d: Date) => void;
@@ -28,10 +31,12 @@ export function MonthCalendar({
   onSelect: (key: string) => void;
   /** 「〇年〇月」を押したとき（月間レポートを開く） */
   onTitleClick?: () => void;
+  /** 週の始まり（0：日曜、1：月曜） */
+  weekStartsOn?: 0 | 1;
 }) {
   /** その月の日付のマス目。いつも6週（42日）並べて、月を切り替えても高さが変わらないようにする */
   const renderDays = (m: Date) => {
-    const first = startOfWeek(startOfMonth(m));
+    const first = startOfWeek(startOfMonth(m), { weekStartsOn });
     const days = Array.from({ length: 42 }, (_, i) => addDays(first, i));
     return (
       <div className="grid grid-cols-7 gap-y-0.5">
@@ -98,9 +103,9 @@ export function MonthCalendar({
         </button>
       </div>
       <div className="grid grid-cols-7 text-center text-xs font-bold">
-        {WEEK.map((w, i) => (
-          <div key={w} className={`py-1 ${i === 0 ? 'text-rose-400' : i === 6 ? 'text-brand-400' : 'text-gray-400'}`}>
-            {w}
+        {weekdays(weekStartsOn).map((d) => (
+          <div key={d} className={`py-1 ${d === 0 ? 'text-rose-400' : d === 6 ? 'text-brand-400' : 'text-gray-400'}`}>
+            {WEEK[d]}
           </div>
         ))}
       </div>

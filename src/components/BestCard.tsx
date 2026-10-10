@@ -18,7 +18,7 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
 
   if (!fire && right.up) {
     return (
-      <div className="glow-blue shine relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-sky-400 px-4 pt-2.5 pb-3 text-white">
+      <div className="glow-blue shine relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 px-4 pt-2.5 pb-3 text-white">
         <div className="mb-1 flex items-center gap-1.5">
           <Sparkle className="twinkle h-5 w-5 text-sky-100" />
           <span className="shrink-0 text-[15px] font-black tracking-wide whitespace-nowrap drop-shadow">{right.label.replace('ベスト', '')}更新！</span>
@@ -85,5 +85,5 @@ export function BestCard({ left, right, before }: { left: BestStat; right: BestS
 }
 
 function UpBadge({ tone = 'red' }: { tone?: 'red' | 'blue' }) {
-  return <span className={`rounded-full bg-white px-1.5 text-[10px] leading-4 font-black ${tone === 'red' ? 'text-red-600' : 'text-brand-600'}`}>UP</span>;
+  return <span className={`rounded-full bg-white px-1.5 text-[10px] leading-4 font-black ${tone === 'red' ? 'text-red-600' : 'text-blue-600'}`}>UP</span>;
 }

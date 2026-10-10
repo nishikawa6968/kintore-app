@@ -31,7 +31,7 @@ export function ReportPage() {
             className="rounded-3xl p-4 text-white shadow-lg shadow-brand-800/30"
             style={{
               background:
-                'repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 10px, transparent 10px 20px), linear-gradient(135deg, #0f3669, #13478e 55%, #1e6fd9)',
+                'repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 10px, transparent 10px 20px), linear-gradient(135deg, var(--color-brand-800), var(--color-brand-700) 55%, var(--color-brand-500))',
             }}
           >
             <div className="flex items-center justify-between">

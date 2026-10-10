@@ -54,7 +54,7 @@ export function Medal({ rarity, label, size, shine = false, locked = false }: { 
         </clipPath>
       </defs>
       {/* リボン */}
-      <path d="M12 2 H22 L28 20 H18 Z" fill="#1e6fd9" />
+      <path d="M12 2 H22 L28 20 H18 Z" style={{ fill: 'var(--color-brand-500)' }} />
       <path d="M36 2 H26 L20 20 H30 Z" fill="#ef4444" />
       {/* メダル */}
       <circle cx="24" cy="34" r="18" fill={`url(#${id}-face)`} />
