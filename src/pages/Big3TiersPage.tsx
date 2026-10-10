@@ -75,7 +75,7 @@ function RankHero({ bodyweight, total, complete }: { bodyweight: number; total: 
           'repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 10px, transparent 10px 20px), linear-gradient(135deg, var(--color-brand-800), var(--color-brand-700) 55%, var(--color-brand-500))',
       }}
     >
-      <div className="text-[10px] font-black tracking-[0.3em] text-sky-200">YOUR RANK</div>
+      <div className="text-[10px] font-black tracking-[0.3em] text-brand-200">YOUR RANK</div>
       {info ? (
         <>
           <div className="mt-1 flex items-center gap-3">

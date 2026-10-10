@@ -23,7 +23,7 @@ export function MonthCalendar({
   onMonthChange: (d: Date) => void;
   /** 選んでいる部位を鍛えた日（濃い青） */
   marked: Set<string>;
-  /** 何かしら筋トレをした日（水色） */
+  /** 何かしら筋トレをした日（テーマの色の薄い丸） */
   trained: Set<string>;
   /** 体操をした日（ピンク。どの部位を選んでいても表示） */
   gym: Set<string>;
@@ -57,7 +57,7 @@ export function MonthCalendar({
                     : isMarked
                     ? 'bg-brand-500 font-bold text-white'
                     : isTrained
-                      ? 'bg-sky-200 font-bold text-brand-700'
+                      ? 'bg-brand-200 font-bold text-brand-700'
                       : inMonth
                         ? 'text-gray-700'
                         : 'text-gray-300',

@@ -39,7 +39,7 @@ export function ReportPage() {
                 <ChevronLeft />
               </button>
               <div className="text-center">
-                <div className="text-[10px] font-black tracking-[0.3em] text-sky-200">MONTHLY REPORT</div>
+                <div className="text-[10px] font-black tracking-[0.3em] text-brand-200">MONTHLY REPORT</div>
                 <div className="text-xl font-black">{format(fromKey(`${month}-01`), 'yyyy年M月')}</div>
               </div>
               <button onClick={() => go(1)} disabled={month >= thisMonth} className="-mr-2 p-2 active:opacity-50 disabled:opacity-20" aria-label="次の月">

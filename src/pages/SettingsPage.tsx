@@ -20,6 +20,8 @@ export function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   // 種目の管理は、いつもは閉じておく
   const [manageOpen, setManageOpen] = useState(false);
+  // 詳細設定も、いつもは閉じておく（項目が増えても画面がすっきりするように）
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const weekStart = useSetting('weekStart', DEFAULT_WEEK_START);
   const theme = useSetting('theme', DEFAULT_THEME);
 
@@ -150,49 +152,63 @@ export function SettingsPage() {
 
           {/* 詳細設定：週の始まりとテーマの色 */}
           <section className="px-4">
-            <h2 className="mb-2 text-sm font-bold text-gray-500">詳細設定</h2>
             <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-              <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+              <button
+                onClick={() => setAdvancedOpen((o) => !o)}
+                className={`flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-gray-50 ${advancedOpen ? 'border-b border-gray-100' : ''}`}
+                aria-expanded={advancedOpen}
+              >
                 <div className="flex-1">
-                  <div className="font-bold text-gray-800">週の始まり</div>
-                  <div className="text-xs text-gray-400">カレンダーと週の目標</div>
+                  <div className="font-bold text-brand-600">詳細設定</div>
+                  <div className="text-xs text-gray-400">週の始まり・テーマの色</div>
                 </div>
-                <div className="flex rounded-full bg-gray-100 p-1">
-                  {([0, 1] as const).map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setSetting('weekStart', d)}
-                      className={`rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${weekStart === d ? 'bg-brand-500 text-white shadow-sm' : 'text-gray-500'}`}
-                    >
-                      {d === 0 ? '日曜' : '月曜'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="px-4 py-3">
-                <div className="font-bold text-gray-800">テーマの色</div>
-                <div className="text-xs text-gray-400">アプリ全体と、開くときの画面の色が変わります</div>
-                <div className="mt-3 grid grid-cols-4 gap-x-2 gap-y-3">
-                  {THEMES.map((t) => {
-                    const on = t.id === theme;
-                    return (
-                      <button key={t.id} onClick={() => setSetting('theme', t.id)} className="flex flex-col items-center gap-1 active:scale-95" aria-pressed={on}>
-                        <span
-                          className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-shadow ${on ? 'ring-[3px] ring-offset-2' : ''}`}
-                          style={{ background: `linear-gradient(135deg, ${t.colors[4]}, ${t.colors[7]})`, ['--tw-ring-color' as string]: t.colors[5] }}
+                <ChevronDown className={`shrink-0 text-gray-400 transition-transform ${advancedOpen ? 'rotate-180' : ''}`} width={20} height={20} />
+              </button>
+              {advancedOpen && (
+                <>
+                  <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+                    <div className="flex-1">
+                      <div className="font-bold text-gray-800">週の始まり</div>
+                      <div className="text-xs text-gray-400">カレンダーと週の目標</div>
+                    </div>
+                    <div className="flex rounded-full bg-gray-100 p-1">
+                      {([0, 1] as const).map((d) => (
+                        <button
+                          key={d}
+                          onClick={() => setSetting('weekStart', d)}
+                          className={`rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${weekStart === d ? 'bg-brand-500 text-white shadow-sm' : 'text-gray-500'}`}
                         >
-                          {on && (
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              <path d="M5 12l5 5 9-10" />
-                            </svg>
-                          )}
-                        </span>
-                        <span className={`text-[11px] ${on ? 'font-black text-gray-800' : 'text-gray-500'}`}>{t.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                          {d === 0 ? '日曜' : '月曜'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="px-4 py-3">
+                    <div className="font-bold text-gray-800">テーマの色</div>
+                    <div className="text-xs text-gray-400">アプリ全体と、開くときの画面の色が変わります</div>
+                    <div className="mt-3 grid grid-cols-4 gap-x-2 gap-y-3">
+                      {THEMES.map((t) => {
+                        const on = t.id === theme;
+                        return (
+                          <button key={t.id} onClick={() => setSetting('theme', t.id)} className="flex flex-col items-center gap-1 active:scale-95" aria-pressed={on}>
+                            <span
+                              className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-shadow ${on ? 'ring-[3px] ring-offset-2' : ''}`}
+                              style={{ background: `linear-gradient(135deg, ${t.colors[4]}, ${t.colors[7]})`, ['--tw-ring-color' as string]: t.colors[5] }}
+                            >
+                              {on && (
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <path d="M5 12l5 5 9-10" />
+                                </svg>
+                              )}
+                            </span>
+                            <span className={`text-[11px] ${on ? 'font-black text-gray-800' : 'text-gray-500'}`}>{t.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </section>
 

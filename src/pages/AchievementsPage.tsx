@@ -35,7 +35,7 @@ function AchievementList({ states }: { states: AchievementState[] }) {
             'repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 10px, transparent 10px 20px), linear-gradient(135deg, var(--color-brand-800), var(--color-brand-700) 55%, var(--color-brand-500))',
         }}
       >
-        <div className="text-[10px] font-black tracking-[0.3em] text-sky-200">ACHIEVEMENTS</div>
+        <div className="text-[10px] font-black tracking-[0.3em] text-brand-200">ACHIEVEMENTS</div>
         <div className="mt-1 flex items-end justify-between">
           <div className="text-4xl font-black tabular-nums">
             {unlocked.length}

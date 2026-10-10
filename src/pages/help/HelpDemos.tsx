@@ -172,7 +172,7 @@ export function CalendarDemo() {
             選んだ部位をやった日
           </span>
           <span className="inline-flex items-center gap-1">
-            <span className="h-3 w-3 rounded-full bg-sky-200" />
+            <span className="h-3 w-3 rounded-full bg-brand-200" />
             ほかの筋トレをした日
           </span>
           <span className="inline-flex items-center gap-1">
@@ -862,7 +862,7 @@ export function ReportDemo() {
     <DemoBox caption="カレンダーの「〇年〇月」を押すと、その月のまとめが見られる">
       <div className="space-y-2">
         <div className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-500 p-3 text-white">
-          <div className="text-center text-[9px] font-black tracking-[0.3em] text-sky-200">MONTHLY REPORT</div>
+          <div className="text-center text-[9px] font-black tracking-[0.3em] text-brand-200">MONTHLY REPORT</div>
           <div className="mt-1.5 grid grid-cols-3 gap-1.5 text-center">
             {[
               ['トレーニング', step ? '17' : '12', '日'],
@@ -922,7 +922,7 @@ export function AchievementDemo() {
 
 /* ---------- 詳細設定：テーマの色と週の始まり ---------- */
 
-const DEMO_THEMES = ['blue', 'red', 'green', 'violet', 'black'] as const;
+const DEMO_THEMES = ['blue', 'red', 'green', 'teal', 'black'] as const;
 
 export function ThemeDemo() {
   const step = useTicker(DEMO_THEMES.length, 1600);

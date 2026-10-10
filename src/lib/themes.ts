@@ -3,7 +3,7 @@
  * 開くときの画面（スプラッシュ）やステータスバーの色も、この色になる。
  */
 
-export type ThemeId = 'blue' | 'indigo' | 'violet' | 'pink' | 'red' | 'orange' | 'green' | 'black';
+export type ThemeId = 'blue' | 'indigo' | 'violet' | 'teal' | 'red' | 'orange' | 'green' | 'black';
 
 export interface Theme {
   id: ThemeId;
@@ -18,7 +18,8 @@ export const THEMES: Theme[] = [
   { id: 'blue', name: 'ブルー', colors: ['#eef5fd', '#d6e6fa', '#adcdf5', '#7eb0ee', '#4c8fe4', '#1e6fd9', '#1759b3', '#13478e', '#0f3669'] },
   { id: 'indigo', name: 'ネイビー', colors: ['#eef2ff', '#e0e7ff', '#c7d2fe', '#a5b4fc', '#6366f1', '#4f46e5', '#4338ca', '#3730a3', '#312e81'] },
   { id: 'violet', name: 'パープル', colors: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd', '#8b5cf6', '#7c3aed', '#6d28d9', '#5b21b6', '#4c1d95'] },
-  { id: 'pink', name: 'ピンク', colors: ['#fdf2f8', '#fce7f3', '#fbcfe8', '#f9a8d4', '#ec4899', '#db2777', '#be185d', '#9d174d', '#831843'] },
+  // ピンクは体操の日の色と見分けがつかなくなるので使わない
+  { id: 'teal', name: 'ティール', colors: ['#f0fdfa', '#ccfbf1', '#99f6e4', '#5eead4', '#14b8a6', '#0d9488', '#0f766e', '#115e59', '#134e4a'] },
   { id: 'red', name: 'レッド', colors: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5', '#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d'] },
   { id: 'orange', name: 'オレンジ', colors: ['#fff7ed', '#ffedd5', '#fed7aa', '#fdba74', '#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'] },
   { id: 'green', name: 'グリーン', colors: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac', '#22c55e', '#16a34a', '#15803d', '#166534', '#14532d'] },
