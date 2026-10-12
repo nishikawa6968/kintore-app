@@ -1,6 +1,7 @@
 import type { BodyPart, DayRecord, Exercise, SetRecord } from '../types';
 import { BIG3, STANDARDS, big3Bests } from './big3';
 import { recordIdsFor } from './records';
+import { allRanks, partRanks } from './ranks';
 import { activeDays, weekOf, weeklySummary } from './streak';
 
 /**
@@ -35,6 +36,13 @@ export interface AchievementStats {
   /** 1週間で6部位すべてを鍛えたことがあるか（1 か 0） */
   allParts: number;
   hasRecord: number;
+  /** 種目のランクの一番高いもの（ランクがなければ -1） */
+  bestRank: number;
+  /** 中級者以上・上級者以上の種目の数 */
+  ranksB: number;
+  ranksA: number;
+  /** 中級者以上の部位の数（6部位） */
+  partsB: number;
 }
 
 export interface Achievement {
@@ -138,6 +146,16 @@ export const ACHIEVEMENTS: Achievement[] = [
     { id: 'rank4', title: '称号：エリート', desc: 'BIG3合計でエリートになる（体重の入力が必要）', rarity: 'legend', label: 'S', progress: rankAt(4), unit: 'kg' },
   ]),
 
+  ...group('ランク', [
+    { id: 'exRankC', title: 'ランク：初級者', desc: 'どれか1種目で初級者になる', rarity: 'bronze', label: 'C', progress: (s) => ({ value: s.bestRank >= 1 ? 1 : 0, target: 1 }) },
+    { id: 'exRankB', title: 'ランク：中級者', desc: 'どれか1種目で中級者になる', rarity: 'silver', label: 'B', progress: (s) => ({ value: s.bestRank >= 2 ? 1 : 0, target: 1 }) },
+    { id: 'exRankA', title: 'ランク：上級者', desc: 'どれか1種目で上級者になる', rarity: 'gold', label: 'A', progress: (s) => ({ value: s.bestRank >= 3 ? 1 : 0, target: 1 }) },
+    { id: 'exRankS', title: 'ランク：エリート', desc: 'どれか1種目でエリートになる', rarity: 'legend', label: 'S', progress: (s) => ({ value: s.bestRank >= 4 ? 1 : 0, target: 1 }) },
+    { id: 'ranks5B', title: '万能型', desc: '5種目で中級者以上になる', rarity: 'silver', label: 'B×5', progress: at('ranksB', 5), unit: '種目' },
+    { id: 'ranks10A', title: '多才な猛者', desc: '10種目で上級者以上になる', rarity: 'platinum', label: 'A×10', progress: at('ranksA', 10), unit: '種目' },
+    { id: 'partsB', title: '全身中級者', desc: '6部位すべてで中級者以上になる', rarity: 'gold', label: '全身', progress: at('partsB', 6), unit: '部位' },
+  ]),
+
   ...group('体重比', [
     { id: 'benchBW', title: '体重ベンチ', desc: '体重と同じ重さでベンチプレス', rarity: 'silver', label: '×1', progress: timesBW('bench', 1), unit: 'kg' },
     { id: 'bench1.5BW', title: 'ベンチ 体重×1.5', desc: '体重の1.5倍でベンチプレス', rarity: 'gold', label: '×1.5', progress: timesBW('bench', 1.5), unit: 'kg' },
@@ -167,6 +185,18 @@ export const ACHIEVEMENTS: Achievement[] = [
     { id: 'gym100', title: '体操の仙人', desc: '体操の日が100日', rarity: 'gold', label: '100日', progress: at('gymDays', 100), unit: '日' },
   ]),
 ];
+
+/** 種目のランクから、実績に使う数字を出す */
+function rankStats(exercises: Exercise[], sets: SetRecord[], bodyweight: number) {
+  const ranks = allRanks(exercises, sets, bodyweight);
+  const idx = ranks.map((r) => r.index).filter((i): i is number => i !== null);
+  return {
+    bestRank: idx.length ? Math.max(...idx) : -1,
+    ranksB: idx.filter((i) => i >= 2).length,
+    ranksA: idx.filter((i) => i >= 3).length,
+    partsB: Object.values(partRanks(ranks)).filter((i) => i !== null && i >= 2).length,
+  };
+}
 
 /** 実績の判定に使う数字をまとめて計算する */
 export function achievementStats(
@@ -219,6 +249,7 @@ export function achievementStats(
     bestStreak: weeklySummary(activeDays(sets, days), weeklyGoal, today, 8, weekStartsOn).bestStreak,
     allParts: [...partsByWeek.values()].some((p) => p.size >= 6) ? 1 : 0,
     hasRecord: sets.length > 0 ? 1 : 0,
+    ...rankStats(exercises, sets, bodyweight),
   };
 }
 

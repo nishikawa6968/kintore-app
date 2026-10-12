@@ -27,6 +27,8 @@ export interface Exercise {
   kind?: ExerciseKind;
   /** アプリに固定で入っている種目（BIG3・ランニング）。名前や部位は変えられない（非表示はできる） */
   builtin?: BuiltinKey;
+  /** ランクの基準（standards.ts の key）。名前を変えても同じ基準を使えるように覚えておく */
+  std?: string;
   archived: boolean;
   order: number;
 }

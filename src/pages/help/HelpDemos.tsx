@@ -19,6 +19,7 @@ import { LEVELS, LEVEL_COLORS } from '../../lib/big3';
 import { themeOf } from '../../lib/themes';
 import { fmtDuration, fmtKm, fmtPace } from '../../lib/records';
 import { RatioBar } from '../Big3Page';
+import { LIGHT_COLORS } from '../Big3TiersPage';
 import { fromKey, todayKey, toKey } from '../../lib/date';
 import { NEVER_COLOR, RECENCY_GRADIENT, recencyColor } from '../../lib/recency';
 import { neighborPart, useSlideDirection } from '../../lib/useSwipe';
@@ -979,6 +980,48 @@ export function ThemeDemo() {
           const c = themeOf(id).colors;
           return <span key={id} className={`h-5 w-5 rounded-full ${id === t.id ? 'ring-2 ring-gray-700 ring-offset-1' : ''}`} style={{ background: `linear-gradient(135deg, ${c[4]}, ${c[7]})` }} />;
         })}
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 種目ごとのランク ---------- */
+
+const RANK_STEPS = [
+  { side: 1, weight: '6kg × 12回', next: '8kg × 12回', progress: 0.5, parts: { shoulder: 1, chest: 2, arm: 1, back: 2, abs: 0, leg: 3 } },
+  { side: 2, weight: '8kg × 12回', next: '12kg × 12回', progress: 0.1, parts: { shoulder: 2, chest: 2, arm: 1, back: 2, abs: 0, leg: 3 } },
+  { side: 3, weight: '12kg × 12回', next: '16kg × 12回', progress: 0.05, parts: { shoulder: 3, chest: 2, arm: 2, back: 3, abs: 1, leg: 3 } },
+] as const;
+
+export function ExerciseRankDemo() {
+  const step = useTicker(RANK_STEPS.length, 2000);
+  const st = RANK_STEPS[step];
+  return (
+    <DemoBox caption="重さが伸びるとランクが上がり、人の図の色も変わる">
+      <div className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-500 p-2">
+        <BodyMap
+          selected="all"
+          allColors={Object.fromEntries(Object.entries(st.parts).map(([p, i]) => [p, LIGHT_COLORS[i]])) as Record<BodyPart, string>}
+          className="mx-auto h-32 w-full"
+        />
+      </div>
+      <div className="mt-2 flex items-center gap-2.5 rounded-xl bg-white px-3 py-2 shadow-sm">
+        <Emblem tier={st.side} size={30} shine />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-bold">サイドレイズ</span>
+            <span className="text-xs font-black" style={{ color: LEVEL_COLORS[st.side] }}>
+              {LEVELS[st.side]}
+            </span>
+          </div>
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${st.progress * 100}%`, background: LEVEL_COLORS[st.side + 1] }} />
+          </div>
+          <div className="mt-0.5 flex justify-between text-[10px] text-gray-400 tabular-nums">
+            <span>{st.weight}</span>
+            <span className="font-bold text-gray-500">次：{st.next}</span>
+          </div>
+        </div>
       </div>
     </DemoBox>
   );

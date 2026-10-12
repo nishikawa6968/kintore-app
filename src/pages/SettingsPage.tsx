@@ -29,6 +29,7 @@ export function SettingsPage() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const weekStart = useSetting('weekStart', DEFAULT_WEEK_START);
   const theme = useSetting('theme', DEFAULT_THEME);
+  const bodyweight = useSetting('bodyweight', 0);
 
   const listOf = (p: BodyPart) => data?.exercises.filter((e) => e.bodyPart === p) ?? [];
 
@@ -108,7 +109,7 @@ export function SettingsPage() {
   const exportExerciseNames = () => {
     if (!data) return;
     const now = new Date();
-    shareOrDownload(`kintore-exercises-${format(now, 'yyyyMMdd')}.txt`, exerciseListText(data.exercises, data.sets, format(now, 'yyyy/MM/dd')));
+    shareOrDownload(`kintore-exercises-${format(now, 'yyyyMMdd')}.txt`, exerciseListText(data.exercises, data.sets, format(now, 'yyyy/MM/dd'), bodyweight ?? 0));
   };
 
   const restore = async (file: File) => {

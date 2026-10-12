@@ -121,7 +121,7 @@ export function SetInputPage() {
       </div>
 
       <ScrollArea ref={scrollRef} className="space-y-3">
-        <NextGoals sets={all} cardio={cardio} exerciseId={exerciseId} date={date} />
+        {exercise && <NextGoals sets={all} cardio={cardio} exercise={exercise} date={date} />}
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">
             <div className="mb-1 flex items-center">

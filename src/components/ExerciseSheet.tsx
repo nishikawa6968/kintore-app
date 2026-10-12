@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { db } from '../db/db';
+import { findStandard } from '../lib/standards';
 import { BODY_PARTS, type BodyPart, type Exercise } from '../types';
 
 /** 種目の追加・名前変更用のボトムシート */
@@ -22,12 +23,14 @@ export function ExerciseSheet({
     if (!trimmed) return;
     if (initial?.builtin) return onClose(); // 固定の種目は変えない
     if (initial) {
-      await db.exercises.update(initial.id, { name: trimmed, bodyPart: part });
+      // 名前を変えてもランクの基準は引き継ぐ（新しい名前に合う基準があればそちらを使う）
+      const std = findStandard(trimmed, part)?.key ?? (part === initial.bodyPart ? initial.std : undefined);
+      await db.exercises.update(initial.id, { name: trimmed, bodyPart: part, std });
       onSaved?.(initial.id);
     } else {
       const last = await db.exercises.where('bodyPart').equals(part).sortBy('order');
       const order = last.length ? last[last.length - 1].order + 1 : 0;
-      const id = await db.exercises.add({ name: trimmed, bodyPart: part, archived: false, order } as Exercise);
+      const id = await db.exercises.add({ name: trimmed, bodyPart: part, std: findStandard(trimmed, part)?.key, archived: false, order } as Exercise);
       onSaved?.(id);
     }
     onClose();

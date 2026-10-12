@@ -6,9 +6,9 @@ import { BIG3, LEVEL_COLORS, LEVEL_RANKS, LEVELS, STANDARDS, big3Bests, levelOf,
 import { fmtKg } from '../lib/records';
 import { useData, useSetting } from '../lib/useData';
 
-const TIER_EN = ['BEGINNER', 'NOVICE', 'INTERMEDIATE', 'ADVANCED', 'ELITE'];
+export const TIER_EN = ['BEGINNER', 'NOVICE', 'INTERMEDIATE', 'ADVANCED', 'ELITE'];
 /** 紺色の背景の上でも読みやすい、明るめのレベルの色 */
-const LIGHT_COLORS = ['#d1d5db', '#7dd3fc', '#93c5fd', '#d8b4fe', '#fcd34d'];
+export const LIGHT_COLORS = ['#d1d5db', '#7dd3fc', '#93c5fd', '#d8b4fe', '#fcd34d'];
 const COLUMNS: { key: Big3Lift | 'total'; label: string }[] = [
   { key: 'bench', label: 'ベンチ' },
   { key: 'squat', label: 'スクワット' },

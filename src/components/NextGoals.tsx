@@ -3,18 +3,24 @@ import { addSet } from '../db/db';
 import { Flame, Sparkle } from '../illustrations/Illustrations';
 import { nextRunGoals, nextWeightGoals } from '../lib/goals';
 import { fmtKm, fmtPace, fmtWeight } from '../lib/records';
-import type { SetRecord } from '../types';
+import type { Exercise, SetRecord } from '../types';
+import { LEVEL_COLORS } from '../lib/big3';
+import { nextTarget, rankOf } from '../lib/ranks';
+import { useSetting } from '../lib/useData';
+import { Emblem } from './Emblem';
 
 /**
  * 次に狙う目標。「炎を狙う」（持った重さの新記録）と「青を狙う」（回数・推定1RMの更新）。
  * 重さの種目は、押すとその重さと回数のセットが入る。
  */
-export function NextGoals({ sets, cardio, exerciseId, date }: { sets: SetRecord[]; cardio: boolean; exerciseId: number; date: string }) {
+export function NextGoals({ sets, cardio, exercise, date }: { sets: SetRecord[]; cardio: boolean; exercise: Exercise; date: string }) {
+  const exerciseId = exercise.id;
+  const rankUp = <RankUp exercise={exercise} sets={sets} date={date} />;
   if (cardio) {
     const g = nextRunGoals(sets);
     if (!g) return null;
     return (
-      <GoalFrame>
+      <GoalFrame footer={rankUp}>
         <GoalChip tone="fire" title="炎を狙う" value={`${fmtKm(g.distance)}以上`} />
         <GoalChip tone="blue" title="青を狙う" value={`${fmtPace(g.pace)}/km`} />
       </GoalFrame>
@@ -23,14 +29,14 @@ export function NextGoals({ sets, cardio, exerciseId, date }: { sets: SetRecord[
   const g = nextWeightGoals(sets);
   if (!g) return null;
   return (
-    <GoalFrame note="押すとセットに入る">
+    <GoalFrame note="押すとセットに入る" footer={rankUp}>
       {g.fire && <GoalChip tone="fire" title="炎を狙う" value={`${fmtWeight(g.fire.weight)}×${g.fire.reps}回〜`} onClick={() => addSet(exerciseId, date, g.fire!.weight, g.fire!.reps)} />}
       {g.blue && <GoalChip tone="blue" title="青を狙う" value={`${fmtWeight(g.blue.weight)}×${g.blue.reps}回`} onClick={() => addSet(exerciseId, date, g.blue!.weight, g.blue!.reps)} />}
     </GoalFrame>
   );
 }
 
-function GoalFrame({ children, note }: { children: ReactNode; note?: string }) {
+function GoalFrame({ children, note, footer }: { children: ReactNode; note?: string; footer?: ReactNode }) {
   return (
     <div className="rounded-2xl bg-white px-3 pt-2 pb-3 shadow-sm">
       <div className="mb-1.5 flex items-baseline justify-between px-1">
@@ -38,6 +44,7 @@ function GoalFrame({ children, note }: { children: ReactNode; note?: string }) {
         {note && <span className="text-[11px] text-gray-400">{note}</span>}
       </div>
       <div className="flex gap-2">{children}</div>
+      {footer}
     </div>
   );
 }
@@ -57,6 +64,36 @@ function GoalChip({ tone, title, value, onClick }: { tone: 'fire' | 'blue'; titl
         <span className={`block text-[10px] font-black ${fire ? 'text-orange-500' : 'text-sky-600'}`}>{title}</span>
         <span className="block truncate text-[15px] leading-tight font-black tracking-tight text-gray-800 tabular-nums">{value}</span>
       </span>
+    </button>
+  );
+}
+
+/** 次のランクに届く重さと回数（押すとそのセットが入る。ランニングは表示だけ） */
+function RankUp({ exercise, sets, date }: { exercise: Exercise; sets: SetRecord[]; date: string }) {
+  const bodyweight = useSetting('bodyweight', 0) ?? 0;
+  const r = rankOf(exercise, sets, bodyweight);
+  const next = r && nextTarget(r);
+  if (!r || !next || !r.thresholds) return null;
+  const need = r.thresholds[next.index];
+  const add =
+    r.std.kind === 'weight'
+      ? () => addSet(exercise.id, date, Math.ceil(need * 2) / 2, r.std.reps!)
+      : r.std.kind === 'big3'
+        ? () => addSet(exercise.id, date, need, 1)
+        : r.std.kind === 'reps'
+          ? () => addSet(exercise.id, date, 0, Math.ceil(need))
+          : undefined;
+  return (
+    <button
+      onClick={add}
+      disabled={!add}
+      className="mt-2 flex w-full items-center gap-2 rounded-xl bg-gray-50 px-2.5 py-1.5 text-left ring-1 ring-gray-200 active:scale-[0.98] disabled:active:scale-100"
+    >
+      <Emblem tier={next.index} size={22} shine />
+      <span className="text-[11px] font-black" style={{ color: LEVEL_COLORS[next.index] }}>
+        ランクアップ：{next.level}
+      </span>
+      <span className="ml-auto text-[15px] font-black tracking-tight text-gray-800 tabular-nums">{next.label}</span>
     </button>
   );
 }

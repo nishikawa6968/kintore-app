@@ -190,7 +190,10 @@ describe('種目名の書き出し', () => {
     const text = exerciseListText(exercises, [set('2026-10-01', 60, 5, 1), set('2026-10-02', 60, 5, 1)], '2026/10/12');
     expect(text).toContain('全4種目');
     expect(text).toContain('■ 肩（0種目）\n  （なし）');
-    expect(text).toContain('■ 胸（3種目）\n- ベンチプレス【固定】（記録 2セット）\n- ダンベルプレス\n- ダンベルフライ【非表示】');
-    expect(text).toContain('- ランニング【固定・距離×時間】');
+    // ベンチは体重がないのでランクは「—」、基準のある種目も記録がなければ「—」
+    expect(text).toContain('■ 胸（3種目）\n- ベンチプレス【固定】（記録 2セット）〔ランク —〕\n- ダンベルプレス〔ランク —〕\n- ダンベルフライ【非表示】〔ランク —〕');
+    expect(text).toContain('- ランニング【固定・距離×時間】〔ランク —〕');
+    expect(exerciseListText([{ id: 9, name: 'プランク', bodyPart: 'abs', archived: false, order: 0 }], [], 'x')).toContain('- プランク〔ランク基準なし〕');
+    expect(exerciseListText(exercises, [set('2026-10-01', 70, 5, 1)], 'x', 70)).toContain('- ベンチプレス【固定】（記録 1セット）〔ランク 初級者〕');
   });
 });

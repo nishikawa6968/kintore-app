@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { DayRecord, Exercise, SetRecord, Setting, SettingKey, SettingValues } from '../types';
 import { BUILTINS, CARDIO_NAMES, presetExercises } from './seed';
+import { findStandard } from '../lib/standards';
 
 class KintoreDB extends Dexie {
   exercises!: EntityTable<Exercise, 'id'>;
@@ -52,6 +53,10 @@ class KintoreDB extends Dexie {
     this.version(6)
       .stores({ ...stores, days: 'date', settings: 'key' })
       .upgrade((tx) => ensureBuiltins(tx.table('exercises') as EntityTable<Exercise, 'id'>));
+    // v7: 種目ごとのランクの基準を、名前の同じ種目に付ける
+    this.version(7)
+      .stores({ ...stores, days: 'date', settings: 'key' })
+      .upgrade((tx) => assignStandards(tx.table('exercises') as EntityTable<Exercise, 'id'>));
     this.on('populate', (tx) => {
       tx.table('exercises').bulkAdd(presetExercises());
     });
@@ -98,6 +103,16 @@ export async function addRun(exerciseId: number, date: string, distance: number,
   const existing = await setsOf(exerciseId, date);
   const order = existing.length ? existing[existing.length - 1].order + 1 : 0;
   return db.sets.add({ exerciseId, date, weight: 0, reps: 0, distance, duration, order, createdAt: Date.now() } as SetRecord);
+}
+
+/** ランクの基準がまだ付いていない種目に、名前の同じ基準を付ける */
+async function assignStandards(table: EntityTable<Exercise, 'id'>) {
+  const all = await table.toArray();
+  for (const e of all) {
+    if (e.std) continue;
+    const std = findStandard(e.name, e.bodyPart);
+    if (std) await table.update(e.id, { std: std.key });
+  }
 }
 
 /** 種目と、その種目の記録をすべて消す（アプリ固定の種目は消さない） */
@@ -171,5 +186,6 @@ export async function importData(data: BackupData) {
     await db.sets.bulkAdd(data.sets);
     // 固定の種目が入っていない古いバックアップでも、固定の種目をそろえる
     await ensureBuiltins(db.exercises);
+    await assignStandards(db.exercises);
   });
 }

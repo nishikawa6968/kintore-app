@@ -19,8 +19,12 @@ import {
   recordIdsFor,
   volume,
 } from '../lib/records';
-import { useData } from '../lib/useData';
-import { bodyPartLabel, isCardio, type SetRecord } from '../types';
+import { useData, useSetting } from '../lib/useData';
+import { bodyPartLabel, isCardio, type Exercise, type SetRecord } from '../types';
+import { Emblem } from '../components/Emblem';
+import { ChevronRight } from '../components/Icons';
+import { LEVEL_COLORS, LEVELS } from '../lib/big3';
+import { nextTarget, rankOf } from '../lib/ranks';
 
 export function ExerciseDetailPage() {
   const { id = '' } = useParams();
@@ -79,6 +83,7 @@ export function ExerciseDetailPage() {
               <div className="py-2 text-lg font-bold">まだ記録がありません</div>
             )}
           </div>
+          {exercise && <RankStrip exercise={exercise} sets={all} />}
         </div>
 
         <ScrollArea className="space-y-3">
@@ -160,5 +165,25 @@ function Stat({ label, value, date }: { label: string; value: string; date: stri
       <div className="text-2xl font-bold tabular-nums">{value}</div>
       <div className="text-xs text-white/75">{slashDate(date)}</div>
     </div>
+  );
+}
+
+/** 種目のランクの帯（押すとランクの表へ）。ランクの基準がない種目では出さない */
+function RankStrip({ exercise, sets }: { exercise: Exercise; sets: SetRecord[] }) {
+  const bodyweight = useSetting('bodyweight', 0) ?? 0;
+  const r = rankOf(exercise, sets, bodyweight);
+  if (!r) return null;
+  const next = nextTarget(r);
+  return (
+    <Link to={`/ranks/${exercise.id}`} className="mt-2 flex items-center gap-2.5 rounded-2xl bg-white px-3 py-2 shadow-sm active:bg-gray-50">
+      <Emblem tier={r.index} size={26} shine={r.index !== null} />
+      <span className="text-sm font-black" style={{ color: r.index === null ? '#9ca3af' : LEVEL_COLORS[r.index] }}>
+        {r.index === null ? 'ランクなし' : LEVELS[r.index]}
+      </span>
+      <span className="min-w-0 flex-1 truncate text-right text-xs text-gray-500 tabular-nums">
+        {r.index === null ? '記録・体重でランクが出ます' : next ? `次の${next.level}：${next.label}` : '最高ランク！'}
+      </span>
+      <ChevronRight className="shrink-0 text-gray-300" width={16} height={16} />
+    </Link>
   );
 }

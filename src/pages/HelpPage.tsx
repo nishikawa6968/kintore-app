@@ -11,6 +11,7 @@ import {
   FlowDemo,
   GoalDemo,
   GymDemo,
+  ExerciseRankDemo,
   ManageDemo,
   OverviewDemo,
   PlateDemo,
@@ -194,6 +195,16 @@ export function HelpPage() {
               <b>レベルの目安について：</b>
               成人男性の一般的な基準をもとにした、おおまかな目安です。基準は「1回だけ挙げられる重さ」なので、回数を多くやった重さが記録になっていると、実力より低めに出ます。
             </li>
+          </List>
+        </Section>
+
+        <Section title="種目ごとのランク">
+          <ExerciseRankDemo />
+          <List>
+            <li>種目ごとに、挙げた重さと回数から 初心者〜エリート のランクが付きます（BIG3 の称号と同じ5段階）。</li>
+            <li>自己ベストの画面の右上「ランク」で、全種目のランクと、部位ごとのランクで色分けした人の図が見られます。</li>
+            <li>種目を押すと、ランクごとに何kg×何回で届くかの表が見られます。ほかの回数のセットも、基準の回数に換算してくらべます。</li>
+            <li>記録の画面の「次の目標」に、次のランクに届く重さと回数が出ます。</li>
           </List>
         </Section>
 

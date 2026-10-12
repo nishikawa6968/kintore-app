@@ -11,6 +11,8 @@ import { Big3Page } from './pages/Big3Page';
 import { Big3TiersPage } from './pages/Big3TiersPage';
 import { AchievementsPage } from './pages/AchievementsPage';
 import { ReportPage } from './pages/ReportPage';
+import { RanksPage } from './pages/RanksPage';
+import { RankTiersPage } from './pages/RankTiersPage';
 import { AchievementToast } from './components/AchievementToast';
 import { applyTheme, DEFAULT_THEME } from './lib/themes';
 import { useSetting } from './lib/useData';
@@ -65,6 +67,8 @@ export default function App() {
         <Route path="/big3/tiers" element={<Big3TiersPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/report/:month" element={<ReportPage />} />
+        <Route path="/ranks" element={<RanksPage />} />
+        <Route path="/ranks/:id" element={<RankTiersPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

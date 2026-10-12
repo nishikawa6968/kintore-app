@@ -1,4 +1,5 @@
 import type { BodyPart, BuiltinKey, Exercise } from '../types';
+import { findStandard } from '../lib/standards';
 
 const PRESETS: Record<BodyPart, string[]> = {
   chest: ['ベンチプレス', 'ダンベルプレス', 'インクラインベンチプレス', 'ダンベルフライ', 'チェストプレス'],
@@ -30,6 +31,7 @@ export function presetExercises(): Omit<Exercise, 'id'>[] {
       bodyPart: bodyPart as BodyPart,
       kind: CARDIO_NAMES.has(name) ? ('cardio' as const) : ('weight' as const),
       builtin: BUILTINS.find((b) => b.name === name && b.bodyPart === bodyPart)?.key,
+      std: findStandard(name, bodyPart as BodyPart)?.key,
       archived: false,
       order,
     })),

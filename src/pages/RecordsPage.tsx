@@ -7,7 +7,9 @@ import { Sparkle, Trophy } from '../illustrations/Illustrations';
 import { Header, Loading, TabPage } from '../components/Layout';
 import { daysAgoLabel, daysSince, slashDate } from '../lib/date';
 import { bestSummary, lastTrainedByPart } from '../lib/records';
-import { useData } from '../lib/useData';
+import { useData, useSetting } from '../lib/useData';
+import { Emblem } from '../components/Emblem';
+import { rankOf } from '../lib/ranks';
 import { neighborPart, useSlideDirection } from '../lib/useSwipe';
 import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart, type Exercise, type SetRecord } from '../types';
@@ -26,7 +28,19 @@ export function RecordsPage() {
   const last = data ? lastTrainedByPart(data.sets, data.exercises).get(part) : undefined;
 
   return (
-    <TabPage header={<Header title="自己ベスト" />}>
+    <TabPage
+      header={
+        <Header
+          title="自己ベスト"
+          right={
+            <Link to="/ranks" className="mr-1 flex items-center gap-1 rounded-full bg-white/20 py-1 pr-3 pl-1.5 text-sm font-black active:bg-white/35">
+              <Emblem tier={2} size={18} />
+              ランク
+            </Link>
+          }
+        />
+      }
+    >
       {!data ? (
         <Loading />
       ) : (
@@ -64,13 +78,14 @@ export function RecordsPage() {
 
 /** 部位の種目ごとの自己ベストの表（いつも5行分の高さ。種目の行だけ縦にスクロール） */
 function RecordsTable({ part, exercises, sets }: { part: BodyPart; exercises: Exercise[]; sets: SetRecord[] }) {
+  const bodyweight = useSetting('bodyweight', 0) ?? 0;
   const rows = useMemo(
     () =>
       exercises
         .filter((e) => e.bodyPart === part && !e.archived)
-        .map((e) => ({ exercise: e, best: bestSummary(e, sets.filter((s) => s.exerciseId === e.id)) }))
+        .map((e) => ({ exercise: e, best: bestSummary(e, sets.filter((s) => s.exerciseId === e.id)), rank: rankOf(e, sets, bodyweight)?.index ?? null }))
         .sort((a, b) => Number(!!b.best) - Number(!!a.best)),
-    [part, exercises, sets],
+    [part, exercises, sets, bodyweight],
   );
   return (
     <div className="flex h-[20rem] flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -80,7 +95,7 @@ function RecordsTable({ part, exercises, sets }: { part: BodyPart; exercises: Ex
         <span className="text-right">最高記録 / 推定1RM・平均ペース</span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        {rows.map(({ exercise, best }) => {
+        {rows.map(({ exercise, best, rank }) => {
           // 最近、持った重量（ランニングは距離）を更新 → 金色のトロフィー、それ以外（回数・1RM・ペース）の更新 → 青い光
           const recent = best && daysSince(best.weightDate) < RECENT_DAYS ? 'weight' : best && daysSince(best.latest) < RECENT_DAYS ? 'rm' : null;
           return (
@@ -91,6 +106,8 @@ function RecordsTable({ part, exercises, sets }: { part: BodyPart; exercises: Ex
                 recent === 'weight' ? 'bg-amber-50/70' : recent === 'rm' ? 'bg-sky-50/70' : ''
               }`}
             >
+              {/* 種目のランク（ランクのない種目は同じ幅の空き） */}
+              {rank !== null ? <Emblem tier={rank} size={22} /> : <span className="w-[22px] shrink-0" />}
               <div className="min-w-0 flex-1">
                 <div className="truncate font-bold">
                   {recent === 'weight' && <Trophy className="mr-1 inline h-4 w-4 align-[-2px] text-amber-500" />}
