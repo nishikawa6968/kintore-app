@@ -5,6 +5,7 @@ import { nextRunGoals, nextWeightGoals } from './goals';
 import { platesFor } from './plates';
 import { monthReport, shiftMonth } from './report';
 import { activeDays, weekOf, weeklySummary } from './streak';
+import { exerciseListText } from './exerciseList';
 
 let nextId = 1;
 const set = (date: string, weight: number, reps: number, exerciseId = 1, order = 0): SetRecord => ({
@@ -175,5 +176,21 @@ describe('月間レポート', () => {
   it('月をまたいで前後へ移れる', () => {
     expect(shiftMonth('2026-01', -1)).toBe('2025-12');
     expect(shiftMonth('2026-12', 1)).toBe('2027-01');
+  });
+});
+
+describe('種目名の書き出し', () => {
+  it('部位ごとに、並べ替えた順で、固定・非表示・記録の数も付けて書き出す', () => {
+    const exercises: Exercise[] = [
+      { id: 1, name: 'ベンチプレス', bodyPart: 'chest', builtin: 'bench', archived: false, order: 0 },
+      { id: 3, name: 'ダンベルフライ', bodyPart: 'chest', archived: true, order: 2 },
+      { id: 2, name: 'ダンベルプレス', bodyPart: 'chest', archived: false, order: 1 },
+      { id: 4, name: 'ランニング', bodyPart: 'leg', kind: 'cardio', builtin: 'running', archived: false, order: 0 },
+    ];
+    const text = exerciseListText(exercises, [set('2026-10-01', 60, 5, 1), set('2026-10-02', 60, 5, 1)], '2026/10/12');
+    expect(text).toContain('全4種目');
+    expect(text).toContain('■ 肩（0種目）\n  （なし）');
+    expect(text).toContain('■ 胸（3種目）\n- ベンチプレス【固定】（記録 2セット）\n- ダンベルプレス\n- ダンベルフライ【非表示】');
+    expect(text).toContain('- ランニング【固定・距離×時間】');
   });
 });

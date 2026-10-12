@@ -10,6 +10,8 @@ import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
 import { useData, useSetting } from '../lib/useData';
 import { DEFAULT_WEEK_START } from '../lib/streak';
 import { DEFAULT_THEME, THEMES } from '../lib/themes';
+import { exerciseListText } from '../lib/exerciseList';
+import { shareOrDownload } from '../lib/share';
 import { neighborPart, useSlideDirection } from '../lib/useSwipe';
 import { SwipePager } from '../components/SwipePager';
 import { bodyPartLabel, type BodyPart, type Exercise } from '../types';
@@ -100,6 +102,13 @@ export function SettingsPage() {
     a.download = `kintore-backup-${format(new Date(), 'yyyyMMdd')}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
+  };
+
+  /** 登録している全種目の名前を、部位ごとのテキストにして共有する */
+  const exportExerciseNames = () => {
+    if (!data) return;
+    const now = new Date();
+    shareOrDownload(`kintore-exercises-${format(now, 'yyyyMMdd')}.txt`, exerciseListText(data.exercises, data.sets, format(now, 'yyyy/MM/dd')));
   };
 
   const restore = async (file: File) => {
@@ -230,9 +239,13 @@ export function SettingsPage() {
                 <div className="font-bold text-brand-600">データを書き出す</div>
                 <div className="text-xs text-gray-400">全記録をJSONファイルで保存します（{data.sets.length}セット）</div>
               </button>
-              <button onClick={() => fileRef.current?.click()} className="w-full px-4 py-3.5 text-left active:bg-gray-50">
+              <button onClick={() => fileRef.current?.click()} className="w-full border-b border-gray-100 px-4 py-3.5 text-left active:bg-gray-50">
                 <div className="font-bold text-brand-600">データを読み込む</div>
                 <div className="text-xs text-gray-400">書き出したファイルから復元します（今のデータは置き換え）</div>
+              </button>
+              <button onClick={exportExerciseNames} className="w-full px-4 py-3.5 text-left active:bg-gray-50">
+                <div className="font-bold text-brand-600">種目名を書き出す</div>
+                <div className="text-xs text-gray-400">全{data.exercises.length}種目を、部位ごとの一覧（テキスト）にして共有します</div>
               </button>
               <input
                 ref={fileRef}
