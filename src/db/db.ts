@@ -100,6 +100,16 @@ export async function addRun(exerciseId: number, date: string, distance: number,
   return db.sets.add({ exerciseId, date, weight: 0, reps: 0, distance, duration, order, createdAt: Date.now() } as SetRecord);
 }
 
+/** 種目と、その種目の記録をすべて消す（アプリ固定の種目は消さない） */
+export async function deleteExercise(id: number) {
+  await db.transaction('rw', db.exercises, db.sets, async () => {
+    const ex = await db.exercises.get(id);
+    if (!ex || ex.builtin) return;
+    await db.sets.where('exerciseId').equals(id).delete();
+    await db.exercises.delete(id);
+  });
+}
+
 /** その日を体操の日にする／取り消す */
 export async function setGymnasticsDay(date: string, on: boolean) {
   if (on) await db.days.put({ date, kind: 'gymnastics' });

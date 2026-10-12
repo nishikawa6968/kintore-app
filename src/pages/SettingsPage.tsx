@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { db, exportData, importData, setSetting, type BackupData } from '../db/db';
+import { db, deleteExercise, exportData, importData, setSetting, type BackupData } from '../db/db';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { BodyPartTabs } from '../components/BodyPartTabs';
 import { ExerciseSheet } from '../components/ExerciseSheet';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Lock, Plus } from '../components/Icons';
+import { ChevronDown, ChevronRight, ChevronUp, Eye, EyeOff, Lock, Plus, Trash } from '../components/Icons';
 import { Header, Loading, ScrollArea, TabPage } from '../components/Layout';
 import { useData, useSetting } from '../lib/useData';
 import { DEFAULT_WEEK_START } from '../lib/streak';
@@ -17,6 +18,8 @@ export function SettingsPage() {
   const data = useData();
   const [part, setPart] = useState<BodyPart>('chest');
   const [editing, setEditing] = useState<Exercise | 'new' | null>(null);
+  // 削除しようとしている種目（確認の画面を出す）
+  const [deleting, setDeleting] = useState<Exercise | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   // 種目の管理は、いつもは閉じておく
   const [manageOpen, setManageOpen] = useState(false);
@@ -30,7 +33,7 @@ export function SettingsPage() {
   // 種目の表を切り替えた向き（入ってくる向き）
   const slide = useSlideDirection(part);
 
-  /** 部位の種目の表（名前で編集・目のアイコンで隠す・矢印で並べ替え） */
+  /** 部位の種目の表（名前で編集・ゴミ箱で削除・目のアイコンで隠す・矢印で並べ替え） */
   const renderList = (p: BodyPart) => {
     const list = listOf(p);
     return (
@@ -39,29 +42,37 @@ export function SettingsPage() {
           <li key={ex.id} className="flex items-center border-b border-gray-100 pl-4 last:border-0">
             {ex.builtin ? (
               // アプリ固定の種目（BIG3・ランニング）は名前・部位を変えられない
-              <div className={`flex flex-1 items-center gap-1.5 py-3 ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+              <div className={`flex min-w-0 flex-1 items-center gap-1.5 py-3 ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
                 {ex.name}
                 <Lock width={14} height={14} className="text-gray-300" aria-label="固定の種目" />
               </div>
             ) : (
-              <button onClick={() => setEditing(ex)} className={`flex-1 py-3 text-left ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
+              <button onClick={() => setEditing(ex)} className={`min-w-0 flex-1 py-3 text-left leading-snug ${ex.archived ? 'text-gray-300 line-through' : ''}`}>
                 {ex.name}
+              </button>
+            )}
+            {/* 固定の種目は消せないので、ゴミ箱の代わりに同じ幅の空きを置いて並びをそろえる */}
+            {ex.builtin ? (
+              <span className="w-9 shrink-0" />
+            ) : (
+              <button onClick={() => setDeleting(ex)} className="shrink-0 p-2 text-gray-400 active:text-rose-500" aria-label="削除">
+                <Trash width={20} height={20} />
               </button>
             )}
             <button
               onClick={() => db.exercises.update(ex.id, { archived: !ex.archived })}
-              className="p-2.5 text-gray-400 active:text-brand-500"
+              className="shrink-0 p-2 text-gray-400 active:text-brand-500"
               aria-label={ex.archived ? '表示する' : '非表示にする'}
             >
               {ex.archived ? <EyeOff width={20} height={20} /> : <Eye width={20} height={20} />}
             </button>
-            <button onClick={() => move(list, i, -1)} disabled={i === 0} className="p-2.5 text-gray-400 disabled:opacity-20" aria-label="上へ">
+            <button onClick={() => move(list, i, -1)} disabled={i === 0} className="shrink-0 p-2 text-gray-400 disabled:opacity-20" aria-label="上へ">
               <ChevronUp width={20} height={20} />
             </button>
             <button
               onClick={() => move(list, i, 1)}
               disabled={i === list.length - 1}
-              className="p-2.5 pr-3 text-gray-400 disabled:opacity-20"
+              className="shrink-0 p-2 pr-3 text-gray-400 disabled:opacity-20"
               aria-label="下へ"
             >
               <ChevronDown width={20} height={20} />
@@ -253,6 +264,31 @@ export function SettingsPage() {
           </div>
         )}
         </>
+      )}
+      {deleting && (
+        <ConfirmDialog
+          title="本当に削除しますか？"
+          confirmLabel="はい、削除する"
+          danger
+          onCancel={() => setDeleting(null)}
+          onConfirm={async () => {
+            await deleteExercise(deleting.id);
+            setDeleting(null);
+          }}
+        >
+          「<span className="font-bold text-gray-800">{deleting.name}</span>」を削除します。
+          {(() => {
+            const n = data?.sets.filter((s) => s.exerciseId === deleting.id).length ?? 0;
+            return n > 0 ? (
+              <>
+                <br />
+                この種目の記録（<span className="font-bold text-rose-500">{n}セット</span>）もすべて消え、元に戻せません。
+              </>
+            ) : null;
+          })()}
+          <br />
+          <span className="text-xs">記録を残したいときは、目のアイコンで隠してください。</span>
+        </ConfirmDialog>
       )}
       {editing && (
         <ExerciseSheet initial={editing === 'new' ? undefined : editing} defaultPart={part} onClose={() => setEditing(null)} />

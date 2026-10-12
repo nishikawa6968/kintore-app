@@ -7,7 +7,7 @@ import { BestCard } from '../../components/BestCard';
 import { BodyPartTabs } from '../../components/BodyPartTabs';
 import { RecordBadge } from '../../components/RecordBadge';
 import { Emblem } from '../../components/Emblem';
-import { ChevronRight, Eye, EyeOff, Lock, Plus } from '../../components/Icons';
+import { ChevronRight, Eye, EyeOff, Lock, Plus, Trash } from '../../components/Icons';
 import { MonthCalendar } from '../../components/MonthCalendar';
 import { NumberStepper } from '../../components/NumberStepper';
 import { SwipePager } from '../../components/SwipePager';
@@ -686,26 +686,43 @@ export function RankDemo() {
 /* ---------- 種目の管理 ---------- */
 
 export function ManageDemo() {
-  const hidden = useTicker(2, 2000) === 1;
+  // 0：目を押す → 1：隠れる → 2：ゴミ箱を押す → 3：確認の画面
+  const step = useTicker(4, 1700);
   const rows = [
     { name: 'ベンチプレス', locked: true, hidden: false },
     { name: 'ダンベルプレス', locked: false, hidden: false },
-    { name: 'ダンベルフライ', locked: false, hidden },
+    { name: 'ダンベルフライ', locked: false, hidden: step === 1 },
   ];
+  const caption = ['目のアイコンで隠す（記録は消えない）', '隠した種目は、記録の画面に出なくなる', 'ゴミ箱で削除（鍵マークの種目は消せない）', '確認の画面で「はい」を押すと消える'][step];
   return (
-    <DemoBox caption={hidden ? '目のアイコンで隠す（記録は消えない）' : '鍵マークはアプリ固定の種目'}>
-      <ul className="relative mx-auto w-64 overflow-hidden rounded-xl bg-white text-sm shadow-sm">
-        {rows.map((r) => (
-          <li key={r.name} className="flex items-center border-b border-gray-100 py-2 pr-2 pl-3 last:border-0">
-            <span className={`flex flex-1 items-center gap-1 ${r.hidden ? 'text-gray-300 line-through' : ''}`}>
-              {r.name}
-              {r.locked && <Lock width={12} height={12} className="text-gray-300" />}
-            </span>
-            <span className="text-gray-400">{r.hidden ? <EyeOff width={18} height={18} /> : <Eye width={18} height={18} />}</span>
-          </li>
-        ))}
-        <Finger x={91} y={83} />
-      </ul>
+    <DemoBox caption={caption}>
+      <div className="relative mx-auto w-64">
+        <ul className="overflow-hidden rounded-xl bg-white text-sm shadow-sm">
+          {rows.map((r) => (
+            <li key={r.name} className="flex items-center gap-2 border-b border-gray-100 py-2 pr-2 pl-3 last:border-0">
+              <span className={`flex flex-1 items-center gap-1 ${r.hidden ? 'text-gray-300 line-through' : ''}`}>
+                {r.name}
+                {r.locked && <Lock width={12} height={12} className="text-gray-300" />}
+              </span>
+              {r.locked ? <span className="w-[18px]" /> : <Trash width={18} height={18} className="text-gray-400" />}
+              <span className="text-gray-400">{r.hidden ? <EyeOff width={18} height={18} /> : <Eye width={18} height={18} />}</span>
+            </li>
+          ))}
+        </ul>
+        {step === 0 && <Finger x={92} y={83} />}
+        {step === 2 && <Finger x={80} y={50} />}
+        {step === 3 && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
+            <div className="dialog-pop w-48 rounded-2xl bg-white p-3 text-center">
+              <div className="text-xs font-black">本当に削除しますか？</div>
+              <div className="mt-2 flex gap-1.5 text-[10px] font-bold">
+                <span className="flex-1 rounded-lg bg-gray-100 py-1.5 text-gray-600">いいえ</span>
+                <span className="flex-1 rounded-lg bg-rose-500 py-1.5 text-white">はい</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </DemoBox>
   );
 }
