@@ -1,12 +1,12 @@
 """
 参考画像（体の前と後ろの筋肉図）の人を、腕を太くして足を閉じたポーズに組み替えてなぞる。
 - src/illustrations/bodyShapes.ts：腕を体から30度離したポーズの前と後ろ（アプリ内の人の図）
-- src/illustrations/iconShapes.ts：腕を真横に上げた T ポーズの前（アプリアイコン）
+- src/illustrations/iconShapes.ts：腕を真横に上げた T ポーズの前（アプリアイコン・開くときの画面）
 
 使い方：PYTHONPATH=scripts python3 scripts/make-tpose.py <参考画像のパス> [確認用PNGの出力先フォルダ] [脚の寄せ方 0〜1]
 
 前と後ろそれぞれを胴体・両腕・両脚に切り分け、腕は肩を軸に真横へ回して太く（特に肩）し、
-脚は足先を内側に寄せる（アプリ内の図は、脚の間にすき間が残る程度）。筋肉ごとの番号（どの部位か）も同じように動かして、組み替えた後も
+脚は足先を内側に寄せる（脚の間にすき間が少し残る程度）。筋肉ごとの番号（どの部位か）も同じように動かして、組み替えた後も
 部位が分かるようにする。参考画像そのものはリポジトリに入れない。
 """
 import math
@@ -222,8 +222,8 @@ def write_body(path, arm_deg, debug_name, leg_close):
     return {n: sorted({p for p, _ in t[2]}) for n, t in traced.items()}
 
 
-def write_icon(path):
-    rgb, lab_t = build_view(VIEWS['front'], 90)
+def write_icon(path, leg_close):
+    rgb, lab_t = build_view(VIEWS['front'], 90, leg_close)
     if debug_dir:
         rgb.save(f'{debug_dir}/icon-front.png')
     base, hair, regions, (ox, oy), w, h = trace_view(rgb, lab_t)
@@ -236,7 +236,7 @@ def write_icon(path):
     return len(regions)
 
 
-# アプリ内の人の図は、脚の間に少しすき間を残す（アイコンは脚を閉じた T ポーズのまま）
-LEG_CLOSE = float(sys.argv[3]) if len(sys.argv) > 3 else 0.45
+# 人の図（アプリ内・アイコン・開くときの画面）は、脚の間に少しすき間を残す
+LEG_CLOSE = float(sys.argv[3]) if len(sys.argv) > 3 else 0.6
 print('body', write_body('src/illustrations/bodyShapes.ts', 30, 'body', LEG_CLOSE))
-print('icon muscles', write_icon('src/illustrations/iconShapes.ts'))
+print('icon muscles', write_icon('src/illustrations/iconShapes.ts', LEG_CLOSE))
