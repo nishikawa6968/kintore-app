@@ -6,6 +6,7 @@ import { platesFor } from './plates';
 import { monthReport, shiftMonth } from './report';
 import { activeDays, weekOf, weeklySummary } from './streak';
 import { exerciseListText } from './exerciseList';
+import { pyramidSets } from './pyramid';
 
 let nextId = 1;
 const set = (date: string, weight: number, reps: number, exerciseId = 1, order = 0): SetRecord => ({
@@ -195,5 +196,16 @@ describe('種目名の書き出し', () => {
     expect(text).toContain('- ランニング【固定・距離×時間】〔ランク —〕');
     expect(exerciseListText([{ id: 9, name: 'プランク', bodyPart: 'abs', archived: false, order: 0 }], [], 'x')).toContain('- プランク〔ランク基準なし〕');
     expect(exerciseListText(exercises, [set('2026-10-01', 70, 5, 1)], 'x', 70)).toContain('- ベンチプレス【固定】（記録 1セット）〔ランク 初級者〕');
+  });
+});
+
+describe('新記録を狙うメニュー（逆ピラミッド）', () => {
+  it('100kg を狙うと 75×5・80×4・85×3・90×2・100×1', () => {
+    expect(pyramidSets(100).map((s) => `${s.weight}×${s.reps}`)).toEqual(['75×5', '80×4', '85×3', '90×2', '100×1']);
+  });
+
+  it('重さはプレートで組める 2.5kg 刻み、軽い重さは 1kg 刻みに丸める', () => {
+    expect(pyramidSets(82.5).map((s) => s.weight)).toEqual([62.5, 65, 70, 75, 82.5]);
+    expect(pyramidSets(16).map((s) => s.weight)).toEqual([12, 13, 14, 14, 16]);
   });
 });

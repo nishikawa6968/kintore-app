@@ -12,6 +12,7 @@ import {
   GoalDemo,
   GymDemo,
   ExerciseRankDemo,
+  PyramidDemo,
   ManageDemo,
   OverviewDemo,
   PlateDemo,
@@ -108,6 +109,10 @@ export function HelpPage() {
             <li>記録の画面の「次の目標」に、記録を更新するための重さと回数が出ます。</li>
             <li>「炎を狙う」は今までで一番重い重さ＋2.5kg、「青を狙う」はいつもの重さで回数を増やす目標です。</li>
             <li>押すと、その重さと回数のセットが入ります。</li>
+          </List>
+          <PyramidDemo />
+          <List>
+            <li>「新記録を狙う」を押して狙う重さを入れると、75%×5回 → 80%×4回 → 85%×3回 → 90%×2回 → 100%×1回 のメニューがまとめて入ります（95% はとばします）。</li>
           </List>
         </Section>
 

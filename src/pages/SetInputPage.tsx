@@ -8,6 +8,7 @@ import { RestTimer } from '../components/RestTimer';
 import { RunRow } from '../components/RunRow';
 import { SetRow } from '../components/SetRow';
 import { NextGoals } from '../components/NextGoals';
+import { PRPyramidButton } from '../components/PRPyramid';
 import { daysAgoLabel, slashDate } from '../lib/date';
 import {
   chronological,
@@ -122,6 +123,10 @@ export function SetInputPage() {
 
       <ScrollArea ref={scrollRef} className="space-y-3">
         {exercise && <NextGoals sets={all} cardio={cardio} exercise={exercise} date={date} />}
+        {/* 重さの種目だけ（自重の種目は重さがないので出さない） */}
+        {!cardio && (computeBest(all)?.maxWeight ?? 0) > 0 && (
+          <PRPyramidButton exerciseId={exerciseId} date={date} maxWeight={computeBest(all)!.maxWeight} />
+        )}
         {prevDate && (
           <div className="rounded-2xl bg-gray-200/70 px-4 py-3">
             <div className="mb-1 flex items-center">

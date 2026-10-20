@@ -17,6 +17,7 @@ import { Medal } from '../../components/Medal';
 import { Barbell } from '../../components/PlateView';
 import { LEVELS, LEVEL_COLORS } from '../../lib/big3';
 import { themeOf } from '../../lib/themes';
+import { PYRAMID_STEPS, pyramidSets } from '../../lib/pyramid';
 import { fmtDuration, fmtKm, fmtPace } from '../../lib/records';
 import { RatioBar } from '../Big3Page';
 import { LIGHT_COLORS } from '../Big3TiersPage';
@@ -1022,6 +1023,33 @@ export function ExerciseRankDemo() {
             <span className="font-bold text-gray-500">次：{st.next}</span>
           </div>
         </div>
+      </div>
+    </DemoBox>
+  );
+}
+
+/* ---------- 新記録を狙うメニュー（逆ピラミッド） ---------- */
+
+export function PyramidDemo() {
+  const shown = useTicker(PYRAMID_STEPS.length + 2, 700);
+  const sets = pyramidSets(100);
+  return (
+    <DemoBox caption="狙う重さ（100kg）を入れると、軽い重さから順にセットが入る">
+      <div className="space-y-1">
+        {sets.map((s, i) => {
+          const last = s.pct === 100;
+          return (
+            <div
+              key={s.pct}
+              className={`mx-auto flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm tabular-nums transition-opacity duration-300 ${last ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' : 'bg-white text-gray-700 shadow-sm'}`}
+              style={{ width: `${100 - i * 8}%`, opacity: i < shown ? 1 : 0.15 }}
+            >
+              <span className={`w-10 text-[11px] font-bold ${last ? 'text-white/90' : 'text-orange-500'}`}>{s.pct}%</span>
+              <span className="flex-1 text-center font-black">{s.weight}kg</span>
+              <span className="font-black">× {s.reps}回</span>
+            </div>
+          );
+        })}
       </div>
     </DemoBox>
   );

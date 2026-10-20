@@ -48,7 +48,8 @@ export const STANDARDS_CATALOG: ExerciseStandard[] = [
   { key: 'arm-curl', names: ['アームカール', 'アームカール（片腕ずつ）', 'ダンベルカール'], bodyPart: 'arm', kind: 'weight', reps: 10, values: [5, 9, 14, 20, 27], note: DB },
   { key: 'hammer-curl', names: ['ハンマーカール'], bodyPart: 'arm', kind: 'weight', reps: 10, values: [6, 10, 15, 22, 28], note: DB },
   { key: 'triceps-extension', names: ['トライセプスエクステンション'], bodyPart: 'arm', kind: 'weight', reps: 10, values: [7, 12, 19, 28, 38], note: 'ダンベル1つを両手で持った重さ' },
-  { key: 'pushdown', names: ['ケーブルプッシュダウン', 'プッシュダウン'], bodyPart: 'arm', kind: 'weight', reps: 10, values: [16, 25, 36, 50, 65], note: 'ケーブルの重さ' },
+  // 両手で1本のケーブルを引き、ジムのケーブルは表示の重さより軽く感じることが多いので、高めの基準にする
+  { key: 'pushdown', names: ['ケーブルプッシュダウン', 'プッシュダウン'], bodyPart: 'arm', kind: 'weight', reps: 10, values: [25, 45, 65, 90, 120], note: 'ケーブルの重さ（両手で1本）' },
   { key: 'wrist-curl', names: ['リストカール'], bodyPart: 'arm', kind: 'weight', reps: 12, values: [6, 10, 15, 22, 30], note: DB },
 
   // 背中
